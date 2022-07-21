@@ -1,7 +1,6 @@
 package com.modak.modakapp.service;
 
 import com.modak.modakapp.domain.Family;
-import com.modak.modakapp.domain.User;
 import com.modak.modakapp.repository.FamilyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ public class FamilyService {
 
     private final FamilyRepository familyRepository;
 
-    public int join(Family family){
+    public Long join(Family family){
         familyRepository.save(family);
         return family.getId();
     }

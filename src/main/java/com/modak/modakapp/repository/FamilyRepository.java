@@ -1,7 +1,6 @@
 package com.modak.modakapp.repository;
 
 import com.modak.modakapp.domain.Family;
-import com.modak.modakapp.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

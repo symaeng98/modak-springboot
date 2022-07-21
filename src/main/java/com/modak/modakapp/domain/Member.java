@@ -3,6 +3,7 @@ package com.modak.modakapp.domain;
 import com.modak.modakapp.BaseTimeEntity;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,11 +12,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
-@Table(name = "Users")
-public class User extends BaseTimeEntity {
+@Builder
+@NoArgsConstructor
+public class Member extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private int id;
+    @Column(name = "member_id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")
@@ -60,6 +62,25 @@ public class User extends BaseTimeEntity {
 
     private LocalDateTime deletedAt;
 
+
+    @Builder
+    public Member(Long id, Family family, String name, int is_lunar, LocalDate birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, LocalDateTime chatLastJoined, int chatNowJoining, LocalDateTime deletedAt) {
+        this.id = id;
+        this.family = family;
+        this.name = name;
+        this.is_lunar = is_lunar;
+        this.birthday = birthday;
+        this.profileImageUrl = profileImageUrl;
+        this.role = role;
+        this.color = color;
+        this.refreshToken = refreshToken;
+        this.fcmToken = fcmToken;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.chatLastJoined = chatLastJoined;
+        this.chatNowJoining = chatNowJoining;
+        this.deletedAt = deletedAt;
+    }
 
 
 }
