@@ -21,6 +21,12 @@ public class MemberRepository {
         return em.find(Member.class, id);
     }
 
+    public Member findOneByProviderId(String providerId){
+        return em.createQuery("select m from Member m where m.providerId =:providerId", Member.class)
+                .setParameter("providerId",providerId)
+                .getSingleResult();
+    }
+
     public List<Member> findAll(){
         return em.createQuery("select m from Member m", Member.class)
                 .getResultList();
@@ -29,5 +35,7 @@ public class MemberRepository {
     public void setRefreshToken(Member member, String refreshToken){
         member.setRefreshToken(refreshToken);
     }
+
+
 
 }

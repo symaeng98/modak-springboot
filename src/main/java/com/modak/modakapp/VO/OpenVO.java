@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class LoginMemberVO {
-    private String provider;
-    private String providerId;
+public class OpenVO {
+
+    private String accessToken;
+    private String refreshToken;
+
 }

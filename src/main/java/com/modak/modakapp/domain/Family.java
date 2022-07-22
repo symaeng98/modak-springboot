@@ -1,6 +1,7 @@
 package com.modak.modakapp.domain;
 
 import com.modak.modakapp.BaseTimeEntity;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,4 +28,11 @@ public class Family extends BaseTimeEntity {
     @OneToMany(mappedBy = "family")
     private List<Member> members = new ArrayList<>();
 
+    @Builder
+    public Family(Long id, String name, LocalDateTime deletedAt, List<Member> members) {
+        this.id = id;
+        this.name = name;
+        this.deletedAt = deletedAt;
+        this.members = members;
+    }
 }

@@ -1,6 +1,7 @@
 package com.modak.modakapp.controller;
 
 import com.modak.modakapp.VO.LoginMemberVO;
+import com.modak.modakapp.VO.OpenVO;
 import com.modak.modakapp.VO.SignUpMemberVO;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Provider;
@@ -10,6 +11,7 @@ import com.modak.modakapp.repository.MemberRepository;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TokenServiceImpl;
+import com.modak.modakapp.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,6 +36,7 @@ public class MemberController {
     private final TokenServiceImpl tokenService;
 
     private final HttpServletResponse servletResponse;
+    private final JwtUtil jwtUtil;
 
 
     @PostMapping("/new")
@@ -52,30 +55,14 @@ public class MemberController {
         // 생일 로직
         // sdfsd
         member.setBirthday(LocalDate.now());
-        // Role
-        if(signUpMemberVO.getRole().equals("DAD")){
-            member.setRole(Role.DAD);
-        }
-        else if(signUpMemberVO.getRole().equals("MOM")){
-            member.setRole(Role.MOM);
-        }
-        else if(signUpMemberVO.getRole().equals("SON")){
-            member.setRole(Role.SON);
-        }
-        else{
-            member.setRole(Role.DAU);
-        }
+
+        member.setRole(Role.valueOf(signUpMemberVO.getRole()));
 
         // Provider
-        if(signUpMemberVO.getProvider().equals("KAKAO")){
-            member.setProvider(Provider.KAKAO);
-        }
-        else{
-            member.setProvider(Provider.APPLE);
-        }
+        member.setProvider(Provider.valueOf(signUpMemberVO.getProvider()));
 
         // ProviderId
-        member.setProviderId("프로바이더 아이디임ㅋ");
+        member.setProviderId(signUpMemberVO.getProviderId());
 
         // chatLastJoined
         member.setChatLastJoined(LocalDateTime.now());
@@ -84,7 +71,7 @@ public class MemberController {
         member.setChatNowJoining(0);
 
         // Refresh Token
-        member.setRefreshToken("리프레시임ㅋ");
+        member.setRefreshToken("refresh");
 
         // FCM Token
         member.setFcmToken("FCM임ㅋ");
@@ -93,24 +80,21 @@ public class MemberController {
         Long memberId = memberService.join(member);
         Member findMember = memberRepository.findOne(memberId);
 
-
-        System.out.println(memberId);
-        System.out.println("wiwiww");
-
         // 회원 생성이 완료된 경우
-        String accessToken = tokenService.getAccessToken(memberId);
-        String refreshToken = tokenService.getRefreshToken(memberId);
+        String accessToken = tokenService.getAccessToken(memberId.toString());
+        String refreshToken = tokenService.getRefreshToken(memberId.toString());
 
         findMember.setRefreshToken(refreshToken);
         memberService.join(member);
 
-        servletResponse.setHeader("Authorization", "Bearer " + accessToken+"그리고"+refreshToken);
+        servletResponse.setHeader("ACCESS_TOKEN", "Bearer " + accessToken);
+        servletResponse.setHeader("REFRESH_TOKEN", "Bearer " + refreshToken);
         log.info("woi 저장 완료");
 
         return "woi";
     }
 
-//    @PostMapping("/login")
+//    @PostMapping("/new")
 //    public ResponseEntity<?> signUp(@RequestBody LoginMemberVO request, HttpServletResponse servletResponse) {
 ////        if(request.getMemberId().length() < 1) {
 ////            throw new NoCreateMemberException("잘못된 회원아이디입니다.", NbbangException.NO_CREATE_MEMBER);
@@ -127,5 +111,32 @@ public class MemberController {
 //                .body(CommonSuccessResponse.response(true, MemberLoginInfoResponse.create(savedMember), "회원가입에 성공했습니다."));
 //
 //    }
+
+    @PostMapping("/login")
+    public ResponseEntity login(@RequestBody LoginMemberVO loginMemberVO){
+        String providerId = loginMemberVO.getProviderId();
+        Member findMember = memberService.findMemberByProviderId(providerId);
+        if(findMember!=null){
+            System.out.println("oh yeah");
+        }
+        else{
+            System.out.println("nonononononono");
+        }
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity reissue(@RequestBody OpenVO openVO){
+        String accessToken = openVO.getAccessToken();
+
+        if(!jwtUtil.isTokenExpired(accessToken)){
+            System.out.println("로그인 성공");
+            return ResponseEntity.ok(HttpStatus.OK);
+        }
+
+        String newAccessToken = tokenService.reissueToken(accessToken);
+        servletResponse.setHeader("ACCESS_TOKEN", "Bearer " + newAccessToken);
+        return ResponseEntity.ok("토큰 발급");
+    }
 
 }

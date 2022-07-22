@@ -61,7 +61,7 @@ public class JwtUtil {
 
 
     // Token 생성 메소드
-    private String generateToken(Long memberId, long expireSecond) {
+    private String generateToken(String memberId, long expireSecond) {
         Claims claims = Jwts.claims();
         claims.put("memberId", memberId);       // JWT 토큰 페이로드에 회원 아이디 추가
 
@@ -76,12 +76,12 @@ public class JwtUtil {
     }
 
     // RefreshToken 생성
-    public String generateRefreshToken(Long memberId) {
+    public String generateRefreshToken(String memberId) {
         return generateToken(memberId, REFRESH_TOKEN_VALIDATION_SECOND);
     }
 
     // AccesssToken 생성
-    public String generateAccessToken(Long memberId) {
+    public String generateAccessToken(String memberId) {
         return generateToken(memberId, TOKEN_VALIDATION_SECOND);
     }
 
@@ -90,10 +90,6 @@ public class JwtUtil {
         return extractAllClaims(token).get("memberId", String.class);
     }
 
-    // 발췌한 페이로드에서 nickname 추출
-//    public String getNickname(String token) {
-//        return extractAllClaims(token).get("nickname", String.class);
-//    }
 
     /**
      *  JWT Payload에 담는 정보의 한 '조각'을 Claim이라 한다.
