@@ -17,6 +17,10 @@ import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.Jwt.TokenService;
 import com.modak.modakapp.Jwt.JwtUtil;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -46,8 +50,9 @@ public class MemberApiController {
 
     private final String TOKEN_HEADER = "Bearer ";
 
+    @ApiOperation(value = "회원 가입")
     @PostMapping("/member/new")
-    public ResponseEntity create(@RequestBody SignUpMemberVO signUpMemberVO){
+    public ResponseEntity create(@RequestBody @ApiParam(value = "회원 기본 정보",required = true) SignUpMemberVO signUpMemberVO){
         Family family = new Family();
         family.setName("행복한 우리 가족");
         Long joinFamilyId = familyService.join(family);
@@ -100,7 +105,7 @@ public class MemberApiController {
 
 
     @PostMapping("/member/login")
-    public ResponseEntity<?> login(@RequestBody LoginMemberVO loginMemberVO){
+    public ResponseEntity<?> login(@RequestBody @ApiParam(value = "Provider, ProviderId",required = true) LoginMemberVO loginMemberVO){
         String providerId = loginMemberVO.getProviderId();
         try{
             Member findMember = memberService.findMemberByProviderId(providerId);
@@ -124,8 +129,12 @@ public class MemberApiController {
      * @return accessToken
      * accessToken이 만료되었다는 가정 하에 refreshToken이 만료되지 않았다면 accessToken 발급
      */
+    @ApiResponses({
+            @ApiResponse(code=200, message = "서버는 잘 동작했음 status false면 넘겨주는 값 확인"),
+            @ApiResponse(code=401, message = "Refresh 토큰 만료됨, 재로그인"),
+            })
     @PostMapping("/member/reissue")
-    public ResponseEntity reissue(@RequestBody OpenVO openVO){
+    public ResponseEntity reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰",required = true) OpenVO openVO){
         String accessToken = openVO.getAccessToken();
         try{
             if(!tokenService.isAccessTokenExpired(accessToken)){
