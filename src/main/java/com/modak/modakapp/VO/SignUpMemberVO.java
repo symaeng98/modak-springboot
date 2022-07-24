@@ -3,13 +3,13 @@ package com.modak.modakapp.VO;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Provider;
 import com.modak.modakapp.domain.Role;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Getter
-@NoArgsConstructor
+@Data
 public class SignUpMemberVO {
 
     private String name;

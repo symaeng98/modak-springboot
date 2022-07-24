@@ -1,6 +1,7 @@
 package com.modak.modakapp.repository;
 
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.exception.NoMemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -22,9 +23,13 @@ public class MemberRepository {
     }
 
     public Member findOneByProviderId(String providerId){
-        return em.createQuery("select m from Member m where m.providerId =:providerId", Member.class)
-                .setParameter("providerId",providerId)
-                .getSingleResult();
+        try {
+            return em.createQuery("select m from Member m where m.providerId =:providerId", Member.class)
+                    .setParameter("providerId",providerId)
+                    .getSingleResult();
+        }catch (NoMemberException e) {
+            throw new NoMemberException("등록된 회원 정보가 없습니다.");
+        }
     }
 
     public List<Member> findAll(){
@@ -32,9 +37,6 @@ public class MemberRepository {
                 .getResultList();
     }
 
-    public void setRefreshToken(Member member, String refreshToken){
-        member.setRefreshToken(refreshToken);
-    }
 
 
 

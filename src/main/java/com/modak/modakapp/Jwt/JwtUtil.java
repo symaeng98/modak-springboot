@@ -1,4 +1,4 @@
-package com.modak.modakapp.util;
+package com.modak.modakapp.Jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -61,7 +61,7 @@ public class JwtUtil {
 
 
     // Token 생성 메소드
-    private String generateToken(String memberId, long expireSecond) {
+    private String generateToken(Long memberId, long expireSecond) {
         Claims claims = Jwts.claims();
         claims.put("memberId", memberId);       // JWT 토큰 페이로드에 회원 아이디 추가
 
@@ -76,18 +76,18 @@ public class JwtUtil {
     }
 
     // RefreshToken 생성
-    public String generateRefreshToken(String memberId) {
+    public String generateRefreshToken(Long memberId) {
         return generateToken(memberId, REFRESH_TOKEN_VALIDATION_SECOND);
     }
 
     // AccesssToken 생성
-    public String generateAccessToken(String memberId) {
+    public String generateAccessToken(Long memberId) {
         return generateToken(memberId, TOKEN_VALIDATION_SECOND);
     }
 
     // 발췌한 payload에서 userid 추출
-    public String getMemberId (String token) {
-        return extractAllClaims(token).get("memberId", String.class);
+    public Long getMemberId (String token) {
+        return extractAllClaims(token).get("memberId", Long.class);
     }
 
 

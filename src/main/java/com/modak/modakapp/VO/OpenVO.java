@@ -1,10 +1,10 @@
 package com.modak.modakapp.VO;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
+@Data
 public class OpenVO {
 
     private String accessToken;
