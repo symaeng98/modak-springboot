@@ -52,4 +52,8 @@ public class TokenService {
         // Access Token 유효 여부 판단
         return jwtUtil.isTokenExpired(accessToken);
     }
+
+    public Long getMemberId(String accessToken){
+        return jwtUtil.getMemberId(accessToken);
+    }
 }

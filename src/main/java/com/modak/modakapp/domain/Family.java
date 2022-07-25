@@ -16,8 +16,9 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 public class Family extends BaseTimeEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "family_id")
+
     private Long id;
 
     @Column(length = 20, nullable = false)

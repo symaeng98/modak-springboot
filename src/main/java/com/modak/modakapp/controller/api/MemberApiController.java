@@ -29,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,13 +41,11 @@ import java.time.LocalDateTime;
 public class MemberApiController {
 
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
     private final FamilyService familyService;
 
     private final TokenService tokenService;
 
     private final HttpServletResponse servletResponse;
-    private final JwtUtil jwtUtil;
 
     private final String TOKEN_HEADER = "Bearer ";
 
@@ -64,9 +63,9 @@ public class MemberApiController {
         member.setName(signUpMemberVO.getName());
 
         member.setIs_lunar(signUpMemberVO.getIsLunar());
+
         // 생일 로직
-        // sdfsd
-        member.setBirthday(LocalDate.now());
+        member.setBirthday(signUpMemberVO.getBirthday());
 
         member.setRole(Role.valueOf(signUpMemberVO.getRole()));
 
@@ -86,7 +85,7 @@ public class MemberApiController {
         member.setRefreshToken("refresh");
 
         // FCM Token
-        member.setFcmToken("FCM임ㅋ");
+        member.setFcmToken("FCM임");
 
         // 저장
         Long memberId = memberService.join(member);
@@ -98,13 +97,13 @@ public class MemberApiController {
 
         servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + accessToken);
         servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + refreshToken);
-        log.info("woi 저장 완료");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료",new CreateMemberResponse(memberId,joinFamilyId)));
     }
 
 
-    @PostMapping("/member/login")
+    // 이름 변경
+    @PostMapping("/member/social-login")
     public ResponseEntity<?> login(@RequestBody @ApiParam(value = "Provider, ProviderId",required = true) LoginMemberVO loginMemberVO){
         String providerId = loginMemberVO.getProviderId();
         try{
@@ -117,12 +116,17 @@ public class MemberApiController {
             servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
 
             return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new LoginMemberResponse(memberId)));
+        }catch (NoResultException e){
+            e.printStackTrace();
+            return ResponseEntity.ok(CommonFailResponse.response("회원 정보가 없습니다."));
         }catch (Exception e){
             e.printStackTrace();
         }
         return ResponseEntity.ok(CommonFailResponse.response("로그인 실패"));
     }
 
+
+    // 토큰 로그인 로직 바꾸기
     /**
      *
      * @param openVO accessToken, refreshToken
@@ -133,28 +137,34 @@ public class MemberApiController {
             @ApiResponse(code=200, message = "서버는 잘 동작했음 status false면 넘겨주는 값 확인"),
             @ApiResponse(code=401, message = "Refresh 토큰 만료됨, 재로그인"),
             })
-    @PostMapping("/member/reissue")
+    @PostMapping("/member/token-login")
     public ResponseEntity reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰",required = true) OpenVO openVO){
         String accessToken = openVO.getAccessToken();
-        try{
-            if(!tokenService.isAccessTokenExpired(accessToken)){
-                return ResponseEntity.ok(CommonFailResponse.response("아직 사용 가능"));
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        // bearer
 
-
+//        // 엑세스 검증 로직
+//        try{
+//            if(!tokenService.isAccessTokenExpired(accessToken)){
+//                return ResponseEntity.ok(CommonFailResponse.response("아직 사용 가능"));
+//            }
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
         try {
-            String newAccessToken = tokenService.reissueToken(accessToken);
+            Long memberId = tokenService.getMemberId(accessToken);
+            String newAccessToken = tokenService.getAccessToken(memberId);
+            String newRefreshToken = tokenService.getRefreshToken(memberId);
+            memberService.updateRefreshToken(memberId,newRefreshToken);
             servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
-            return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_TOKEN")));
-        } catch (ExpiredRefreshTokenException e) {
+            servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
+            return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_AND_REFRESH_TOKEN")));
+        } catch (Exception e) {
             // 에러 처리 로직
-            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response(e.getMessage()));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("리프레시 토큰이 유효하지 않습니다. 다시 로그인하세요."));
     }
+
+
     @Data
     @AllArgsConstructor
     static class CreateMemberResponse {

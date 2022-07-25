@@ -9,13 +9,14 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Getter @Setter
 @Builder
 @NoArgsConstructor
 public class Member extends BaseTimeEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "member_id")
     private Long id;
 
@@ -30,7 +31,7 @@ public class Member extends BaseTimeEntity {
     private int is_lunar;
 
     @Column(nullable = false)
-    private LocalDate birthday;
+    private LocalDateTime birthday;
 
     private String profileImageUrl;
 
@@ -64,7 +65,7 @@ public class Member extends BaseTimeEntity {
 
 
     @Builder
-    public Member(Long id, Family family, String name, int is_lunar, LocalDate birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, LocalDateTime chatLastJoined, int chatNowJoining, LocalDateTime deletedAt) {
+    public Member(Long id, Family family, String name, int is_lunar, LocalDateTime birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, LocalDateTime chatLastJoined, int chatNowJoining, LocalDateTime deletedAt) {
         this.id = id;
         this.family = family;
         this.name = name;
