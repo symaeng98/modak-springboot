@@ -1,20 +1,22 @@
 spring:
 #  datasource:
-#    url: jdbc:mysql://localhost:3306/modak-user
+#    url: jdbc:mysql://localhost:3306/modak?tinyInt1isBit=false
 #    username: MODAK_ADMIN
 #    password: 1234
 #  jpa:
 #    hibernate:
-#      ddl-auto: create
+#      ddl-auto: validate
+#    show_sql: true
+
   datasource:
-    url: jdbc:mysql://13.125.121.197:3306/modak
+    url: jdbc:mysql://15.164.86.236:3306/modak?tinyInt1isBit=false
     username: modak-user
     password: 1234
   jpa:
     hibernate:
-      ddl-auto: create
-
+      ddl-auto: validate
     show_sql: true
+
 logging:
   level:
     org.hibernate.SQL: debug

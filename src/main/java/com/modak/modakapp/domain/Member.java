@@ -1,23 +1,28 @@
 package com.modak.modakapp.domain;
 
 import com.modak.modakapp.BaseTimeEntity;
+import com.modak.modakapp.converter.MDFamilyAttributeConverter;
+import com.modak.modakapp.domain.metadata.MDFamily;
+import com.modak.modakapp.domain.metadata.MDTag;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Getter @Setter
 @Builder
 @NoArgsConstructor
+@Table(name = "user")
 public class Member extends BaseTimeEntity {
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "member_id")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,41 +36,54 @@ public class Member extends BaseTimeEntity {
     private int is_lunar;
 
     @Column(nullable = false)
-    private LocalDateTime birthday;
+    private Date birthday;
 
+    @Column(length = 50)
     private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('DAD', 'MOM', 'SON', 'DAU')")
     private Role role; // DAD, MOM, SON, DAU
 
+    @Column(length = 15)
     private String color;
 
     @Column(nullable = false)
     private String refreshToken;
 
-    @Column(nullable = false)
+    @Column(name = "FCM_token",nullable = false)
     private String fcmToken;
 
-    @Column(nullable = false)
+    @Column(nullable = false,columnDefinition = "ENUM('KAKAO','APPLE')")
     @Enumerated(EnumType.STRING)
     private Provider provider;
 
     @Column(nullable = false)
     private String providerId;
 
-    @Column(nullable = false)
-    private LocalDateTime chatLastJoined;
+    @Column(columnDefinition = "TIMESTAMP",nullable = false)
+    private Timestamp chatLastJoined;
 
 
-    @Column(name="chatNowJoining", columnDefinition = "TINYINT", length=1, nullable = false)
+    @Column(name="is_chat_joining", columnDefinition = "TINYINT", length=1, nullable = false)
     private int chatNowJoining;
 
 
-    private LocalDateTime deletedAt;
+    @Column(name = "tag", columnDefinition = "json")
+    @Convert(converter = MDFamilyAttributeConverter.class)
+    private MDTag mdTag;
+
+    @Convert(converter = MDFamilyAttributeConverter.class)
+    @Column(name = "family_name",columnDefinition = "json")
+    private MDFamily mdFamily;
+
+    @Column(columnDefinition = "TIMESTAMP")
+    private Timestamp deletedAt;
 
 
     @Builder
-    public Member(Long id, Family family, String name, int is_lunar, LocalDateTime birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, LocalDateTime chatLastJoined, int chatNowJoining, LocalDateTime deletedAt) {
+
+    public Member(Long id, Family family, String name, int is_lunar, Date birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, Timestamp chatLastJoined, int chatNowJoining, MDTag mdTag, MDFamily mdFamily, Timestamp deletedAt) {
         this.id = id;
         this.family = family;
         this.name = name;
@@ -80,8 +98,8 @@ public class Member extends BaseTimeEntity {
         this.providerId = providerId;
         this.chatLastJoined = chatLastJoined;
         this.chatNowJoining = chatNowJoining;
+        this.mdTag = mdTag;
+        this.mdFamily = mdFamily;
         this.deletedAt = deletedAt;
     }
-
-
 }

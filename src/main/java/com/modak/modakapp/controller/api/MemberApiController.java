@@ -25,14 +25,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletResponse;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,53 +57,36 @@ public class MemberApiController {
     @ApiOperation(value = "회원 가입")
     @PostMapping("/member/new")
     public ResponseEntity create(@RequestBody @ApiParam(value = "회원 기본 정보",required = true) SignUpMemberVO signUpMemberVO){
-        Family family = new Family();
-        family.setName("행복한 우리 가족");
-        Long joinFamilyId = familyService.join(family);
+        try {
+            // 생년월일 포맷 확인
+            Date birthday = new SimpleDateFormat("yyyyMMdd").parse(signUpMemberVO.getBirthday().replace("-",""));
+            java.sql.Date birthdaySqlDate = new java.sql.Date(birthday.getTime());
 
-        Member member = new Member();
+            Family family = Family.builder().name("행복한 우리 가족").build();
+            Long joinFamilyId = familyService.join(family);
 
-        member.setFamily(family);
+            Member member = Member.builder().family(family).name(signUpMemberVO.getName()).is_lunar(signUpMemberVO.getIsLunar())
+                    .birthday(birthdaySqlDate).role(Role.valueOf(signUpMemberVO.getRole()))
+                    .provider(Provider.valueOf(signUpMemberVO.getProvider())).providerId(signUpMemberVO.getProviderId())
+                    .chatLastJoined(Timestamp.valueOf(LocalDateTime.now())).chatNowJoining(0)
+                    .refreshToken("default refresh").fcmToken("default fcm").build();
 
-        member.setName(signUpMemberVO.getName());
+            // 저장
+            Long memberId = memberService.join(member);
 
-        member.setIs_lunar(signUpMemberVO.getIsLunar());
+            String accessToken = tokenService.getAccessToken(memberId);
+            String refreshToken = tokenService.getRefreshToken(memberId);
+            memberService.updateRefreshToken(memberId, refreshToken);
 
-        // 생일 로직
-        member.setBirthday(signUpMemberVO.getBirthday());
+            servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + accessToken);
+            servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + refreshToken);
 
-        member.setRole(Role.valueOf(signUpMemberVO.getRole()));
+            return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, joinFamilyId)));
 
-        // Provider
-        member.setProvider(Provider.valueOf(signUpMemberVO.getProvider()));
-
-        // ProviderId
-        member.setProviderId(signUpMemberVO.getProviderId());
-
-        // chatLastJoined
-        member.setChatLastJoined(LocalDateTime.now());
-
-        // chatNowJoining
-        member.setChatNowJoining(0);
-
-        // Refresh Token
-        member.setRefreshToken("refresh");
-
-        // FCM Token
-        member.setFcmToken("FCM임");
-
-        // 저장
-        Long memberId = memberService.join(member);
-
-        // 회원 생성이 완료된 경우
-        String accessToken = tokenService.getAccessToken(memberId);
-        String refreshToken = tokenService.getRefreshToken(memberId);
-        memberService.updateRefreshToken(memberId,refreshToken);
-
-        servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + accessToken);
-        servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + refreshToken);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료",new CreateMemberResponse(memberId,joinFamilyId)));
+        }catch (ParseException e){
+            e.printStackTrace();
+            return ResponseEntity.ok(CommonFailResponse.response("생년월일 포맷이 yyyy-MM-dd인지 확인하세요"));
+        }
     }
 
 
@@ -116,9 +104,9 @@ public class MemberApiController {
             servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
 
             return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new LoginMemberResponse(memberId)));
-        }catch (NoResultException e){
+        }catch (EmptyResultDataAccessException e){
             e.printStackTrace();
-            return ResponseEntity.ok(CommonFailResponse.response("회원 정보가 없습니다."));
+            return ResponseEntity.ok(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요"));
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -139,7 +127,7 @@ public class MemberApiController {
             })
     @PostMapping("/member/token-login")
     public ResponseEntity reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰",required = true) OpenVO openVO){
-        String accessToken = openVO.getAccessToken();
+        String accessToken = openVO.getAccessToken().substring(7);
         // bearer
 
 //        // 엑세스 검증 로직
@@ -160,6 +148,7 @@ public class MemberApiController {
             return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_AND_REFRESH_TOKEN")));
         } catch (Exception e) {
             // 에러 처리 로직
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response(e.getMessage()));
         }
     }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,21 +17,22 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 public class Family extends BaseTimeEntity {
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "family_id")
-
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(length = 20, nullable = false)
     private String name;
 
-    private LocalDateTime deletedAt;
+
+    @Column(columnDefinition = "TIMESTAMP")
+    private Timestamp deletedAt;
 
     @OneToMany(mappedBy = "family")
     private List<Member> members = new ArrayList<>();
 
     @Builder
-    public Family(Long id, String name, LocalDateTime deletedAt, List<Member> members) {
+    public Family(Long id, String name, Timestamp deletedAt, List<Member> members) {
         this.id = id;
         this.name = name;
         this.deletedAt = deletedAt;
