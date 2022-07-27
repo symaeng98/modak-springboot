@@ -11,6 +11,7 @@ import com.modak.modakapp.domain.Role;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.exception.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.ExpiredRefreshTokenException;
+import com.modak.modakapp.exception.MemberAlreadyExistsException;
 import com.modak.modakapp.exception.NoMemberException;
 import com.modak.modakapp.repository.MemberRepository;
 import com.modak.modakapp.service.FamilyService;
@@ -58,6 +59,9 @@ public class MemberApiController {
     @PostMapping("/member/new")
     public ResponseEntity create(@RequestBody @ApiParam(value = "회원 기본 정보",required = true) SignUpMemberVO signUpMemberVO){
         try {
+            if(memberService.isMemberExists(signUpMemberVO.getProviderId())){
+                throw new MemberAlreadyExistsException();
+            }
             // 생년월일 포맷 확인
             Date birthday = new SimpleDateFormat("yyyyMMdd").parse(signUpMemberVO.getBirthday().replace("-",""));
             java.sql.Date birthdaySqlDate = new java.sql.Date(birthday.getTime());
@@ -86,6 +90,9 @@ public class MemberApiController {
         }catch (ParseException e){
             e.printStackTrace();
             return ResponseEntity.ok(CommonFailResponse.response("생년월일 포맷이 yyyy-MM-dd인지 확인하세요"));
+        }catch (MemberAlreadyExistsException e){
+            e.printStackTrace();
+            return ResponseEntity.ok(CommonFailResponse.response("이미 가입된 회원입니다."));
         }
     }
 
@@ -128,6 +135,7 @@ public class MemberApiController {
     @PostMapping("/member/token-login")
     public ResponseEntity reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰",required = true) OpenVO openVO){
         String accessToken = openVO.getAccessToken().substring(7);
+        String refreshToken = openVO.getRefreshToken().substring(7);
         // bearer
 
 //        // 엑세스 검증 로직
@@ -140,6 +148,8 @@ public class MemberApiController {
 //        }
         try {
             Long memberId = tokenService.getMemberId(accessToken);
+            Long memberId1 = tokenService.getMemberId(refreshToken);
+
             String newAccessToken = tokenService.getAccessToken(memberId);
             String newRefreshToken = tokenService.getRefreshToken(memberId);
             memberService.updateRefreshToken(memberId,newRefreshToken);

@@ -3,6 +3,8 @@ package com.modak.modakapp.service;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,4 +34,14 @@ public class MemberService {
         findMember.setRefreshToken(refreshToken);
     }
 
+
+    public boolean isMemberExists(String providerId) {
+        try {
+            Member findMember = findMemberByProviderId(providerId);
+        }catch (EmptyResultDataAccessException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }
