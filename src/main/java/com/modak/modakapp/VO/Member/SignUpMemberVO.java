@@ -1,4 +1,4 @@
-package com.modak.modakapp.VO;
+package com.modak.modakapp.VO.Member;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

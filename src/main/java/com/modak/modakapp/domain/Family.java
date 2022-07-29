@@ -19,7 +19,7 @@ import java.util.List;
 public class Family extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private int id;
 
     @Column(length = 20, nullable = false)
     private String name;
@@ -32,7 +32,7 @@ public class Family extends BaseTimeEntity {
     private List<Member> members = new ArrayList<>();
 
     @Builder
-    public Family(Long id, String name, Timestamp deletedAt, List<Member> members) {
+    public Family(int id, String name, Timestamp deletedAt, List<Member> members) {
         this.id = id;
         this.name = name;
         this.deletedAt = deletedAt;

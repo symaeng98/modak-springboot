@@ -17,13 +17,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
-@Builder
 @NoArgsConstructor
-@Table(name = "user")
+@Table(name = "user", indexes = @Index(name = "idx_connection_id", columnList = "connection_id"))
 public class Member extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")
@@ -68,6 +67,8 @@ public class Member extends BaseTimeEntity {
     @Column(name="is_chat_joining", columnDefinition = "TINYINT", length=1, nullable = false)
     private int chatNowJoining;
 
+    @Column(name = "connection_id", length = 100)
+    private String connectionId;
 
     @Column(name = "tag", columnDefinition = "json")
     @Convert(converter = MDFamilyAttributeConverter.class)
@@ -82,8 +83,7 @@ public class Member extends BaseTimeEntity {
 
 
     @Builder
-
-    public Member(Long id, Family family, String name, int is_lunar, Date birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, Timestamp chatLastJoined, int chatNowJoining, MDTag mdTag, MDFamily mdFamily, Timestamp deletedAt) {
+    public Member(int id, Family family, String name, int is_lunar, Date birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, Timestamp chatLastJoined, int chatNowJoining, String connectionId, MDTag mdTag, MDFamily mdFamily, Timestamp deletedAt) {
         this.id = id;
         this.family = family;
         this.name = name;
@@ -98,6 +98,7 @@ public class Member extends BaseTimeEntity {
         this.providerId = providerId;
         this.chatLastJoined = chatLastJoined;
         this.chatNowJoining = chatNowJoining;
+        this.connectionId = connectionId;
         this.mdTag = mdTag;
         this.mdFamily = mdFamily;
         this.deletedAt = deletedAt;

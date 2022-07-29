@@ -14,7 +14,7 @@ public class FamilyService {
     private final FamilyRepository familyRepository;
 
     @Transactional
-    public Long join(Family family){
+    public int join(Family family){
         familyRepository.save(family);
         return family.getId();
     }

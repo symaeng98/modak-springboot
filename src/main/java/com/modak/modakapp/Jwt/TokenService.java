@@ -1,9 +1,17 @@
 package com.modak.modakapp.Jwt;
+import com.modak.modakapp.DTO.CommonFailResponse;
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.exception.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.ExpiredRefreshTokenException;
+import com.modak.modakapp.exception.NoMemberException;
+import com.modak.modakapp.exception.NotAuthorizedMemberException;
 import com.modak.modakapp.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +27,11 @@ public class TokenService {
      * @return accessToken String 타입의 엑세스 토큰
      */
 
-    public String getRefreshToken(Long memberId) {
+    public String getRefreshToken(int memberId) {
         return jwtUtil.generateRefreshToken(memberId);
     }
 
-    public String getAccessToken(Long memberId) {
+    public String getAccessToken(int memberId) {
         return jwtUtil.generateAccessToken(memberId);
     }
 
@@ -36,24 +44,25 @@ public class TokenService {
      */
     public String reissueToken(String accessToken) {
         // 1. 회원 아이디 파싱
-        Long memberId = jwtUtil.getMemberId(accessToken);
+        int memberId = jwtUtil.getMemberId(accessToken);
         Member findMember = memberService.findMember(memberId);
-        // 2. Refresh Token 유효 여부 판단
+        // 2. Refresh Token 유효 여부 판F단
         if(jwtUtil.isTokenExpired(findMember.getRefreshToken())) {
             System.out.println("로그인 다시 해야됨!");
             throw new ExpiredRefreshTokenException("재 로그인이 필요합니다!");
         }
-
         // 3. 회원 아이디로 새로운 토큰 생성
         return getAccessToken(memberId);
     }
 
-    public Boolean isAccessTokenExpired(String accessToken) {
-        // Access Token 유효 여부 판단
-        return jwtUtil.isTokenExpired(accessToken);
+    public boolean isAccessTokenExpired(String accessToken) {
+        if(jwtUtil.isTokenExpired(accessToken)){
+            throw new ExpiredAccessTokenException("AccessToken이 만료되었습니다.");
+        }
+        return false;
     }
 
-    public Long getMemberId(String accessToken){
+    public int getMemberId(String accessToken){
         return jwtUtil.getMemberId(accessToken);
     }
 }

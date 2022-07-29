@@ -2,28 +2,24 @@ package com.modak.modakapp.controller.api;
 
 import com.modak.modakapp.DTO.CommonFailResponse;
 import com.modak.modakapp.DTO.CommonSuccessResponse;
-import com.modak.modakapp.VO.LoginMemberVO;
-import com.modak.modakapp.VO.OpenVO;
-import com.modak.modakapp.VO.SignUpMemberVO;
+import com.modak.modakapp.DTO.Member.CreateMemberResponse;
+import com.modak.modakapp.DTO.Member.LoginMemberResponse;
+import com.modak.modakapp.DTO.Token.ReissueTokenResponse;
+import com.modak.modakapp.VO.Member.LoginMemberVO;
+import com.modak.modakapp.VO.Member.OpenVO;
+import com.modak.modakapp.VO.Member.SignUpMemberVO;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Provider;
 import com.modak.modakapp.domain.Role;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.exception.ExpiredAccessTokenException;
-import com.modak.modakapp.exception.ExpiredRefreshTokenException;
 import com.modak.modakapp.exception.MemberAlreadyExistsException;
-import com.modak.modakapp.exception.NoMemberException;
-import com.modak.modakapp.repository.MemberRepository;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.Jwt.TokenService;
-import com.modak.modakapp.Jwt.JwtUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,18 +27,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/member")
 @Slf4j
 public class MemberApiController {
 
@@ -56,7 +50,7 @@ public class MemberApiController {
     private final String TOKEN_HEADER = "Bearer ";
 
     @ApiOperation(value = "회원 가입")
-    @PostMapping("/member/new")
+    @PostMapping("/new")
     public ResponseEntity create(@RequestBody @ApiParam(value = "회원 기본 정보",required = true) SignUpMemberVO signUpMemberVO){
         try {
             if(memberService.isMemberExists(signUpMemberVO.getProviderId())){
@@ -67,7 +61,7 @@ public class MemberApiController {
             java.sql.Date birthdaySqlDate = new java.sql.Date(birthday.getTime());
 
             Family family = Family.builder().name("행복한 우리 가족").build();
-            Long joinFamilyId = familyService.join(family);
+            int joinFamilyId = familyService.join(family);
 
             Member member = Member.builder().family(family).name(signUpMemberVO.getName()).is_lunar(signUpMemberVO.getIsLunar())
                     .birthday(birthdaySqlDate).role(Role.valueOf(signUpMemberVO.getRole()))
@@ -76,7 +70,7 @@ public class MemberApiController {
                     .refreshToken("default refresh").fcmToken("default fcm").build();
 
             // 저장
-            Long memberId = memberService.join(member);
+            int memberId = memberService.join(member);
 
             String accessToken = tokenService.getAccessToken(memberId);
             String refreshToken = tokenService.getRefreshToken(memberId);
@@ -98,12 +92,12 @@ public class MemberApiController {
 
 
     // 이름 변경
-    @PostMapping("/member/social-login")
+    @PostMapping("/social-login")
     public ResponseEntity<?> login(@RequestBody @ApiParam(value = "Provider, ProviderId",required = true) LoginMemberVO loginMemberVO){
         String providerId = loginMemberVO.getProviderId();
         try{
             Member findMember = memberService.findMemberByProviderId(providerId);
-            Long memberId = findMember.getId();
+            int memberId = findMember.getId();
             String newRefreshToken = tokenService.getRefreshToken(memberId);
             String newAccessToken = tokenService.getAccessToken(memberId);
             memberService.updateRefreshToken(memberId,newRefreshToken);
@@ -132,23 +126,14 @@ public class MemberApiController {
             @ApiResponse(code=200, message = "서버는 잘 동작했음 status false면 넘겨주는 값 확인"),
             @ApiResponse(code=401, message = "Refresh 토큰 만료됨, 재로그인"),
             })
-    @PostMapping("/member/token-login")
+    @PostMapping("/token-login")
     public ResponseEntity reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰",required = true) OpenVO openVO){
         String accessToken = openVO.getAccessToken().substring(7);
         String refreshToken = openVO.getRefreshToken().substring(7);
         // bearer
-
-//        // 엑세스 검증 로직
-//        try{
-//            if(!tokenService.isAccessTokenExpired(accessToken)){
-//                return ResponseEntity.ok(CommonFailResponse.response("아직 사용 가능"));
-//            }
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
         try {
-            Long memberId = tokenService.getMemberId(accessToken);
-            Long memberId1 = tokenService.getMemberId(refreshToken);
+            int memberId = tokenService.getMemberId(accessToken);
+            int memberId1 = tokenService.getMemberId(refreshToken);
 
             String newAccessToken = tokenService.getAccessToken(memberId);
             String newRefreshToken = tokenService.getRefreshToken(memberId);
@@ -163,23 +148,4 @@ public class MemberApiController {
         }
     }
 
-
-    @Data
-    @AllArgsConstructor
-    static class CreateMemberResponse {
-        private Long memberId;
-        private Long familyId;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class LoginMemberResponse {
-        private Long memberId;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class ReissueTokenResponse {
-        private String type;
-    }
 }

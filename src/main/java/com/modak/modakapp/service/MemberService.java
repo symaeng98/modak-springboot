@@ -15,12 +15,12 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final FamilyService familyService;
 
-    public Long join(Member member){
+    public int join(Member member){
         memberRepository.save(member);
         return member.getId();
     }
 
-    public Member findMember(Long memberId){
+    public Member findMember(int memberId){
         return memberRepository.findOne(memberId);
     }
 
@@ -29,7 +29,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateRefreshToken(Long memberId, String refreshToken){
+    public void updateRefreshToken(int memberId, String refreshToken){
         Member findMember = memberRepository.findOne(memberId);
         findMember.setRefreshToken(refreshToken);
     }
@@ -39,7 +39,6 @@ public class MemberService {
         try {
             Member findMember = findMemberByProviderId(providerId);
         }catch (EmptyResultDataAccessException e){
-            e.printStackTrace();
             return false;
         }
         return true;

@@ -25,7 +25,7 @@ public class JwtUtil {
         Map<String, Object> result = new HashMap<>();
         //expiration date < now
         boolean isExpired = !isTokenExpired(token);
-        result.put("memberId", extractAllClaims(token).get("memberId", String.class));
+        result.put("memberId", extractAllClaims(token).get("memberId", Integer.class));
         result.put("isExpired", isExpired);
         System.out.println("parseinfo in getuseroarseinfo: " + result);
         return result;
@@ -61,7 +61,7 @@ public class JwtUtil {
 
 
     // Token 생성 메소드
-    private String generateToken(Long memberId, long expireSecond) {
+    private String generateToken(int memberId, long expireSecond) {
         Claims claims = Jwts.claims();
         claims.put("memberId", memberId);       // JWT 토큰 페이로드에 회원 아이디 추가
 
@@ -76,18 +76,18 @@ public class JwtUtil {
     }
 
     // RefreshToken 생성
-    public String generateRefreshToken(Long memberId) {
+    public String generateRefreshToken(int memberId) {
         return generateToken(memberId, REFRESH_TOKEN_VALIDATION_SECOND);
     }
 
     // AccesssToken 생성
-    public String generateAccessToken(Long memberId) {
+    public String generateAccessToken(int memberId) {
         return generateToken(memberId, TOKEN_VALIDATION_SECOND);
     }
 
     // 발췌한 payload에서 userid 추출
-    public Long getMemberId (String token) {
-        return extractAllClaims(token).get("memberId", Long.class);
+    public int getMemberId (String token) {
+        return extractAllClaims(token).get("memberId", Integer.class);
     }
 
 
