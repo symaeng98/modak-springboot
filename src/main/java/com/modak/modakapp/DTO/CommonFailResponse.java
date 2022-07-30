@@ -9,15 +9,18 @@ import lombok.NoArgsConstructor;
 public class CommonFailResponse {
     private String message;
     private boolean status;
+    private String code;
+
 
 
     @Builder
-    public CommonFailResponse(String message, boolean status) {
+    public CommonFailResponse(String message, boolean status, String code) {
         this.message = message;
         this.status = status;
+        this.code = code;
     }
 
-    public static CommonFailResponse response(String message){
-        return CommonFailResponse.builder().message(message).status(false).build();
+    public static CommonFailResponse response(String message, String code){
+        return CommonFailResponse.builder().message(message).status(false).code(code).build();
     }
 }

@@ -62,7 +62,7 @@ public class TokenService {
         return false;
     }
 
-    public int getMemberId(String accessToken){
-        return jwtUtil.getMemberId(accessToken);
+    public int getMemberId(String token){
+        return jwtUtil.getMemberId(token);
     }
 }

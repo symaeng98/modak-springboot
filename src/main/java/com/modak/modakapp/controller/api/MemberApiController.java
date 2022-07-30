@@ -12,10 +12,15 @@ import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Provider;
 import com.modak.modakapp.domain.Role;
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.exception.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.MemberAlreadyExistsException;
+import com.modak.modakapp.exception.NotAuthorizedMemberException;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.Jwt.TokenService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -49,15 +54,20 @@ public class MemberApiController {
 
     private final String TOKEN_HEADER = "Bearer ";
 
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "성공적으로 회원 가입을 마쳤습니다."),
+            @ApiResponse(code = 409, message = "이미 가입된 회원입니다.(MemberAlreadyExistsException)"),
+            @ApiResponse(code = 400, message = "1. 생년월일 포멧이 잘못되었습니다. yyyy-MM-dd인지 확인하세요.(ParseException)\n2. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @ApiOperation(value = "회원 가입")
     @PostMapping("/new")
-    public ResponseEntity create(@RequestBody @ApiParam(value = "회원 기본 정보",required = true) SignUpMemberVO signUpMemberVO){
+    public ResponseEntity create(@RequestBody @ApiParam(value = "회원 기본 정보", required = true) SignUpMemberVO signUpMemberVO) {
         try {
-            if(memberService.isMemberExists(signUpMemberVO.getProviderId())){
+            if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
                 throw new MemberAlreadyExistsException();
             }
             // 생년월일 포맷 확인
-            Date birthday = new SimpleDateFormat("yyyyMMdd").parse(signUpMemberVO.getBirthday().replace("-",""));
+            Date birthday = new SimpleDateFormat("yyyyMMdd").parse(signUpMemberVO.getBirthday().replace("-", ""));
             java.sql.Date birthdaySqlDate = new java.sql.Date(birthday.getTime());
 
             Family family = Family.builder().name("행복한 우리 가족").build();
@@ -81,71 +91,80 @@ public class MemberApiController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, joinFamilyId)));
 
-        }catch (ParseException e){
+        } catch (ParseException e) {
             e.printStackTrace();
-            return ResponseEntity.ok(CommonFailResponse.response("생년월일 포맷이 yyyy-MM-dd인지 확인하세요"));
-        }catch (MemberAlreadyExistsException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("생년월일 포맷이 yyyy-MM-dd인지 확인하세요", "ParseException"));
+        } catch (MemberAlreadyExistsException e) {
             e.printStackTrace();
-            return ResponseEntity.ok(CommonFailResponse.response("이미 가입된 회원입니다."));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(CommonFailResponse.response("이미 가입된 회원입니다.", "MemberAlreadyExistsException"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
         }
     }
 
 
-    // 이름 변경
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공적으로 로그인을 완료했습니다."),
+            @ApiResponse(code = 404, message = "회원 정보가 없습니다. 회원 가입 페이지로 이동하세요.(EmptyResultDataAccessException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @PostMapping("/social-login")
-    public ResponseEntity<?> login(@RequestBody @ApiParam(value = "Provider, ProviderId",required = true) LoginMemberVO loginMemberVO){
+    public ResponseEntity<?> login(@RequestBody @ApiParam(value = "Provider, ProviderId", required = true) LoginMemberVO loginMemberVO) {
         String providerId = loginMemberVO.getProviderId();
-        try{
+        try {
             Member findMember = memberService.findMemberByProviderId(providerId);
             int memberId = findMember.getId();
             String newRefreshToken = tokenService.getRefreshToken(memberId);
             String newAccessToken = tokenService.getAccessToken(memberId);
-            memberService.updateRefreshToken(memberId,newRefreshToken);
+            memberService.updateRefreshToken(memberId, newRefreshToken);
             servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
             servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
 
             return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new LoginMemberResponse(memberId)));
-        }catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
-            return ResponseEntity.ok(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요"));
-        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요", "EmptyResultDataAccessException"));
+        } catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
         }
-        return ResponseEntity.ok(CommonFailResponse.response("로그인 실패"));
     }
 
 
     // 토큰 로그인 로직 바꾸기
+
     /**
-     *
      * @param openVO accessToken, refreshToken
      * @return accessToken
      * accessToken이 만료되었다는 가정 하에 refreshToken이 만료되지 않았다면 accessToken 발급
      */
     @ApiResponses({
-            @ApiResponse(code=200, message = "서버는 잘 동작했음 status false면 넘겨주는 값 확인"),
-            @ApiResponse(code=401, message = "Refresh 토큰 만료됨, 재로그인"),
-            })
+            @ApiResponse(code = 200, message = "토큰 재발급을 성공했습니다."),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
+    })
     @PostMapping("/token-login")
-    public ResponseEntity reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰",required = true) OpenVO openVO){
-        String accessToken = openVO.getAccessToken().substring(7);
-        String refreshToken = openVO.getRefreshToken().substring(7);
+    public ResponseEntity reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰", required = true) OpenVO openVO) {
         // bearer
         try {
-            int memberId = tokenService.getMemberId(accessToken);
-            int memberId1 = tokenService.getMemberId(refreshToken);
-
+            String accessToken = openVO.getAccessToken().substring(7);
+            String refreshToken = openVO.getRefreshToken().substring(7);
+            int memberId = tokenService.getMemberId(refreshToken);
             String newAccessToken = tokenService.getAccessToken(memberId);
             String newRefreshToken = tokenService.getRefreshToken(memberId);
-            memberService.updateRefreshToken(memberId,newRefreshToken);
+
+            memberService.updateRefreshToken(memberId, newRefreshToken);
             servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
             servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
             return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_AND_REFRESH_TOKEN")));
+        } catch (MalformedJwtException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
+        } catch (SignatureException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
+        } catch (ExpiredJwtException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Refresh Token 입니다. 재로그인 하세요", "ExpiredJwtException"));
         } catch (Exception e) {
-            // 에러 처리 로직
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
         }
     }
-
 }
