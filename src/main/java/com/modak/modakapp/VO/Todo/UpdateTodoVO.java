@@ -1,23 +1,21 @@
 package com.modak.modakapp.VO.Todo;
 
-import com.modak.modakapp.domain.metadata.MDRepeatTag;
 import lombok.Data;
-import springfox.documentation.spring.web.json.Json;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
-public class CreateTodoVO {
+public class UpdateTodoVO {
+
     private String accessToken;
 
     private String title;
 
     private String memo;
 
-    private String date;
-
     private int memberId;
+
+    private String date;
 
     private String timeTag;
 
@@ -25,8 +23,5 @@ public class CreateTodoVO {
 
     private String toDate;
 
-//    private String repeatTag;
-
     private List<Integer> repeat;
-
 }

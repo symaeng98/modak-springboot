@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final FamilyService familyService;
 
     public int join(Member member){
         memberRepository.save(member);

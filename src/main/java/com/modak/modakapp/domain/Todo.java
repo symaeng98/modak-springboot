@@ -37,8 +37,6 @@ public class Todo extends BaseTimeEntity {
     @Column(name="memo")
     private String memo;
 
-    @Column(name = "\"date\"",nullable = false)
-    private Date date;
 
     @Column(name = "start_date",nullable = false)
     private Date startDate;
@@ -79,14 +77,13 @@ public class Todo extends BaseTimeEntity {
 
     @Builder
 
-    public Todo(int id, Member member, Family family, int groupTodoId, String title, String memo, Date date, Date startDate, Date endDate, String timeTag, String repeatTag, int isSunday, int isMonday, int isTuesday, int isWednesday, int isThursday, int isFriday, int isSaturday, Timestamp deletedAt) {
+    public Todo(int id, Member member, Family family, int groupTodoId, String title, String memo, Date startDate, Date endDate, String timeTag, String repeatTag, int isSunday, int isMonday, int isTuesday, int isWednesday, int isThursday, int isFriday, int isSaturday, Timestamp deletedAt) {
         this.id = id;
         this.member = member;
         this.family = family;
         this.groupTodoId = groupTodoId;
         this.title = title;
         this.memo = memo;
-        this.date = date;
         this.startDate = startDate;
         this.endDate = endDate;
         this.timeTag = timeTag;

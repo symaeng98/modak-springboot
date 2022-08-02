@@ -53,7 +53,7 @@ public class MemberApiController {
     @ApiResponses({
             @ApiResponse(code = 201, message = "성공적으로 회원 가입을 마쳤습니다."),
             @ApiResponse(code = 409, message = "이미 가입된 회원입니다.(MemberAlreadyExistsException)"),
-            @ApiResponse(code = 400, message = "1. 생년월일 포멧이 잘못되었습니다. yyyy-MM-dd인지 확인하세요.(ParseException)\n2. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "회원 가입")
     @PostMapping("/new")
@@ -163,10 +163,6 @@ public class MemberApiController {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(CommonFailResponse.response("이미 가입된 회원입니다.", "MemberAlreadyExistsException"));
     }
 
-    @ExceptionHandler(ParseException.class)
-    public ResponseEntity<?> handleParseException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("생년월일 포맷이 yyyy-MM-dd인지 확인하세요", "ParseException"));
-    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e) {
