@@ -12,9 +12,7 @@ import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Provider;
 import com.modak.modakapp.domain.Role;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.exception.ExpiredAccessTokenException;
-import com.modak.modakapp.exception.MemberAlreadyExistsException;
-import com.modak.modakapp.exception.NotAuthorizedMemberException;
+import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.Jwt.TokenService;
@@ -35,9 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,45 +57,34 @@ public class MemberApiController {
     })
     @ApiOperation(value = "회원 가입")
     @PostMapping("/new")
-    public ResponseEntity create(@RequestBody @ApiParam(value = "회원 기본 정보", required = true) SignUpMemberVO signUpMemberVO) {
-        try {
-            if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
-                throw new MemberAlreadyExistsException();
-            }
-            // 생년월일 포맷 확인
-            Date birthday = new SimpleDateFormat("yyyyMMdd").parse(signUpMemberVO.getBirthday().replace("-", ""));
-            java.sql.Date birthdaySqlDate = new java.sql.Date(birthday.getTime());
+    public ResponseEntity<?> create(@RequestBody @ApiParam(value = "회원 기본 정보", required = true) SignUpMemberVO signUpMemberVO) {
 
-            Family family = Family.builder().name("행복한 우리 가족").build();
-            int joinFamilyId = familyService.join(family);
-
-            Member member = Member.builder().family(family).name(signUpMemberVO.getName()).is_lunar(signUpMemberVO.getIsLunar())
-                    .birthday(birthdaySqlDate).role(Role.valueOf(signUpMemberVO.getRole()))
-                    .provider(Provider.valueOf(signUpMemberVO.getProvider())).providerId(signUpMemberVO.getProviderId())
-                    .chatLastJoined(Timestamp.valueOf(LocalDateTime.now())).chatNowJoining(0)
-                    .refreshToken("default refresh").fcmToken("default fcm").build();
-
-            // 저장
-            int memberId = memberService.join(member);
-
-            String accessToken = tokenService.getAccessToken(memberId);
-            String refreshToken = tokenService.getRefreshToken(memberId);
-            memberService.updateRefreshToken(memberId, refreshToken);
-
-            servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + accessToken);
-            servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + refreshToken);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, joinFamilyId)));
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("생년월일 포맷이 yyyy-MM-dd인지 확인하세요", "ParseException"));
-        } catch (MemberAlreadyExistsException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(CommonFailResponse.response("이미 가입된 회원입니다.", "MemberAlreadyExistsException"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
+        if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
+            throw new MemberAlreadyExistsException();
         }
+        java.sql.Date birthday = java.sql.Date.valueOf(signUpMemberVO.getBirthday());
+
+        Family family = Family.builder().name("행복한 우리 가족").build();
+        int joinFamilyId = familyService.join(family);
+
+        Member member = Member.builder().family(family).name(signUpMemberVO.getName()).is_lunar(signUpMemberVO.getIsLunar())
+                .birthday(birthday).role(Role.valueOf(signUpMemberVO.getRole()))
+                .provider(Provider.valueOf(signUpMemberVO.getProvider())).providerId(signUpMemberVO.getProviderId())
+                .chatLastJoined(Timestamp.valueOf(LocalDateTime.now()))
+                .refreshToken("default refresh").fcmToken("default fcm").build();
+
+        // 저장
+        int memberId = memberService.join(member);
+
+        String accessToken = tokenService.getAccessToken(memberId);
+        String refreshToken = tokenService.getRefreshToken(memberId);
+        memberService.updateRefreshToken(memberId, refreshToken);
+
+        servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + accessToken);
+        servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + refreshToken);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, joinFamilyId)));
+
     }
 
 
@@ -111,23 +96,17 @@ public class MemberApiController {
     @PostMapping("/social-login")
     public ResponseEntity<?> login(@RequestBody @ApiParam(value = "Provider, ProviderId", required = true) LoginMemberVO loginMemberVO) {
         String providerId = loginMemberVO.getProviderId();
-        try {
-            Member findMember = memberService.findMemberByProviderId(providerId);
-            int memberId = findMember.getId();
-            String newRefreshToken = tokenService.getRefreshToken(memberId);
-            String newAccessToken = tokenService.getAccessToken(memberId);
-            memberService.updateRefreshToken(memberId, newRefreshToken);
-            servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
-            servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
 
-            return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new LoginMemberResponse(memberId)));
-        } catch (EmptyResultDataAccessException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요", "EmptyResultDataAccessException"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
-        }
+        Member findMember = memberService.findMemberByProviderId(providerId);
+        int memberId = findMember.getId();
+        String newRefreshToken = tokenService.getRefreshToken(memberId);
+        String newAccessToken = tokenService.getAccessToken(memberId);
+        memberService.updateRefreshToken(memberId, newRefreshToken);
+        servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
+        servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new LoginMemberResponse(memberId)));
+
     }
 
 
@@ -144,27 +123,54 @@ public class MemberApiController {
             @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
     })
     @PostMapping("/token-login")
-    public ResponseEntity reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰", required = true) OpenVO openVO) {
+    public ResponseEntity<?> reissue(@RequestBody @ApiParam(value = "가지고 있는 Access 토큰과 Refresh 토큰", required = true) OpenVO openVO) {
         // bearer
-        try {
-            String accessToken = openVO.getAccessToken().substring(7);
-            String refreshToken = openVO.getRefreshToken().substring(7);
-            int memberId = tokenService.getMemberId(refreshToken);
-            String newAccessToken = tokenService.getAccessToken(memberId);
-            String newRefreshToken = tokenService.getRefreshToken(memberId);
+        String accessToken = openVO.getAccessToken().substring(7);
+        String refreshToken = openVO.getRefreshToken().substring(7);
+        int memberId = tokenService.getMemberId(refreshToken);
+        String newAccessToken = tokenService.getAccessToken(memberId);
+        String newRefreshToken = tokenService.getRefreshToken(memberId);
 
-            memberService.updateRefreshToken(memberId, newRefreshToken);
-            servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
-            servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
-            return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_AND_REFRESH_TOKEN")));
-        } catch (MalformedJwtException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
-        } catch (SignatureException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
-        } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Refresh Token 입니다. 재로그인 하세요", "ExpiredJwtException"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
-        }
+        memberService.updateRefreshToken(memberId, newRefreshToken);
+        servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
+        servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
+        return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_AND_REFRESH_TOKEN")));
+
     }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<?> handleMalformedJwtException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<?> handleSignatureException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<?> handleExpiredJwtException() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Token 입니다.", "ExpiredJwtException"));
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<?> handleEmptyResultDataAccessException() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요", "EmptyResultDataAccessException"));
+    }
+
+    @ExceptionHandler(MemberAlreadyExistsException.class)
+    public ResponseEntity<?> handleMemberAlreadyExistsException() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(CommonFailResponse.response("이미 가입된 회원입니다.", "MemberAlreadyExistsException"));
+    }
+
+    @ExceptionHandler(ParseException.class)
+    public ResponseEntity<?> handleParseException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("생년월일 포맷이 yyyy-MM-dd인지 확인하세요", "ParseException"));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
+    }
+
 }

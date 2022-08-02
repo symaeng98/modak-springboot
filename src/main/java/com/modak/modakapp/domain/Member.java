@@ -64,8 +64,7 @@ public class Member extends BaseTimeEntity {
     private Timestamp chatLastJoined;
 
 
-    @Column(name="is_chat_joining", columnDefinition = "TINYINT", length=1, nullable = false)
-    private int chatNowJoining;
+
 
     @Column(name = "connection_id", length = 100)
     private String connectionId;
@@ -83,7 +82,7 @@ public class Member extends BaseTimeEntity {
 
 
     @Builder
-    public Member(int id, Family family, String name, int is_lunar, Date birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, Timestamp chatLastJoined, int chatNowJoining, String connectionId, MDTag mdTag, MDFamily mdFamily, Timestamp deletedAt) {
+    public Member(int id, Family family, String name, int is_lunar, Date birthday, String profileImageUrl, Role role, String color, String refreshToken, String fcmToken, Provider provider, String providerId, Timestamp chatLastJoined, String connectionId, MDTag mdTag, MDFamily mdFamily, Timestamp deletedAt) {
         this.id = id;
         this.family = family;
         this.name = name;
@@ -97,7 +96,6 @@ public class Member extends BaseTimeEntity {
         this.provider = provider;
         this.providerId = providerId;
         this.chatLastJoined = chatLastJoined;
-        this.chatNowJoining = chatNowJoining;
         this.connectionId = connectionId;
         this.mdTag = mdTag;
         this.mdFamily = mdFamily;

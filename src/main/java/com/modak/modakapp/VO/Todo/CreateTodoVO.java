@@ -13,14 +13,16 @@ public class CreateTodoVO {
 
     private String title;
 
-    private String describe;
+    private String memo;
 
-    private String startDate;
-
-    private String endDate;
+    private String date;
 
     private String timeTag;
 
-    private Map<String,List<String>> repeatTag;
+//    private String repeatTag;
+
+    private List<Integer> repeat;
+
+
 
 }

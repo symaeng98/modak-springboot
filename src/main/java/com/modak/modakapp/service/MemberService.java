@@ -4,9 +4,12 @@ import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.NoResultException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Service
 @Transactional
@@ -21,23 +24,39 @@ public class MemberService {
     }
 
     public Member findMember(int memberId){
-        return memberRepository.findOne(memberId);
+        Member member = memberRepository.findOne(memberId);
+        isDeleted(member);
+        return member;
     }
 
     public Member findMemberByProviderId(String providerId){
-        return memberRepository.findOneByProviderId(providerId);
+        Member member = memberRepository.findOneByProviderId(providerId);
+        isDeleted(member);
+        return member;
     }
 
     @Transactional
     public void updateRefreshToken(int memberId, String refreshToken){
         Member findMember = memberRepository.findOne(memberId);
+        isDeleted(findMember);
         findMember.setRefreshToken(refreshToken);
     }
 
+    @Transactional
+    public void deleteMember(Member member){
+        member.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
+    }
+
+    public void isDeleted(Member member){
+        if(member.getDeletedAt()!=null){
+            throw new NoResultException();
+        }
+    }
 
     public boolean isMemberExists(String providerId) {
         try {
             Member findMember = findMemberByProviderId(providerId);
+            isDeleted(findMember);
         }catch (EmptyResultDataAccessException e){
             return false;
         }

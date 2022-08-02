@@ -1,7 +1,7 @@
 package com.modak.modakapp.repository;
 
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.exception.NoMemberException;
+import com.modak.modakapp.exception.member.NoMemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -36,7 +36,6 @@ public class MemberRepository {
         return em.createQuery("select m from Member m", Member.class)
                 .getResultList();
     }
-
 
 
 

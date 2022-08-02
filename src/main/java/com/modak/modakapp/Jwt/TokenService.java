@@ -1,17 +1,10 @@
 package com.modak.modakapp.Jwt;
-import com.modak.modakapp.DTO.CommonFailResponse;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.exception.ExpiredAccessTokenException;
-import com.modak.modakapp.exception.ExpiredRefreshTokenException;
-import com.modak.modakapp.exception.NoMemberException;
-import com.modak.modakapp.exception.NotAuthorizedMemberException;
+import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
+import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,11 +48,10 @@ public class TokenService {
         return getAccessToken(memberId);
     }
 
-    public boolean isAccessTokenExpired(String accessToken) {
+    public void isAccessTokenExpired(String accessToken) {
         if(jwtUtil.isTokenExpired(accessToken)){
             throw new ExpiredAccessTokenException("AccessToken이 만료되었습니다.");
         }
-        return false;
     }
 
     public int getMemberId(String token){

@@ -1,8 +1,8 @@
 package com.modak.modakapp.repository;
 
-import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
-import com.modak.modakapp.exception.NoMemberException;
+import com.modak.modakapp.domain.TodoDone;
+import com.modak.modakapp.exception.member.NoMemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -30,5 +30,6 @@ public class TodoRepository {
             throw new NoMemberException("등록된 회원 정보가 없습니다.");
         }
     }
+
 
 }

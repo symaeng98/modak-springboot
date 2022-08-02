@@ -1,4 +1,4 @@
-package com.modak.modakapp.exception;
+package com.modak.modakapp.exception.member;
 
 public class NotAuthorizedMemberException extends RuntimeException{
     public NotAuthorizedMemberException(String message) {

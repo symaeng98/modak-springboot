@@ -1,26 +1,19 @@
 package com.modak.modakapp.domain;
 
 import com.modak.modakapp.BaseTimeEntity;
-import com.modak.modakapp.converter.MDFamilyAttributeConverter;
-import com.modak.modakapp.converter.MDRepeatTagAttributeConverter;
-import com.modak.modakapp.domain.metadata.MDFamily;
-import com.modak.modakapp.domain.metadata.MDRepeatTag;
-import com.modak.modakapp.domain.metadata.MDTag;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter @Setter
-@Builder
 @NoArgsConstructor
 public class Todo extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,18 +28,17 @@ public class Todo extends BaseTimeEntity {
     @JoinColumn(name = "family_id")
     private Family family;
 
-    @Column(name="title", nullable = false)
+    @Column(name = "group_todo_id")
+    private int groupTodoId;
+
+    @Column(name="title", nullable = false,length = 30)
     private String title;
 
-    @Column(name="\"describe\"")
-    private String describe;
+    @Column(name="memo")
+    private String memo;
 
-    @Column(name = "time_tag")
-    private String timeTag;
-
-    @Column(name = "repeat_tag", columnDefinition = "json")
-    @Convert(converter = MDRepeatTagAttributeConverter.class)
-    private MDRepeatTag repeatTag;
+    @Column(name = "\"date\"",nullable = false)
+    private Date date;
 
     @Column(name = "start_date",nullable = false)
     private Date startDate;
@@ -54,26 +46,58 @@ public class Todo extends BaseTimeEntity {
     @Column(name = "end_date",nullable = false)
     private Date endDate;
 
-    @Column(name = "\"order\"")
-    @ColumnDefault("0")
-    private int order;
+    @Column(name = "time_tag",length = 20)
+    private String timeTag;
+
+    @Column(name = "repeat_tag",length = 20)
+    private String repeatTag;
+
+    @Column(name="is_sunday", columnDefinition = "TINYINT", length=1)
+    private int isSunday;
+
+    @Column(name="is_monday", columnDefinition = "TINYINT", length=1)
+    private int isMonday;
+
+    @Column(name="is_tuesday", columnDefinition = "TINYINT", length=1)
+    private int isTuesday;
+
+    @Column(name="is_wednesday", columnDefinition = "TINYINT", length=1)
+    private int isWednesday;
+
+    @Column(name="is_thursday", columnDefinition = "TINYINT", length=1)
+    private int isThursday;
+
+    @Column(name="is_friday", columnDefinition = "TINYINT", length=1)
+    private int isFriday;
+
+    @Column(name="is_saturday", columnDefinition = "TINYINT", length=1)
+    private int isSaturday;
 
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
 
 
     @Builder
-    public Todo(int id, Member member, Family family, String title, String describe, String timeTag, MDRepeatTag repeatTag, Date startDate, Date endDate, int order, Timestamp deletedAt) {
+
+    public Todo(int id, Member member, Family family, int groupTodoId, String title, String memo, Date date, Date startDate, Date endDate, String timeTag, String repeatTag, int isSunday, int isMonday, int isTuesday, int isWednesday, int isThursday, int isFriday, int isSaturday, Timestamp deletedAt) {
         this.id = id;
         this.member = member;
         this.family = family;
+        this.groupTodoId = groupTodoId;
         this.title = title;
-        this.describe = describe;
-        this.timeTag = timeTag;
-        this.repeatTag = repeatTag;
+        this.memo = memo;
+        this.date = date;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.order = order;
+        this.timeTag = timeTag;
+        this.repeatTag = repeatTag;
+        this.isSunday = isSunday;
+        this.isMonday = isMonday;
+        this.isTuesday = isTuesday;
+        this.isWednesday = isWednesday;
+        this.isThursday = isThursday;
+        this.isFriday = isFriday;
+        this.isSaturday = isSaturday;
         this.deletedAt = deletedAt;
     }
 }

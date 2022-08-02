@@ -1,4 +1,4 @@
-package com.modak.modakapp.exception;
+package com.modak.modakapp.exception.token;
 
 public class ExpiredRefreshTokenException extends RuntimeException{
     public ExpiredRefreshTokenException(String message){
