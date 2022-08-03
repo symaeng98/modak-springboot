@@ -1,9 +1,11 @@
 package com.modak.modakapp.repository;
 
+import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Todo;
 import com.modak.modakapp.domain.TodoDone;
 import com.modak.modakapp.exception.member.NoMemberException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -23,6 +25,17 @@ public class TodoRepository {
 
 
 
+
+    public int findNumOfDone(Family family){
+        try {
+            List<TodoDone> todoDones = family.getTodoDones();
+            return em.createQuery("select count(t.isDone) from TodoDone t where t.family.id = :id")
+                    .setParameter("id", family.getId()).getFirstResult();
+        }catch (Exception e){
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
     public List<Todo> findAllByFamilyId(int id){
         try {

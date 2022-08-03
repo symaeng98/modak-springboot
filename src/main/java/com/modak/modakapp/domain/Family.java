@@ -31,6 +31,12 @@ public class Family extends BaseTimeEntity {
     @OneToMany(mappedBy = "family")
     private List<Member> members = new ArrayList<>();
 
+    @OneToMany(mappedBy = "family")
+    private List<Todo> todos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "family")
+    private List<TodoDone> todoDones = new ArrayList<>();
+
     @Builder
     public Family(int id, String name, Timestamp deletedAt, List<Member> members) {
         this.id = id;

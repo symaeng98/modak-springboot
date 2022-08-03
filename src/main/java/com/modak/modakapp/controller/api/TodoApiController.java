@@ -2,11 +2,10 @@ package com.modak.modakapp.controller.api;
 
 import com.modak.modakapp.DTO.CommonFailResponse;
 import com.modak.modakapp.DTO.CommonSuccessResponse;
-import com.modak.modakapp.DTO.Todo.CreateTodoResponse;
-import com.modak.modakapp.DTO.Todo.UpdateTodoResponse;
-import com.modak.modakapp.DTO.Todo.WeekResponse;
+import com.modak.modakapp.DTO.Todo.*;
 import com.modak.modakapp.Jwt.TokenService;
 import com.modak.modakapp.VO.Todo.CreateTodoVO;
+import com.modak.modakapp.VO.Todo.DoneTodoVO;
 import com.modak.modakapp.VO.Todo.UpdateTodoVO;
 import com.modak.modakapp.VO.Todo.WeekTodoVO;
 import com.modak.modakapp.domain.Family;
@@ -14,6 +13,7 @@ import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.repository.date.TodoDateRepository;
+import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodoService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -45,6 +45,7 @@ public class TodoApiController {
     private final MemberService memberService;
 
     private final TokenService tokenService;
+    private final FamilyService familyService;
 
     private final TodoDateRepository todoDateRepository;
 
@@ -210,6 +211,9 @@ public class TodoApiController {
         String accessToken = weekTodoVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
+        int familyId = weekTodoVO.getFamilyId();
+        Family family = familyService.find(familyId);
+
         String fromDate = weekTodoVO.getFromDate();
         String toDate = weekTodoVO.getToDate();
 
@@ -222,11 +226,23 @@ public class TodoApiController {
                 .forEach(d -> {
                     dates.add(String.valueOf(d));
                 });
-        Map<String, List<String>> colors = todoDateRepository.findWeekColorsByDateRange(dates);
+//        Map<String, List<String>> colors = todoDateRepository.findWeekColorsByDateRange(dates);
+//        Map<String, List<DataDTO>> items = todoDateRepository.findWeekItemsByDateRange(dates);
+        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsByDateRange(dates);
+        int gauge = todoService.getGauge(family);
+        weekColorsAndItemsByDateRange.setGauge(gauge);
 
-
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new WeekResponse(colors)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", weekColorsAndItemsByDateRange));
     }
+
+//    @PutMapping("/done")
+//    public ResponseEntity<?> done(@RequestBody DoneTodoVO doneTodoVO) {
+//        int todoId = doneTodoVO.getTodoId();
+//        String toDate = doneTodoVO.getToDate();
+//
+//
+//        return ResponseEntity.ok(CommonSuccessResponse.response("완료 처리하였습니다.", new DoneTodoResponse()))
+//    }
 
 
 

@@ -3,9 +3,9 @@ package com.modak.modakapp.VO.Todo;
 import lombok.Getter;
 
 @Getter
-public class WeekTodoVO {
+public class DoneTodoVO {
     private String accessToken;
     private String fromDate;
     private String toDate;
-    private int familyId;
+    private int todoId;
 }

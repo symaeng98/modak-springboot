@@ -81,6 +81,10 @@ public class TodoService {
         findTodo.setEndDate(date);
     }
 
+    public int getGauge(Family family){
+        return todoRepository.findNumOfDone(family);
+    }
+
 
     public String getRepeatTag(List<Integer> repeat){
         String [] day = {"일","월","화","수","목","금","토"};
