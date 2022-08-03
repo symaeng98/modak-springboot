@@ -124,9 +124,14 @@ public class TodoApiController {
         Member member = memberService.findMember(updateTodoVO.getMemberId());
         java.sql.Date date = java.sql.Date.valueOf(updateTodoVO.getDate());
         String timeTag = updateTodoVO.getTimeTag();
-        String repeatTag = findTodo.getRepeatTag();
+
         Family family = member.getFamily();
 
+        // 이미 수정한 적이 있으면
+        if(findTodo.getStartDate().equals(findTodo.getEndDate())){
+            todoService.updateTodo(todoId, title,memo,member, updateTodoVO.getDate(), timeTag);
+            return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(todoId)));
+        }
 
         Todo todo = Todo.builder().member(member).
                 family(family).
@@ -135,7 +140,48 @@ public class TodoApiController {
                 timeTag(timeTag).
                 startDate(date).
                 endDate(date).
-                repeatTag(repeatTag).
+                repeatTag(findTodo.getRepeatTag()).
+                groupTodoId(findTodo.getGroupTodoId()).
+                isSunday(findTodo.getIsSunday()).
+                isMonday(findTodo.getIsMonday()).
+                isTuesday(findTodo.getIsTuesday()).
+                isWednesday(findTodo.getIsWednesday()).
+                isThursday(findTodo.getIsThursday()).
+                isFriday(findTodo.getIsFriday()).
+                isSaturday(findTodo.getIsSaturday()).
+                build();
+
+        int newTodoId = todoService.join(todo);
+        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(newTodoId)));
+    }
+
+    @PutMapping("/repeat/later/{id}")
+    public ResponseEntity<?> updateReapeatTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
+        String accessToken = updateTodoVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
+        Todo findTodo = todoService.findTodo(todoId);
+
+        String title = updateTodoVO.getTitle();
+        String memo = updateTodoVO.getMemo();
+        Member member = memberService.findMember(updateTodoVO.getMemberId());
+        java.sql.Date date = java.sql.Date.valueOf(updateTodoVO.getDate());
+        java.sql.Date endDate = java.sql.Date.valueOf("2025-01-01");
+        String timeTag = updateTodoVO.getTimeTag();
+        Family family = member.getFamily();
+
+        todoService.updateEndDate(todoId,date);
+
+
+
+        Todo todo = Todo.builder().member(member).
+                family(family).
+                title(title).
+                memo(memo).
+                timeTag(timeTag).
+                startDate(date).
+                endDate(endDate).
+                repeatTag(findTodo.getRepeatTag()).
                 groupTodoId(findTodo.getGroupTodoId()).
                 isSunday(findTodo.getIsSunday()).
                 isMonday(findTodo.getIsMonday()).

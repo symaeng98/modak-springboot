@@ -21,6 +21,7 @@ public class TodoRepository {
         return em.find(Todo.class,id);
     }
 
+
     public List<Todo> findAllByFamilyId(int id){
         try {
             return em.createQuery("select t from Todo t where t.family.id =:id", Todo.class)

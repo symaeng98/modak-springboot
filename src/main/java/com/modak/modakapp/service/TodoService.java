@@ -76,6 +76,10 @@ public class TodoService {
     }
 
 
+    public void updateEndDate(int todoId, java.sql.Date date){
+        Todo findTodo = todoRepository.findOneByTodoId(todoId);
+        findTodo.setEndDate(date);
+    }
 
 
     public String getRepeatTag(List<Integer> repeat){
