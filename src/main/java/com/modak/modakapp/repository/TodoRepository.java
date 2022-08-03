@@ -22,6 +22,8 @@ public class TodoRepository {
     }
 
 
+
+
     public List<Todo> findAllByFamilyId(int id){
         try {
             return em.createQuery("select t from Todo t where t.family.id =:id", Todo.class)
@@ -31,6 +33,8 @@ public class TodoRepository {
             throw new NoMemberException("등록된 회원 정보가 없습니다.");
         }
     }
+
+
 
 
 }

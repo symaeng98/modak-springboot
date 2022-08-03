@@ -4,14 +4,16 @@ import com.modak.modakapp.DTO.CommonFailResponse;
 import com.modak.modakapp.DTO.CommonSuccessResponse;
 import com.modak.modakapp.DTO.Todo.CreateTodoResponse;
 import com.modak.modakapp.DTO.Todo.UpdateTodoResponse;
+import com.modak.modakapp.DTO.Todo.WeekResponse;
 import com.modak.modakapp.Jwt.TokenService;
 import com.modak.modakapp.VO.Todo.CreateTodoVO;
-import com.modak.modakapp.VO.Todo.UpdateRepeatTodoVO;
 import com.modak.modakapp.VO.Todo.UpdateTodoVO;
+import com.modak.modakapp.VO.Todo.WeekTodoVO;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
+import com.modak.modakapp.repository.date.TodoDateRepository;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodoService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -27,7 +29,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,7 +46,9 @@ public class TodoApiController {
 
     private final TokenService tokenService;
 
-    private final HttpServletResponse servletResponse;
+    private final TodoDateRepository todoDateRepository;
+
+//    private final HttpServletResponse servletResponse;
 
     @ApiResponses({
             @ApiResponse(code = 201, message = "할 일 등록에 성공하였습니다."),
@@ -97,7 +106,7 @@ public class TodoApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("투두 생성 완료", new CreateTodoResponse(todoId, memberId,familyId)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/single/{id}")
     public ResponseEntity<?> updateTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
         String accessToken = updateTodoVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
@@ -196,6 +205,28 @@ public class TodoApiController {
         return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(newTodoId)));
     }
 
+    @GetMapping("/week")
+    public ResponseEntity<?> weekTodos(@RequestBody WeekTodoVO weekTodoVO){
+        String accessToken = weekTodoVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
+        String fromDate = weekTodoVO.getFromDate();
+        String toDate = weekTodoVO.getToDate();
+
+        List<String> dates = new ArrayList<>();
+        LocalDate start = LocalDate.parse(fromDate);
+        LocalDate end = LocalDate.parse(toDate);
+
+        Stream.iterate(start, date->date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(start,end)+1)
+                .forEach(d -> {
+                    dates.add(String.valueOf(d));
+                });
+        Map<String, List<String>> colors = todoDateRepository.findWeekColorsByDateRange(dates);
+
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new WeekResponse(colors)));
+    }
 
 
 
