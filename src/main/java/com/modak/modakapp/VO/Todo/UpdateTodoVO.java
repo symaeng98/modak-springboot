@@ -23,5 +23,5 @@ public class UpdateTodoVO {
 
     private String toDate;
 
-    private List<Integer> repeat;
+//    private List<Integer> repeat;
 }

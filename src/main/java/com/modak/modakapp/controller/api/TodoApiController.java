@@ -6,6 +6,7 @@ import com.modak.modakapp.DTO.Todo.CreateTodoResponse;
 import com.modak.modakapp.DTO.Todo.UpdateTodoResponse;
 import com.modak.modakapp.Jwt.TokenService;
 import com.modak.modakapp.VO.Todo.CreateTodoVO;
+import com.modak.modakapp.VO.Todo.UpdateRepeatTodoVO;
 import com.modak.modakapp.VO.Todo.UpdateTodoVO;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
@@ -106,36 +107,80 @@ public class TodoApiController {
         Member member = memberService.findMember(updateTodoVO.getMemberId());
         String date = updateTodoVO.getDate();
         String timeTag = updateTodoVO.getTimeTag();
-        List<Integer> repeat = updateTodoVO.getRepeat();
 
-        todoService.updateTodo(todoId, title,memo,member,date,timeTag,repeat);
+        todoService.updateTodo(todoId, title,memo,member,date,timeTag);
         return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(todoId)));
     }
 
+    @PutMapping("/repeat/single/{id}")
+    public ResponseEntity<?> updateRepeatTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
+        String accessToken = updateTodoVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
+        Todo findTodo = todoService.findTodo(todoId);
+
+        String title = updateTodoVO.getTitle();
+        String memo = updateTodoVO.getMemo();
+        Member member = memberService.findMember(updateTodoVO.getMemberId());
+        java.sql.Date date = java.sql.Date.valueOf(updateTodoVO.getDate());
+        String timeTag = updateTodoVO.getTimeTag();
+        String repeatTag = findTodo.getRepeatTag();
+        Family family = member.getFamily();
+
+
+        Todo todo = Todo.builder().member(member).
+                family(family).
+                title(title).
+                memo(memo).
+                timeTag(timeTag).
+                startDate(date).
+                endDate(date).
+                repeatTag(repeatTag).
+                groupTodoId(findTodo.getGroupTodoId()).
+                isSunday(findTodo.getIsSunday()).
+                isMonday(findTodo.getIsMonday()).
+                isTuesday(findTodo.getIsTuesday()).
+                isWednesday(findTodo.getIsWednesday()).
+                isThursday(findTodo.getIsThursday()).
+                isFriday(findTodo.getIsFriday()).
+                isSaturday(findTodo.getIsSaturday()).
+                build();
+
+        int newTodoId = todoService.join(todo);
+        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(newTodoId)));
+    }
+
+
+
 
     @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<?> handleMalformedJwtException() {
+    public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
     }
 
     @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<?> handleSignatureException() {
+    public ResponseEntity<?> handleSignatureException(SignatureException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<?> handleExpiredJwtException() {
+    public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Token 입니다.", "ExpiredJwtException"));
     }
 
     @ExceptionHandler(ExpiredAccessTokenException.class)
-    public ResponseEntity<?> handleExpiredAccessTokenException() {
+    public ResponseEntity<?> handleExpiredAccessTokenException(ExpiredAccessTokenException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Access Token 입니다.", "ExpiredAccessTokenException"));
     }
 
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    public ResponseEntity<?> handleEmptyResultDataAccessException() {
+    public ResponseEntity<?> handleEmptyResultDataAccessException(EmptyResultDataAccessException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("요청한 리소스 정보가 없습니다.", "EmptyResultDataAccessException"));
     }
 

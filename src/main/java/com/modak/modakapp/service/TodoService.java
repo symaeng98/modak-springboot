@@ -48,7 +48,7 @@ public class TodoService {
         findTodo.setGroupTodoId(groupTodoId);
     }
 
-    public void updateTodo(int todoId, String title, String memo, Member member, String date, String timeTag, List<Integer> repeat){
+    public void updateTodo(int todoId, String title, String memo, Member member, String date, String timeTag){
         Todo todo = todoRepository.findOneByTodoId(todoId);
         isDeleted(todo);
         todo.setTitle(title);
@@ -57,25 +57,25 @@ public class TodoService {
         todo.setStartDate(java.sql.Date.valueOf(date));
         todo.setTimeTag(timeTag);
 
-        String repeatTag = getRepeatTag(repeat);
-        // 반복 x
-        if(repeatTag==null){
-            todo.setEndDate(java.sql.Date.valueOf(date));
-        }
-
-        // 반복
-        todo.setEndDate(java.sql.Date.valueOf("2025-01-01"));
-        todo.setRepeatTag(repeatTag);
-        todo.setIsSunday(repeat.get(0));
-        todo.setIsMonday(repeat.get(1));
-        todo.setIsTuesday(repeat.get(2));
-        todo.setIsWednesday(repeat.get(3));
-        todo.setIsThursday(repeat.get(4));
-        todo.setIsFriday(repeat.get(5));
-        todo.setIsSaturday(repeat.get(6));
-
-
+//        String repeatTag = getRepeatTag(repeat);
+//        // 반복 x
+//        if(repeatTag==null){
+//            todo.setEndDate(java.sql.Date.valueOf(date));
+//        }
+//
+//        // 반복
+//        todo.setEndDate(java.sql.Date.valueOf("2025-01-01"));
+//        todo.setRepeatTag(repeatTag);
+//        todo.setIsSunday(repeat.get(0));
+//        todo.setIsMonday(repeat.get(1));
+//        todo.setIsTuesday(repeat.get(2));
+//        todo.setIsWednesday(repeat.get(3));
+//        todo.setIsThursday(repeat.get(4));
+//        todo.setIsFriday(repeat.get(5));
+//        todo.setIsSaturday(repeat.get(6));
     }
+
+
 
 
     public String getRepeatTag(List<Integer> repeat){

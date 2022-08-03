@@ -139,30 +139,34 @@ public class MemberApiController {
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<?> handleMalformedJwtException() {
+    public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
     }
 
     @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<?> handleSignatureException() {
+    public ResponseEntity<?> handleSignatureException(SignatureException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<?> handleExpiredJwtException() {
+    public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Token 입니다.", "ExpiredJwtException"));
     }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    public ResponseEntity<?> handleEmptyResultDataAccessException() {
+    public ResponseEntity<?> handleEmptyResultDataAccessException(EmptyResultDataAccessException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요", "EmptyResultDataAccessException"));
     }
 
     @ExceptionHandler(MemberAlreadyExistsException.class)
-    public ResponseEntity<?> handleMemberAlreadyExistsException() {
+    public ResponseEntity<?> handleMemberAlreadyExistsException(MemberAlreadyExistsException e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.CONFLICT).body(CommonFailResponse.response("이미 가입된 회원입니다.", "MemberAlreadyExistsException"));
     }
-
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e) {
