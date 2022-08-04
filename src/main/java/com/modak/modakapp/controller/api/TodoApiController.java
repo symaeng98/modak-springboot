@@ -187,8 +187,6 @@ public class TodoApiController {
 
         todoService.updateEndDate(todoId,date);
 
-
-
         Todo todo = Todo.builder().member(member).
                 family(family).
                 title(title).
@@ -248,7 +246,7 @@ public class TodoApiController {
 
         int todoDoneId = todoDoneService.updateIsDone(todo, date, isDone);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("완료 처리하였습니다.", new DoneTodoResponse(todoId,todoDoneId)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("완료/취소 요청을 처리했습니다.", new DoneTodoResponse(todoId,todoDoneId)));
     }
 
 

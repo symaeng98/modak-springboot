@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,7 +23,7 @@ public class TodoDateRepository {
 
     private final EntityManager em;
 
-    // 색깔, todo 한 번에 가져오기
+    // 색깔, to-do 한 번에 가져오기
     // 추후 수정...
     public WeekResponse findWeekColorsAndItemsByDateRange(List<String> dates, Family family){
         Map<String,List<String>> result1 = new HashMap<>();
@@ -40,6 +43,8 @@ public class TodoDateRepository {
                 .setParameter("familyId",family.getId())
                 .getResultList();
 
+
+        // 반복 - 단일 수정 삽입
         for (String date : dates) {
             List<String> colorList = new ArrayList<>();
             List<DataDTO> dataDTOList = new ArrayList<>();
@@ -69,14 +74,15 @@ public class TodoDateRepository {
             result2.put(date,dataDTOList);
         }
 
-        // 반복 to-do 삽입
+        // 반복 to-do or 단일
         for (String date : dates) {
             List<String> res1 = result1.get(date);
             List<DataDTO> res2 = result2.get(date);
             for (Todo t : todoList) {
                 Date startDate = t.getStartDate();
                 Date endDate = t.getEndDate();
-                if (isValid(startDate, endDate, Date.valueOf(date))&&t.getId()==t.getGroupTodoId()) {
+
+                if (isValidDateAndDay(Date.valueOf(date),t)&&isValid(startDate, endDate, Date.valueOf(date))&&t.getId()==t.getGroupTodoId()) {
                     List<DataDTO> dataDTOs = result2.get(date);
                     List<DataDTO> collect = dataDTOs.stream().filter(d -> d.getGroupTodoId() == t.getGroupTodoId()).collect(Collectors.toList());
                     if(collect.size()==1){ // 이미 같은 그룹 들어있으면
@@ -128,6 +134,49 @@ public class TodoDateRepository {
         return todoDone.getIsDone();
     }
 
+    public boolean isValidDateAndDay(Date date, Todo todo){
+        String repeatTag = todo.getRepeatTag();
+        if(repeatTag==null) return true;
+        if(repeatTag.equals("매일")) return true;
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+
+        String day="";
+        switch(dayOfWeek) {
+            case 1:
+                day = "일";
+                break;
+            case 2:
+                day = "월";
+                break;
+            case 3:
+                day = "화";
+                break;
+            case 4:
+                day = "수";
+                break;
+            case 5:
+                day = "목";
+                break;
+            case 6:
+                day = "금";
+                break;
+            case 7:
+                day = "토";
+                break;
+        }
+        if(repeatTag.contains(day)) return true;
+        if(day.equals("토")||day.equals("일")){ // 토 or 일이면
+            if(repeatTag.equals("주중")) return false;
+            if(repeatTag.equals("주말")) return true;
+        }
+        else{ // 평일이면
+            if(repeatTag.contains("주중")) return true;
+        }
+        return false;
+    }
 
     public boolean isValid(Date start, Date end, Date date){
         if(start.equals(date)) return true;
