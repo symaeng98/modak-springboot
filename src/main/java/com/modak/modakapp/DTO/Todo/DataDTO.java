@@ -13,10 +13,11 @@ public class DataDTO {
     private int isDone;
     private int memberId;
     private String color;
+    private int groupTodoId;
 
     @Builder
 
-    public DataDTO(int todoId, String title, String memo, String timeTag, String repeatTag, int isDone, int memberId, String color) {
+    public DataDTO(int todoId, String title, String memo, String timeTag, String repeatTag, int isDone, int memberId, String color, int groupTodoId) {
         this.todoId = todoId;
         this.title = title;
         this.memo = memo;
@@ -25,5 +26,6 @@ public class DataDTO {
         this.isDone = isDone;
         this.memberId = memberId;
         this.color = color;
+        this.groupTodoId = groupTodoId;
     }
 }

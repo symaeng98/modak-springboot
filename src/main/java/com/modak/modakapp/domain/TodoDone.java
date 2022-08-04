@@ -26,7 +26,7 @@ public class TodoDone extends BaseTimeEntity {
     @JoinColumn(name = "family_id")
     private Family family;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id")
     private Todo todo;
 

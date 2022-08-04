@@ -34,14 +34,14 @@ public class MemberService {
         return member;
     }
 
-    @Transactional
+
     public void updateRefreshToken(int memberId, String refreshToken){
         Member findMember = memberRepository.findOne(memberId);
         isDeleted(findMember);
         findMember.setRefreshToken(refreshToken);
     }
 
-    @Transactional
+
     public void deleteMember(Member member){
         member.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
     }

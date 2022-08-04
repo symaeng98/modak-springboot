@@ -8,5 +8,5 @@ public class DoneTodoVO {
     private String date;
     private String fromDate;
     private String toDate;
-    private int todoId;
+    private int isDone; // 혹시 모르니까
 }

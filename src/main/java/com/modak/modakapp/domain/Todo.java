@@ -37,8 +37,8 @@ public class Todo extends BaseTimeEntity {
     @Column(name="memo")
     private String memo;
 
-    @OneToOne(mappedBy = "todo",fetch = FetchType.LAZY)
-    private TodoDone todoDone;
+    @OneToMany(mappedBy = "todo",fetch = FetchType.LAZY)
+    private List<TodoDone> todoDone;
 
 
     @Column(name = "start_date",nullable = false)

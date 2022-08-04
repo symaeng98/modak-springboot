@@ -83,20 +83,7 @@ public class TodoService {
         findTodo.setEndDate(date);
     }
 
-    public void updateIsDone(int todoId, Date date){
-        Todo findTodo = todoRepository.findOneByTodoId(todoId);
-        try {
-            TodoDone findTodoDone = findTodo.getTodoDone();
-            int isDone = findTodoDone.getIsDone();
-            if(isDone==1){
 
-            }else{
-
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
     public int getGauge(Family family){
         return todoRepository.findNumOfDone(family);

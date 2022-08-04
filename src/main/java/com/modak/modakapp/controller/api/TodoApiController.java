@@ -16,6 +16,7 @@ import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.repository.date.TodoDateRepository;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
+import com.modak.modakapp.service.TodoDoneService;
 import com.modak.modakapp.service.TodoService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -50,6 +51,8 @@ public class TodoApiController {
     private final FamilyService familyService;
 
     private final TodoDateRepository todoDateRepository;
+
+    private final TodoDoneService todoDoneService;
 
 //    private final HttpServletResponse servletResponse;
 
@@ -229,7 +232,7 @@ public class TodoApiController {
                     dates.add(String.valueOf(d));
                 });
 
-        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsByDateRange(dates);
+        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsByDateRange(dates,family);
         int gauge = todoService.getGauge(family);
         weekColorsAndItemsByDateRange.setGauge(gauge);
 
@@ -237,14 +240,15 @@ public class TodoApiController {
     }
 
 
-    @PutMapping("/done")
-    public ResponseEntity<?> done(@RequestBody DoneTodoVO doneTodoVO) {
-        int todoId = doneTodoVO.getTodoId();
+    @PutMapping("/done/{id}")
+    public ResponseEntity<?> done(@PathVariable("id") int todoId, @RequestBody DoneTodoVO doneTodoVO) {
+        Todo todo = todoService.findTodo(todoId);
         Date date = Date.valueOf(doneTodoVO.getDate());
+        int isDone = doneTodoVO.getIsDone();
 
+        int todoDoneId = todoDoneService.updateIsDone(todo, date, isDone);
 
-
-        return ResponseEntity.ok(CommonSuccessResponse.response("완료 처리하였습니다.", new DoneTodoResponse(todoId,3)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("완료 처리하였습니다.", new DoneTodoResponse(todoId,todoDoneId)));
     }
 
 

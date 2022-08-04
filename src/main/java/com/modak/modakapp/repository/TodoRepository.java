@@ -26,15 +26,11 @@ public class TodoRepository {
 
 
 
+
     public int findNumOfDone(Family family){
-        try {
-            List<TodoDone> todoDones = family.getTodoDones();
-            return em.createQuery("select count(t.isDone) from TodoDone t where t.family.id = :id")
-                    .setParameter("id", family.getId()).getFirstResult();
-        }catch (Exception e){
-            e.printStackTrace();
-            return 0;
-        }
+        List<TodoDone> resultList = em.createQuery("select t from TodoDone t where t.family.id = :id and t.isDone=1", TodoDone.class)
+                .setParameter("id", family.getId()).getResultList();
+        return resultList.size();
     }
 
     public List<Todo> findAllByFamilyId(int id){
