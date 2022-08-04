@@ -11,6 +11,7 @@ import com.modak.modakapp.VO.Todo.WeekTodoVO;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
+import com.modak.modakapp.domain.TodoDone;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.repository.date.TodoDateRepository;
 import com.modak.modakapp.service.FamilyService;
@@ -29,6 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -71,8 +73,8 @@ public class TodoApiController {
 
 
         // 날짜 변형
-        java.sql.Date startDate = java.sql.Date.valueOf(createTodoVO.getDate());
-        java.sql.Date endDate = java.sql.Date.valueOf("2025-01-01");
+        Date startDate = Date.valueOf(createTodoVO.getDate());
+        Date endDate = Date.valueOf("2025-01-01");
 
 
         // 반복 로직
@@ -132,7 +134,7 @@ public class TodoApiController {
         String title = updateTodoVO.getTitle();
         String memo = updateTodoVO.getMemo();
         Member member = memberService.findMember(updateTodoVO.getMemberId());
-        java.sql.Date date = java.sql.Date.valueOf(updateTodoVO.getDate());
+        Date date = Date.valueOf(updateTodoVO.getDate());
         String timeTag = updateTodoVO.getTimeTag();
 
         Family family = member.getFamily();
@@ -175,8 +177,8 @@ public class TodoApiController {
         String title = updateTodoVO.getTitle();
         String memo = updateTodoVO.getMemo();
         Member member = memberService.findMember(updateTodoVO.getMemberId());
-        java.sql.Date date = java.sql.Date.valueOf(updateTodoVO.getDate());
-        java.sql.Date endDate = java.sql.Date.valueOf("2025-01-01");
+        Date date = Date.valueOf(updateTodoVO.getDate());
+        Date endDate = Date.valueOf("2025-01-01");
         String timeTag = updateTodoVO.getTimeTag();
         Family family = member.getFamily();
 
@@ -226,8 +228,7 @@ public class TodoApiController {
                 .forEach(d -> {
                     dates.add(String.valueOf(d));
                 });
-//        Map<String, List<String>> colors = todoDateRepository.findWeekColorsByDateRange(dates);
-//        Map<String, List<DataDTO>> items = todoDateRepository.findWeekItemsByDateRange(dates);
+
         WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsByDateRange(dates);
         int gauge = todoService.getGauge(family);
         weekColorsAndItemsByDateRange.setGauge(gauge);
@@ -236,14 +237,15 @@ public class TodoApiController {
     }
 
 
-//    @PutMapping("/done")
-//    public ResponseEntity<?> done(@RequestBody DoneTodoVO doneTodoVO) {
-//        int todoId = doneTodoVO.getTodoId();
-//        String toDate = doneTodoVO.getToDate();
-//
-//
-//        return ResponseEntity.ok(CommonSuccessResponse.response("완료 처리하였습니다.", new DoneTodoResponse()))
-//    }
+    @PutMapping("/done")
+    public ResponseEntity<?> done(@RequestBody DoneTodoVO doneTodoVO) {
+        int todoId = doneTodoVO.getTodoId();
+        Date date = Date.valueOf(doneTodoVO.getDate());
+
+
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("완료 처리하였습니다.", new DoneTodoResponse(todoId,3)));
+    }
 
 
 

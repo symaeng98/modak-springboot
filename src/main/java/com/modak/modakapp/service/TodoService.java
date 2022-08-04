@@ -4,12 +4,14 @@ import com.modak.modakapp.VO.Todo.UpdateTodoVO;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
+import com.modak.modakapp.domain.TodoDone;
 import com.modak.modakapp.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,7 +56,7 @@ public class TodoService {
         todo.setTitle(title);
         todo.setMemo(memo);
         todo.setMember(member);
-        todo.setStartDate(java.sql.Date.valueOf(date));
+        todo.setStartDate(Date.valueOf(date));
         todo.setTimeTag(timeTag);
 
 //        String repeatTag = getRepeatTag(repeat);
@@ -76,14 +78,30 @@ public class TodoService {
     }
 
 
-    public void updateEndDate(int todoId, java.sql.Date date){
+    public void updateEndDate(int todoId, Date date){
         Todo findTodo = todoRepository.findOneByTodoId(todoId);
         findTodo.setEndDate(date);
+    }
+
+    public void updateIsDone(int todoId, Date date){
+        Todo findTodo = todoRepository.findOneByTodoId(todoId);
+        try {
+            TodoDone findTodoDone = findTodo.getTodoDone();
+            int isDone = findTodoDone.getIsDone();
+            if(isDone==1){
+
+            }else{
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public int getGauge(Family family){
         return todoRepository.findNumOfDone(family);
     }
+
 
 
     public String getRepeatTag(List<Integer> repeat){

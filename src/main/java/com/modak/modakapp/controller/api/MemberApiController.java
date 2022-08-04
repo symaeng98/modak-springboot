@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -62,7 +63,7 @@ public class MemberApiController {
         if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
             throw new MemberAlreadyExistsException();
         }
-        java.sql.Date birthday = java.sql.Date.valueOf(signUpMemberVO.getBirthday());
+        Date birthday = Date.valueOf(signUpMemberVO.getBirthday());
 
         Family family = Family.builder().name("행복한 우리 가족").build();
         int joinFamilyId = familyService.join(family);

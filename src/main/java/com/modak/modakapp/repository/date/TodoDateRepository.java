@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.sql.Date;
 import java.util.*;
 
 @Repository
@@ -89,14 +90,14 @@ public class TodoDateRepository {
 //    }
 
     // 색깔, todo 한 번에 가져오기
-
+    // 추후 수정...
     public WeekResponse findWeekColorsAndItemsByDateRange(List<String> dates){
         Map<String,List<String>> result1 = new HashMap<>();
         Map<String,List<DataDTO>> result2 = new HashMap<>();
         for (String date : dates) {
             List<String> colorList = new ArrayList<>();
             List<DataDTO> dataDTOList = new ArrayList<>();
-            java.sql.Date sqlDate = java.sql.Date.valueOf(date);
+            Date sqlDate = Date.valueOf(date);
             List<Todo> todoList = em.createQuery("select t from Todo t"
                                     + " where t.startDate <= :date and t.endDate >= :date"
                             , Todo.class)
