@@ -25,7 +25,7 @@ public class TodoDateRepository {
 
     // 색깔, to-do 한 번에 가져오기
     // 추후 수정...
-    public WeekResponse findWeekColorsAndItemsByDateRange(List<String> dates, Family family){
+    public WeekResponse findWeekColorsAndItemsAndGaugeByDateRange(List<String> dates, Family family){
         Map<String,List<String>> result1 = new HashMap<>();
         Map<String,List<DataDTO>> result2 = new HashMap<>();
         String firstDate = dates.get(0);
@@ -36,7 +36,8 @@ public class TodoDateRepository {
                                 " where ((t.startDate <= :firstDate and :firstDate <= t.endDate)" +
                                 " or (:firstDate<=t.startDate and t.endDate <= :lastDate)" +
                                 " or (t.startDate<=:lastDate and :lastDate <= t.endDate))" +
-                                " and t.family.id = :familyId"
+                                " and t.family.id = :familyId" +
+                                " and t.deletedAt is null"
                         , Todo.class)
                 .setParameter("firstDate", sqlFirstDate)
                 .setParameter("lastDate",sqlLastDate)
@@ -86,7 +87,6 @@ public class TodoDateRepository {
                     List<DataDTO> dataDTOs = result2.get(date);
                     List<DataDTO> collect = dataDTOs.stream().filter(d -> d.getGroupTodoId() == t.getGroupTodoId()).collect(Collectors.toList());
                     if(collect.size()==1){ // 이미 같은 그룹 들어있으면
-                        System.out.println(date);
                         continue;
                     }
                     Member member = t.getMember();
@@ -115,11 +115,100 @@ public class TodoDateRepository {
             result2.put(date,res2);
 
         }
+
         // 정렬
         TreeMap<String, List<String>> treeResult1 = new TreeMap<>(result1);
         TreeMap<String, List<DataDTO>> treeResult2 = new TreeMap<>(result2);
-        return new WeekResponse(treeResult1,treeResult2);
+        int gauge = findNumOfDone(family);
+
+        return new WeekResponse(treeResult1,treeResult2,gauge);
     }
+
+
+
+
+    public WeekResponse getCreateResponse(Todo t, List<String> dates, Family family) {
+        Map<String,List<String>> result1 = new HashMap<>();
+        Map<String,List<DataDTO>> result2 = new HashMap<>();
+        String firstDate = dates.get(0);
+        String lastDate = dates.get(dates.size()-1);
+        Date sqlFirstDate = Date.valueOf(firstDate);
+        Date sqlLastDate = Date.valueOf(lastDate);
+
+        // 반복 - 단일 수정 삽입
+        for (String date : dates) {
+            List<String> colorList = new ArrayList<>();
+            List<DataDTO> dataDTOList = new ArrayList<>();
+
+            Date startDate = t.getStartDate();
+            Date endDate = t.getEndDate();
+
+            if (isValid(startDate, endDate, Date.valueOf(date))) {
+                if(t.getRepeatTag()==null){ // 단일
+                    Member member = t.getMember();
+                    String color = member.getColor();
+                    colorList.add(color);
+
+                    DataDTO dataDto = DataDTO.builder().todoId(t.getId())
+                            .title(t.getTitle())
+                            .memo(t.getMemo())
+                            .timeTag(t.getTimeTag())
+                            .repeatTag(t.getRepeatTag())
+                            .color(member.getColor())
+                            .memberId(member.getId())
+                            .isDone(0)
+                            .groupTodoId(t.getGroupTodoId())
+                            .build();
+                    dataDTOList.add(dataDto);
+                }
+                else{ // 반복
+                    if(isValidDateAndDay(Date.valueOf(date),t)){ // 요일이 날짜에 해당하면
+                        Member member = t.getMember();
+                        String color = member.getColor();
+                        colorList.add(color);
+
+                        DataDTO dataDto = DataDTO.builder().todoId(t.getId())
+                                .title(t.getTitle())
+                                .memo(t.getMemo())
+                                .timeTag(t.getTimeTag())
+                                .repeatTag(t.getRepeatTag())
+                                .color(member.getColor())
+                                .memberId(member.getId())
+                                .isDone(0)
+                                .groupTodoId(t.getGroupTodoId())
+                                .build();
+                        dataDTOList.add(dataDto);
+                    }
+                    else {
+                        continue;
+                    }
+                }
+                // 중복 제거
+                Set<String> set = new HashSet<String>(colorList);
+                List<String> newList = new ArrayList<String>(set);
+
+                result1.put(date,newList);
+                result2.put(date,dataDTOList);
+            }
+
+        }
+        // 정렬
+        TreeMap<String, List<String>> treeResult1 = new TreeMap<>(result1);
+        TreeMap<String, List<DataDTO>> treeResult2 = new TreeMap<>(result2);
+        int gauge = findNumOfDone(family);
+
+        return new WeekResponse(treeResult1,treeResult2,gauge);
+    }
+
+
+
+
+    public int findNumOfDone(Family family){
+        List<TodoDone> resultList = em.createQuery("select t from TodoDone t where t.family.id = :id and t.isDone=1 and t.deletedAt is null", TodoDone.class)
+                .setParameter("id", family.getId()).getResultList();
+        return resultList.size();
+    }
+
 
     public int getIsDone(Todo todo, Date date){
         List<TodoDone> todoDones = todo.getTodoDone();
@@ -134,6 +223,7 @@ public class TodoDateRepository {
         return todoDone.getIsDone();
     }
 
+    // 현재 날짜가 todo의 반복 요일에 포함이 되는지 확인
     public boolean isValidDateAndDay(Date date, Todo todo){
         String repeatTag = todo.getRepeatTag();
         if(repeatTag==null) return true;

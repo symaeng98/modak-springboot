@@ -9,14 +9,14 @@ import java.util.Map;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class WeekResponse {
     private Map<String,List<String>> color;
     private Map<String,List<DataDTO>> items;
     private int gauge;
 
-    public WeekResponse(Map<String, List<String>> color, Map<String, List<DataDTO>> items) {
+    public WeekResponse(Map<String, List<String>> color, Map<String, List<DataDTO>> items, int gauge) {
         this.color = color;
         this.items = items;
+        this.gauge = gauge;
     }
 }

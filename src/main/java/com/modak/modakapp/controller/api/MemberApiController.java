@@ -133,6 +133,7 @@ public class MemberApiController {
         String newRefreshToken = tokenService.getRefreshToken(memberId);
 
         memberService.updateRefreshToken(memberId, newRefreshToken);
+
         servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
         return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_AND_REFRESH_TOKEN")));
@@ -154,7 +155,7 @@ public class MemberApiController {
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException e) {
         e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Token 입니다.", "ExpiredJwtException"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Refresh Token 입니다.", "ExpiredJwtException"));
     }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)

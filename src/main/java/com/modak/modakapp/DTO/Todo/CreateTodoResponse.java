@@ -9,4 +9,5 @@ public class CreateTodoResponse {
     private int todoId;
     private int memberId;
     private int familyId;
+    private WeekResponse updateLists;
 }

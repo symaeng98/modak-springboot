@@ -4,10 +4,7 @@ import com.modak.modakapp.DTO.CommonFailResponse;
 import com.modak.modakapp.DTO.CommonSuccessResponse;
 import com.modak.modakapp.DTO.Todo.*;
 import com.modak.modakapp.Jwt.TokenService;
-import com.modak.modakapp.VO.Todo.CreateTodoVO;
-import com.modak.modakapp.VO.Todo.DoneTodoVO;
-import com.modak.modakapp.VO.Todo.UpdateTodoVO;
-import com.modak.modakapp.VO.Todo.WeekTodoVO;
+import com.modak.modakapp.VO.Todo.*;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
@@ -80,7 +77,7 @@ public class TodoApiController {
         Date endDate = Date.valueOf("2025-01-01");
 
 
-        // 반복 로직
+        // 반복 로직 ex) [0,0,0,0,1,0,0]
         List<Integer> repeat = createTodoVO.getRepeat();
 
         String repeatTag = todoService.getRepeatTag(repeat);
@@ -88,7 +85,6 @@ public class TodoApiController {
         if(repeatTag==null){
             endDate = startDate;
         }
-        System.out.println(repeatTag);
 
         Todo todo = Todo.builder().member(findMember).
                 family(family).
@@ -109,7 +105,18 @@ public class TodoApiController {
 
         int todoId = todoService.join(todo);
         todoService.updateGroupTodoId(todoId, todoId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("투두 생성 완료", new CreateTodoResponse(todoId, memberId,familyId)));
+
+        List<String> dates = new ArrayList<>();
+        LocalDate start = LocalDate.parse(createTodoVO.getFromDate());
+        LocalDate end = LocalDate.parse(createTodoVO.getToDate());
+
+        Stream.iterate(start, date->date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(start,end)+1)
+                .forEach(d -> {
+                    dates.add(String.valueOf(d));
+                });
+        WeekResponse wr = todoDateRepository.getCreateResponse(todo, dates, family);
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("투두 생성 완료", new CreateTodoResponse(todoId, memberId,familyId,wr)));
     }
 
     @PutMapping("/single/{id}")
@@ -171,7 +178,7 @@ public class TodoApiController {
     }
 
     @PutMapping("/repeat/later/{id}")
-    public ResponseEntity<?> updateReapeatTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
+    public ResponseEntity<?> updateRepeatLaterTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
         String accessToken = updateTodoVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
@@ -230,9 +237,7 @@ public class TodoApiController {
                     dates.add(String.valueOf(d));
                 });
 
-        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsByDateRange(dates,family);
-        int gauge = todoService.getGauge(family);
-        weekColorsAndItemsByDateRange.setGauge(gauge);
+        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(dates,family);
 
         return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", weekColorsAndItemsByDateRange));
     }
@@ -240,6 +245,9 @@ public class TodoApiController {
 
     @PutMapping("/done/{id}")
     public ResponseEntity<?> done(@PathVariable("id") int todoId, @RequestBody DoneTodoVO doneTodoVO) {
+        String accessToken = doneTodoVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
         Todo todo = todoService.findTodo(todoId);
         Date date = Date.valueOf(doneTodoVO.getDate());
         int isDone = doneTodoVO.getIsDone();
@@ -247,6 +255,16 @@ public class TodoApiController {
         int todoDoneId = todoDoneService.updateIsDone(todo, date, isDone);
 
         return ResponseEntity.ok(CommonSuccessResponse.response("완료/취소 요청을 처리했습니다.", new DoneTodoResponse(todoId,todoDoneId)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") int todoId, @RequestBody DeleteTodoVO deleteTodoVO) {
+        String accessToken = deleteTodoVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
+        todoService.deleteTodo(todoId);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("완료/취소 요청을 처리했습니다.", new DoneTodoResponse(todoId,77)));
     }
 
 

@@ -35,9 +35,6 @@ public class TodoService {
     }
 
 
-    public void deleteTodo(Todo todo){
-        todo.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
-    }
 
     public void isDeleted(Todo todo){
         if(todo.getDeletedAt()!=null){
@@ -47,6 +44,7 @@ public class TodoService {
 
     public void updateGroupTodoId(int id, int groupTodoId){
         Todo findTodo = todoRepository.findOneByTodoId(id);
+        isDeleted(findTodo);
         findTodo.setGroupTodoId(groupTodoId);
     }
 
@@ -59,35 +57,26 @@ public class TodoService {
         todo.setStartDate(Date.valueOf(date));
         todo.setTimeTag(timeTag);
 
-//        String repeatTag = getRepeatTag(repeat);
-//        // 반복 x
-//        if(repeatTag==null){
-//            todo.setEndDate(java.sql.Date.valueOf(date));
-//        }
-//
-//        // 반복
-//        todo.setEndDate(java.sql.Date.valueOf("2025-01-01"));
-//        todo.setRepeatTag(repeatTag);
-//        todo.setIsSunday(repeat.get(0));
-//        todo.setIsMonday(repeat.get(1));
-//        todo.setIsTuesday(repeat.get(2));
-//        todo.setIsWednesday(repeat.get(3));
-//        todo.setIsThursday(repeat.get(4));
-//        todo.setIsFriday(repeat.get(5));
-//        todo.setIsSaturday(repeat.get(6));
     }
 
 
     public void updateEndDate(int todoId, Date date){
         Todo findTodo = todoRepository.findOneByTodoId(todoId);
+        isDeleted(findTodo);
         findTodo.setEndDate(date);
     }
 
+    public void deleteTodo(int todoId){
+        List<Todo> todos = todoRepository.findAllByGroupId(todoId);
+        todos.forEach(t-> {
+            t.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
+            List<TodoDone> todoDone = t.getTodoDone();
+            todoDone.forEach(td->td.setDeletedAt(Timestamp.valueOf(LocalDateTime.now())));
+        });
 
-
-    public int getGauge(Family family){
-        return todoRepository.findNumOfDone(family);
     }
+
+
 
 
 
@@ -95,7 +84,7 @@ public class TodoService {
         String [] day = {"일","월","화","수","목","금","토"};
 
         String repeatTag = "";
-        if(repeat.get(1)==0&&repeat.get(2)==0&&repeat.get(3)==0&&repeat.get(4)==0&&repeat.get(5)==0&&repeat.get(0)==0&&repeat.get(6)==0){
+        if(repeat.get(0)==0&&repeat.get(1)==0&&repeat.get(2)==0&&repeat.get(3)==0&&repeat.get(4)==0&&repeat.get(5)==0&&repeat.get(6)==0){
             return null;
         }
 
