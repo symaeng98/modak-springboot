@@ -7,4 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class UpdateSingleTodoResponse {
     private int newTodoId;
+    private WeekResponse updateLists;
 }

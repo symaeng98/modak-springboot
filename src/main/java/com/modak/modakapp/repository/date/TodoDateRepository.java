@@ -14,8 +14,11 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,7 +28,19 @@ public class TodoDateRepository {
 
     // 색깔, to-do 한 번에 가져오기
     // 추후 수정...
-    public WeekResponse findWeekColorsAndItemsAndGaugeByDateRange(List<String> dates, Family family){
+    public WeekResponse findWeekColorsAndItemsAndGaugeByDateRange(String sd, String ed, Family family){
+
+        List<String> dates = new ArrayList<>();
+        LocalDate start = LocalDate.parse(sd);
+        LocalDate end = LocalDate.parse(ed);
+        Stream.iterate(start, date->date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(start,end)+1)
+                .forEach(d -> {
+                    dates.add(String.valueOf(d));
+                });
+
+
+
         Map<String,List<String>> result1 = new HashMap<>();
         Map<String,List<DataDTO>> result2 = new HashMap<>();
         String firstDate = dates.get(0);

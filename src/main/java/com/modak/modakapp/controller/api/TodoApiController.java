@@ -108,17 +108,12 @@ public class TodoApiController {
         int todoId = todoService.join(todo);
         todoService.updateGroupTodoId(todoId, todoId);
 
-        List<String> dates = new ArrayList<>();
-        LocalDate start = LocalDate.parse(createTodoVO.getFromDate());
-        LocalDate end = LocalDate.parse(createTodoVO.getToDate());
 
-        Stream.iterate(start, date->date.plusDays(1))
-                .limit(ChronoUnit.DAYS.between(start,end)+1)
-                .forEach(d -> {
-                    dates.add(String.valueOf(d));
-                });
-        WeekResponse wr = todoDateRepository.getCreateResponse(todo, dates, family);
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("투두 생성 완료", new CreateTodoResponse(todoId, memberId,familyId,wr)));
+
+
+//        WeekResponse wr = todoDateRepository.getCreateResponse(todo, dates, family);
+        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(createTodoVO.getFromDate(),createTodoVO.getToDate(), family);
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("투두 생성 완료", new CreateTodoResponse(todoId, wr)));
     }
 
     @PutMapping("/single/{id}")
@@ -131,9 +126,12 @@ public class TodoApiController {
         Member member = memberService.findMember(updateTodoVO.getMemberId());
         String date = updateTodoVO.getDate();
         String timeTag = updateTodoVO.getTimeTag();
+        Family family = member.getFamily();
 
         todoService.updateTodo(todoId, title,memo,member,date,timeTag);
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateSingleTodoResponse(todoId)));
+        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", wr));
     }
 
     @PutMapping("/repeat/single/{id}")
@@ -154,7 +152,8 @@ public class TodoApiController {
         // 이미 수정한 적이 있으면
         if(findTodo.getStartDate().equals(findTodo.getEndDate())){
             todoService.updateTodo(todoId, title,memo,member, updateTodoVO.getDate(), timeTag);
-            return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateSingleTodoResponse(todoId)));
+            WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
+            return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateSingleTodoResponse(todoId,wr)));
         }
 
         Todo todo = Todo.builder().member(member).
@@ -200,7 +199,8 @@ public class TodoApiController {
         Date tomDate = todoService.updateStartDateTom(afterTodoId, date);
         System.out.println(yestDate+"\n"+tomDate);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(newTodoId,afterTodoId)));
+        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
+        return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateTodoResponse(newTodoId,afterTodoId,wr)));
     }
 
     @PutMapping("/repeat/later/{id}")
@@ -239,7 +239,9 @@ public class TodoApiController {
                 build();
 
         int newTodoId = todoService.join(todo);
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateSingleTodoResponse(newTodoId)));
+
+        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
+        return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateSingleTodoResponse(newTodoId,wr)));
     }
 
     @GetMapping("/week")
@@ -253,19 +255,10 @@ public class TodoApiController {
         String fromDate = weekTodoVO.getFromDate();
         String toDate = weekTodoVO.getToDate();
 
-        List<String> dates = new ArrayList<>();
-        LocalDate start = LocalDate.parse(fromDate);
-        LocalDate end = LocalDate.parse(toDate);
 
-        Stream.iterate(start, date->date.plusDays(1))
-                .limit(ChronoUnit.DAYS.between(start,end)+1)
-                .forEach(d -> {
-                    dates.add(String.valueOf(d));
-                });
+        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(fromDate,toDate,family);
 
-        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(dates,family);
-
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", weekColorsAndItemsByDateRange));
+        return ResponseEntity.ok(CommonSuccessResponse.response("일주일치 정보", weekColorsAndItemsByDateRange));
     }
 
 
@@ -276,11 +269,14 @@ public class TodoApiController {
 
         Todo todo = todoService.findTodo(todoId);
         Date date = Date.valueOf(doneTodoVO.getDate());
+        Family family = todo.getFamily();
         int isDone = doneTodoVO.getIsDone();
 
         int todoDoneId = todoDoneService.updateIsDone(todo, date, isDone);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("완료/취소 요청을 처리했습니다.", new DoneTodoResponse(todoId,todoDoneId)));
+
+        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(doneTodoVO.getFromDate(),doneTodoVO.getToDate(), family);
+        return ResponseEntity.ok(CommonSuccessResponse.response("완료/취소 처리 성공", new UpdateSingleTodoResponse(todoId,wr)));
     }
 
 
@@ -292,19 +288,21 @@ public class TodoApiController {
 
         Todo findTodo = todoService.findTodo(todoId);
 
+        Member member = findTodo.getMember();
+        Family family = member.getFamily();
+
         // 단일 삭제면
         if(findTodo.getStartDate().equals(findTodo.getEndDate())){
             todoService.deleteSingleTodo(todoId);
-            return ResponseEntity.ok(CommonSuccessResponse.response("삭제에 성공하였습니다.", new UpdateSingleTodoResponse(todoId)));
+
+            WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteRepeatTodoVO.getFromDate(), deleteRepeatTodoVO.getToDate(), family);
+            return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new UpdateSingleTodoResponse(todoId,wr)));
         }
 
         String title = findTodo.getTitle();
         String memo = findTodo.getMemo();
-        Member member = findTodo.getMember();
         Date date = Date.valueOf(deleteRepeatTodoVO.getDate());
         String timeTag = findTodo.getTimeTag();
-
-        Family family = member.getFamily();
 
 
 
@@ -352,7 +350,8 @@ public class TodoApiController {
         Date tomDate = todoService.updateStartDateTom(afterTodoId, date);
         System.out.println(yestDate+"\n"+tomDate);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("삭제에 성공하였습니다.", new UpdateTodoResponse(newTodoId,afterTodoId)));
+        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteRepeatTodoVO.getFromDate(), deleteRepeatTodoVO.getToDate(), family);
+        return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new UpdateTodoResponse(newTodoId,afterTodoId,wr)));
     }
 
     @DeleteMapping("/repeat/later/{id}")
@@ -361,11 +360,13 @@ public class TodoApiController {
         tokenService.isAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);
+        Family family = findTodo.getFamily();
 
         todoService.updateEndDateYest(todoId,Date.valueOf(deleteRepeatTodoVO.getDate()));
         todoService.deleteByGroupTodoId(findTodo.getGroupTodoId(),Date.valueOf(deleteRepeatTodoVO.getDate()));
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(todoId,3)));
+        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteRepeatTodoVO.getFromDate(), deleteRepeatTodoVO.getToDate(), family);
+        return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new UpdateSingleTodoResponse(todoId,wr)));
     }
 
     @ExceptionHandler(MalformedJwtException.class)

@@ -8,4 +8,5 @@ import lombok.Data;
 public class UpdateTodoResponse {
     private int newTodoId;
     private int afterTodoId;
+    private WeekResponse updateLists;
 }
