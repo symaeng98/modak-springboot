@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UpdateTodoResponse {
+public class UpdateSingleTodoResponse {
     private int newTodoId;
-    private int afterTodoId;
 }

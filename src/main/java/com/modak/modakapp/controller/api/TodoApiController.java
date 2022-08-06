@@ -29,7 +29,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +133,7 @@ public class TodoApiController {
         String timeTag = updateTodoVO.getTimeTag();
 
         todoService.updateTodo(todoId, title,memo,member,date,timeTag);
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(todoId)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateSingleTodoResponse(todoId)));
     }
 
     @PutMapping("/repeat/single/{id}")
@@ -152,7 +154,7 @@ public class TodoApiController {
         // 이미 수정한 적이 있으면
         if(findTodo.getStartDate().equals(findTodo.getEndDate())){
             todoService.updateTodo(todoId, title,memo,member, updateTodoVO.getDate(), timeTag);
-            return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(todoId)));
+            return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateSingleTodoResponse(todoId)));
         }
 
         Todo todo = Todo.builder().member(member).
@@ -173,8 +175,32 @@ public class TodoApiController {
                 isSaturday(findTodo.getIsSaturday()).
                 build();
 
+        Date endDate = findTodo.getEndDate();
+        Date yestDate = todoService.updateEndDateYest(todoId, date);
+        Todo todo2 = Todo.builder().member(findTodo.getMember()).
+                family(findTodo.getFamily()).
+                title(findTodo.getTitle()).
+                memo(findTodo.getMemo()).
+                timeTag(findTodo.getTimeTag()).
+                startDate(date).
+                endDate(endDate).
+                repeatTag(findTodo.getRepeatTag()).
+                groupTodoId(findTodo.getGroupTodoId()).
+                isSunday(findTodo.getIsSunday()).
+                isMonday(findTodo.getIsMonday()).
+                isTuesday(findTodo.getIsTuesday()).
+                isWednesday(findTodo.getIsWednesday()).
+                isThursday(findTodo.getIsThursday()).
+                isFriday(findTodo.getIsFriday()).
+                isSaturday(findTodo.getIsSaturday()).
+                build();
+
         int newTodoId = todoService.join(todo);
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(newTodoId)));
+        int afterTodoId = todoService.join(todo2);
+        Date tomDate = todoService.updateStartDateTom(afterTodoId, date);
+        System.out.println(yestDate+"\n"+tomDate);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(newTodoId,afterTodoId)));
     }
 
     @PutMapping("/repeat/later/{id}")
@@ -192,7 +218,7 @@ public class TodoApiController {
         String timeTag = updateTodoVO.getTimeTag();
         Family family = member.getFamily();
 
-        todoService.updateEndDate(todoId,date);
+        todoService.updateEndDateYest(todoId,date);
 
         Todo todo = Todo.builder().member(member).
                 family(family).
@@ -213,7 +239,7 @@ public class TodoApiController {
                 build();
 
         int newTodoId = todoService.join(todo);
-        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(newTodoId)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateSingleTodoResponse(newTodoId)));
     }
 
     @GetMapping("/week")
@@ -257,17 +283,90 @@ public class TodoApiController {
         return ResponseEntity.ok(CommonSuccessResponse.response("완료/취소 요청을 처리했습니다.", new DoneTodoResponse(todoId,todoDoneId)));
     }
 
+
+    // repeat tag 유무에 따라 single, repeat 판단
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int todoId, @RequestBody DeleteTodoVO deleteTodoVO) {
-        String accessToken = deleteTodoVO.getAccessToken().substring(7);
+    public ResponseEntity<?> deleteTodo(@PathVariable("id") int todoId, @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO){
+        String accessToken = deleteRepeatTodoVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
-        todoService.deleteTodo(todoId);
+        Todo findTodo = todoService.findTodo(todoId);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("완료/취소 요청을 처리했습니다.", new DoneTodoResponse(todoId,77)));
+        // 단일 삭제면
+        if(findTodo.getStartDate().equals(findTodo.getEndDate())){
+            todoService.deleteSingleTodo(todoId);
+            return ResponseEntity.ok(CommonSuccessResponse.response("삭제에 성공하였습니다.", new UpdateSingleTodoResponse(todoId)));
+        }
+
+        String title = findTodo.getTitle();
+        String memo = findTodo.getMemo();
+        Member member = findTodo.getMember();
+        Date date = Date.valueOf(deleteRepeatTodoVO.getDate());
+        String timeTag = findTodo.getTimeTag();
+
+        Family family = member.getFamily();
+
+
+
+        Todo todo = Todo.builder().member(member).
+                family(family).
+                title(title).
+                memo(memo).
+                timeTag(timeTag).
+                startDate(date).
+                endDate(date).
+                repeatTag(findTodo.getRepeatTag()).
+                groupTodoId(findTodo.getGroupTodoId()).
+                isSunday(findTodo.getIsSunday()).
+                isMonday(findTodo.getIsMonday()).
+                isTuesday(findTodo.getIsTuesday()).
+                isWednesday(findTodo.getIsWednesday()).
+                isThursday(findTodo.getIsThursday()).
+                isFriday(findTodo.getIsFriday()).
+                isSaturday(findTodo.getIsSaturday()).
+                deletedAt(Timestamp.valueOf(LocalDateTime.now())). // 삭제 todo 생성
+                build();
+
+        Date endDate = findTodo.getEndDate();
+        Date yestDate = todoService.updateEndDateYest(todoId, date);
+        Todo todo2 = Todo.builder().member(findTodo.getMember()).
+                family(findTodo.getFamily()).
+                title(findTodo.getTitle()).
+                memo(findTodo.getMemo()).
+                timeTag(findTodo.getTimeTag()).
+                startDate(date).
+                endDate(endDate).
+                repeatTag(findTodo.getRepeatTag()).
+                groupTodoId(findTodo.getGroupTodoId()).
+                isSunday(findTodo.getIsSunday()).
+                isMonday(findTodo.getIsMonday()).
+                isTuesday(findTodo.getIsTuesday()).
+                isWednesday(findTodo.getIsWednesday()).
+                isThursday(findTodo.getIsThursday()).
+                isFriday(findTodo.getIsFriday()).
+                isSaturday(findTodo.getIsSaturday()).
+                build();
+
+        int newTodoId = todoService.join(todo);
+        int afterTodoId = todoService.join(todo2);
+        Date tomDate = todoService.updateStartDateTom(afterTodoId, date);
+        System.out.println(yestDate+"\n"+tomDate);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("삭제에 성공하였습니다.", new UpdateTodoResponse(newTodoId,afterTodoId)));
     }
 
+    @DeleteMapping("/repeat/later/{id}")
+    public ResponseEntity<?> deleteRepeatLaterTodo(@PathVariable("id") int todoId, @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO) {
+        String accessToken = deleteRepeatTodoVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
 
+        Todo findTodo = todoService.findTodo(todoId);
+
+        todoService.updateEndDateYest(todoId,Date.valueOf(deleteRepeatTodoVO.getDate()));
+        todoService.deleteByGroupTodoId(findTodo.getGroupTodoId(),Date.valueOf(deleteRepeatTodoVO.getDate()));
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("업데이트에 성공하였습니다.", new UpdateTodoResponse(todoId,3)));
+    }
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {

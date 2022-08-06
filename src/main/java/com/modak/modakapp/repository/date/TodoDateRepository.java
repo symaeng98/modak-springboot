@@ -45,14 +45,18 @@ public class TodoDateRepository {
                 .getResultList();
 
 
-        // 반복 - 단일 수정 삽입
         for (String date : dates) {
             List<String> colorList = new ArrayList<>();
             List<DataDTO> dataDTOList = new ArrayList<>();
             for (Todo t : todoList) {
                 Date startDate = t.getStartDate();
                 Date endDate = t.getEndDate();
-                if (isValid(startDate, endDate, Date.valueOf(date))&&t.getId()!=t.getGroupTodoId()) { //수정된 애들 먼저 넣기
+                if (isValid(startDate, endDate, Date.valueOf(date))) {
+                    if(t.getRepeatTag()!=null){ // 반복이면
+                        if(!isValidDateAndDay(Date.valueOf(date),t)){
+                            continue;
+                        }
+                    }
                     Member member = t.getMember();
                     String color = member.getColor();
                     colorList.add(color);
@@ -71,52 +75,14 @@ public class TodoDateRepository {
                     dataDTOList.add(dataDto);
                 }
             }
-            result1.put(date,colorList);
-            result2.put(date,dataDTOList);
-        }
-
-        // 반복 to-do or 단일
-        for (String date : dates) {
-            List<String> res1 = result1.get(date);
-            List<DataDTO> res2 = result2.get(date);
-            for (Todo t : todoList) {
-                Date startDate = t.getStartDate();
-                Date endDate = t.getEndDate();
-
-                if (isValidDateAndDay(Date.valueOf(date),t)&&isValid(startDate, endDate, Date.valueOf(date))&&t.getId()==t.getGroupTodoId()) {
-                    List<DataDTO> dataDTOs = result2.get(date);
-                    List<DataDTO> collect = dataDTOs.stream().filter(d -> d.getGroupTodoId() == t.getGroupTodoId()).collect(Collectors.toList());
-                    if(collect.size()==1){ // 이미 같은 그룹 들어있으면
-                        continue;
-                    }
-                    Member member = t.getMember();
-                    String color = member.getColor();
-                    res1.add(color);
-
-                    int isDone = getIsDone(t, Date.valueOf(date));
-                    DataDTO dataDto = DataDTO.builder().todoId(t.getId())
-                            .title(t.getTitle())
-                            .memo(t.getMemo())
-                            .timeTag(t.getTimeTag())
-                            .repeatTag(t.getRepeatTag())
-                            .color(member.getColor())
-                            .memberId(member.getId())
-                            .isDone(isDone)
-                            .groupTodoId(t.getGroupTodoId())
-                            .build();
-                    res2.add(dataDto);
-                }
-            }
             // 중복 제거
-            Set<String> set = new HashSet<String>(res1);
+            Set<String> set = new HashSet<String>(colorList);
             List<String> newList = new ArrayList<String>(set);
 
             result1.put(date,newList);
-            result2.put(date,res2);
-
+            result2.put(date,dataDTOList);
         }
 
-        // 정렬
         TreeMap<String, List<String>> treeResult1 = new TreeMap<>(result1);
         TreeMap<String, List<DataDTO>> treeResult2 = new TreeMap<>(result2);
         int gauge = findNumOfDone(family);
@@ -269,6 +235,8 @@ public class TodoDateRepository {
     }
 
     public boolean isValid(Date start, Date end, Date date){
+        if(start.before(end)) return false;
+
         if(start.equals(date)) return true;
         else if(start.before(date)){
             if(end.before(date)) return false;
