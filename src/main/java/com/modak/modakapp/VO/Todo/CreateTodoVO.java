@@ -25,8 +25,6 @@ public class CreateTodoVO {
 
     private String toDate;
 
-//    private String repeatTag;
-
     private List<Integer> repeat;
 
 }

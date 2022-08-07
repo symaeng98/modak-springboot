@@ -123,7 +123,6 @@ public class TodoDateRepository {
 
             Date startDate = t.getStartDate();
             Date endDate = t.getEndDate();
-
             if (isValid(startDate, endDate, Date.valueOf(date))) {
                 if(t.getRepeatTag()==null){ // 단일
                     Member member = t.getMember();
@@ -193,11 +192,11 @@ public class TodoDateRepository {
 
     public int getIsDone(Todo todo, Date date){
         List<TodoDone> todoDones = todo.getTodoDone();
-        if(todoDones.size()==0){
+        if(todoDones==null){
             return 0;
         }
         List<TodoDone> todoDoneList = todoDones.stream().filter(t -> t.getDate().equals(date)).collect(Collectors.toList());
-        if(todoDoneList.size()==0){
+        if(todoDoneList.size() == 0){
             return 0;
         }
         TodoDone todoDone = todoDoneList.get(0);
@@ -250,8 +249,7 @@ public class TodoDateRepository {
     }
 
     public boolean isValid(Date start, Date end, Date date){
-        if(start.before(end)) return false;
-
+        if(start.after(end)) return false;
         if(start.equals(date)) return true;
         else if(start.before(date)){
             if(end.before(date)) return false;

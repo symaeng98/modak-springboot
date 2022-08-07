@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CreateTodoResponse {
-    private int newTodoId;
+public class DeleteSingleTodoResponse {
+    private int deletedTodoId;
     private WeekResponse updateLists;
 }

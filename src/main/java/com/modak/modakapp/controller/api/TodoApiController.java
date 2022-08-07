@@ -18,6 +18,7 @@ import com.modak.modakapp.service.TodoService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,7 @@ public class TodoApiController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PostMapping("/new")
-    public ResponseEntity create(@RequestBody CreateTodoVO createTodoVO) {
+    public ResponseEntity create(@ApiParam(value = "todo 생성 정보 및 fromDate, toDate", required = true) @RequestBody CreateTodoVO createTodoVO) {
         String accessToken = createTodoVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
@@ -116,8 +117,13 @@ public class TodoApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("투두 생성 완료", new CreateTodoResponse(todoId, wr)));
     }
 
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "단일 todo 수정에 성공하였습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @PutMapping("/single/{id}")
-    public ResponseEntity<?> updateTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
+    public ResponseEntity<?> updateTodo(@ApiParam(value = "단일 todo 수정 정보", required = true) @PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
         String accessToken = updateTodoVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
@@ -134,6 +140,11 @@ public class TodoApiController {
         return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", wr));
     }
 
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "반복 todo - 단일 수정에 성공하였습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @PutMapping("/repeat/single/{id}")
     public ResponseEntity<?> updateRepeatTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
         String accessToken = updateTodoVO.getAccessToken().substring(7);
@@ -202,7 +213,11 @@ public class TodoApiController {
         WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
         return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateTodoResponse(newTodoId,afterTodoId,wr)));
     }
-
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "반복 todo 이후 수정에 성공하였습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @PutMapping("/repeat/later/{id}")
     public ResponseEntity<?> updateRepeatLaterTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO){
         String accessToken = updateTodoVO.getAccessToken().substring(7);
@@ -244,6 +259,11 @@ public class TodoApiController {
         return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateSingleTodoResponse(newTodoId,wr)));
     }
 
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "요청한 정보를 성공적으로 불러왔습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @GetMapping("/week")
     public ResponseEntity<?> weekTodos(@RequestBody WeekTodoVO weekTodoVO){
         String accessToken = weekTodoVO.getAccessToken().substring(7);
@@ -262,6 +282,11 @@ public class TodoApiController {
     }
 
 
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "완료/취소 처리에 성공했습니다"),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @PutMapping("/done/{id}")
     public ResponseEntity<?> done(@PathVariable("id") int todoId, @RequestBody DoneTodoVO doneTodoVO) {
         String accessToken = doneTodoVO.getAccessToken().substring(7);
@@ -281,6 +306,11 @@ public class TodoApiController {
 
 
     // repeat tag 유무에 따라 single, repeat 판단
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "단일/반복 todo 단일 삭제를 성공했습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTodo(@PathVariable("id") int todoId, @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO){
         String accessToken = deleteRepeatTodoVO.getAccessToken().substring(7);
@@ -296,7 +326,7 @@ public class TodoApiController {
             todoService.deleteSingleTodo(todoId);
 
             WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteRepeatTodoVO.getFromDate(), deleteRepeatTodoVO.getToDate(), family);
-            return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new UpdateSingleTodoResponse(todoId,wr)));
+            return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new DeleteSingleTodoResponse(todoId,wr)));
         }
 
         String title = findTodo.getTitle();
@@ -354,6 +384,11 @@ public class TodoApiController {
         return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new UpdateTodoResponse(newTodoId,afterTodoId,wr)));
     }
 
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "반복 todo - 이후 삭제를 성공했습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @DeleteMapping("/repeat/later/{id}")
     public ResponseEntity<?> deleteRepeatLaterTodo(@PathVariable("id") int todoId, @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO) {
         String accessToken = deleteRepeatTodoVO.getAccessToken().substring(7);
