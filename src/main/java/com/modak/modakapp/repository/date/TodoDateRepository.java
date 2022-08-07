@@ -184,9 +184,9 @@ public class TodoDateRepository {
 
 
     public int findNumOfDone(Family family){
-        List<TodoDone> resultList = em.createQuery("select t from TodoDone t where t.family.id = :id and t.isDone=1 and t.deletedAt is null", TodoDone.class)
-                .setParameter("id", family.getId()).getResultList();
-        return resultList.size();
+        Long num = em.createQuery("select count(t) from TodoDone t where t.family.id = :id and t.isDone=1 and t.deletedAt is null", Long.class)
+                .setParameter("id", family.getId()).getSingleResult();
+        return num.intValue();
     }
 
 
