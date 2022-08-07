@@ -57,7 +57,7 @@ public class TodoApiController {
 //    private final HttpServletResponse servletResponse;
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "할 일 등록에 성공하였습니다."),
+            @ApiResponse(code = 200, message = "할 일 등록에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -118,7 +118,7 @@ public class TodoApiController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "단일 todo 수정에 성공하였습니다."),
+            @ApiResponse(code = 200, message = "단일 todo 수정에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -141,7 +141,7 @@ public class TodoApiController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "반복 todo - 단일 수정에 성공하였습니다."),
+            @ApiResponse(code = 200, message = "반복 todo - 단일 수정에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -214,7 +214,7 @@ public class TodoApiController {
         return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateTodoResponse(newTodoId,afterTodoId,wr)));
     }
     @ApiResponses({
-            @ApiResponse(code = 201, message = "반복 todo 이후 수정에 성공하였습니다."),
+            @ApiResponse(code = 200, message = "반복 todo 이후 수정에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -260,7 +260,7 @@ public class TodoApiController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "요청한 정보를 성공적으로 불러왔습니다."),
+            @ApiResponse(code = 200, message = "요청한 정보를 성공적으로 불러왔습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -283,7 +283,7 @@ public class TodoApiController {
 
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "완료/취소 처리에 성공했습니다"),
+            @ApiResponse(code = 200, message = "완료/취소 처리에 성공했습니다"),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -307,7 +307,7 @@ public class TodoApiController {
 
     // repeat tag 유무에 따라 single, repeat 판단
     @ApiResponses({
-            @ApiResponse(code = 201, message = "단일/반복 todo 단일 삭제를 성공했습니다."),
+            @ApiResponse(code = 200, message = "단일/반복 todo 단일 삭제를 성공했습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -385,7 +385,7 @@ public class TodoApiController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "반복 todo - 이후 삭제를 성공했습니다."),
+            @ApiResponse(code = 200, message = "반복 todo - 이후 삭제를 성공했습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
