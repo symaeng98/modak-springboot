@@ -71,7 +71,7 @@ public class MemberApiController {
         Member member = Member.builder().family(family).name(signUpMemberVO.getName()).is_lunar(signUpMemberVO.getIsLunar())
                 .birthday(birthday).role(Role.valueOf(signUpMemberVO.getRole()))
                 .provider(Provider.valueOf(signUpMemberVO.getProvider())).providerId(signUpMemberVO.getProviderId())
-                .chatLastJoined(Timestamp.valueOf(LocalDateTime.now()))
+                .chatLastJoined(Timestamp.valueOf(LocalDateTime.now())).color(signUpMemberVO.getColor())
                 .refreshToken("default refresh").fcmToken("default fcm").build();
 
         // 저장

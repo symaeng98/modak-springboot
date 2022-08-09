@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
 
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class FamilyService {
 
     private final FamilyRepository familyRepository;
 
-    @Transactional
     public int join(Family family){
         familyRepository.save(family);
         return family.getId();
@@ -29,7 +29,6 @@ public class FamilyService {
         return family;
     }
 
-    @Transactional
     public void deleteFamily(Family family){
         family.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
     }

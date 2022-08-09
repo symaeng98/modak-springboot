@@ -1,6 +1,8 @@
 package com.modak.modakapp.service;
 
+import com.modak.modakapp.VO.Member.UpdateMemberVO;
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.domain.Role;
 import com.modak.modakapp.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -39,6 +42,15 @@ public class MemberService {
         Member findMember = memberRepository.findOne(memberId);
         isDeleted(findMember);
         findMember.setRefreshToken(refreshToken);
+    }
+
+    public void updateMember(int memberId, UpdateMemberVO updateMemberVO){
+        Member findMember = memberRepository.findOne(memberId);
+        findMember.setName(updateMemberVO.getName());
+        findMember.setRole(Role.valueOf(updateMemberVO.getRole()));
+        findMember.setColor(updateMemberVO.getColor());
+        findMember.setBirthday(Date.valueOf(updateMemberVO.getBirthday()));
+        findMember.setIs_lunar(updateMemberVO.getIsLunar());
     }
 
 

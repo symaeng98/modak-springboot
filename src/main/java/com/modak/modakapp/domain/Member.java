@@ -101,4 +101,5 @@ public class Member extends BaseTimeEntity {
         this.mdFamily = mdFamily;
         this.deletedAt = deletedAt;
     }
+
 }

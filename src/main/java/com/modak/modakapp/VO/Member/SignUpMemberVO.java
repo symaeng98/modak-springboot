@@ -20,6 +20,9 @@ public class SignUpMemberVO {
     @ApiModelProperty(value = "역할")
     private String role;
 
+    @ApiModelProperty(value = "색깔")
+    private String color;
+
     @ApiModelProperty(value = "fcm 토큰")
     private String fcmToken;
 
