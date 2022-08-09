@@ -42,7 +42,7 @@ public class AnniversaryApiController {
     private final MemberService memberService;
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "할 일 등록에 성공하였습니다."),
+            @ApiResponse(code = 201, message = "기념일 등록에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -73,7 +73,11 @@ public class AnniversaryApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("기념일 생성 완료", new CreateAnniversaryResponse(familyId, anniversaryId, dar)));
     }
 
-
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "기념일 불러오기에 성공하였습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
     @PostMapping("/from-to-date")
     public ResponseEntity<?> getAnniversaries(@ApiParam(value = "fromDate~toDate 기념일 정보", required = true) @RequestBody WeekVO weekVO) {
         String accessToken = weekVO.getAccessToken().substring(7);
@@ -88,7 +92,7 @@ public class AnniversaryApiController {
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(weekVO.getFromDate(), weekVO.getToDate(), family);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("해당 날짜의 기념일을 불러왔습니다.", dar));
+        return ResponseEntity.ok(CommonSuccessResponse.response("해당 날짜의 기념일을 불러왔습니다.", dar));
     }
 
 

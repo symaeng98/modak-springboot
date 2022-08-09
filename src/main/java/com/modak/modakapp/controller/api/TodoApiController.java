@@ -50,7 +50,7 @@ public class TodoApiController {
 //    private final HttpServletResponse servletResponse;
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "할 일 등록에 성공하였습니다."),
+            @ApiResponse(code = 201, message = "할 일 등록에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
