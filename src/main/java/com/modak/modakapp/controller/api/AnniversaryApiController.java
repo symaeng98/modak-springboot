@@ -6,8 +6,6 @@ import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.CreateAnniversaryResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
-import com.modak.modakapp.dto.response.todo.CreateTodoResponse;
-import com.modak.modakapp.dto.response.todo.WeekResponse;
 import com.modak.modakapp.jwt.TokenService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.vo.anniversary.CreateAnniversaryVO;
