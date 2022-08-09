@@ -1,14 +1,13 @@
 package com.modak.modakapp.controller.api;
 
-import com.modak.modakapp.DTO.CommonFailResponse;
-import com.modak.modakapp.DTO.CommonSuccessResponse;
-import com.modak.modakapp.DTO.Todo.*;
-import com.modak.modakapp.Jwt.TokenService;
-import com.modak.modakapp.VO.Todo.*;
+import com.modak.modakapp.dto.response.CommonFailResponse;
+import com.modak.modakapp.dto.response.CommonSuccessResponse;
+import com.modak.modakapp.dto.response.todo.*;;
+import com.modak.modakapp.jwt.TokenService;
+import com.modak.modakapp.vo.todo.*;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
-import com.modak.modakapp.domain.TodoDone;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.repository.date.TodoDateRepository;
 import com.modak.modakapp.service.FamilyService;
@@ -28,16 +27,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
@@ -264,16 +257,16 @@ public class TodoApiController {
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @GetMapping("/week")
-    public ResponseEntity<?> weekTodos(@RequestBody WeekTodoVO weekTodoVO){
-        String accessToken = weekTodoVO.getAccessToken().substring(7);
+    @PostMapping("/week")
+    public ResponseEntity<?> weekTodos(@RequestBody WeekVO weekVO){
+        String accessToken = weekVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
-        int familyId = weekTodoVO.getFamilyId();
+        int familyId = weekVO.getFamilyId();
         Family family = familyService.find(familyId);
 
-        String fromDate = weekTodoVO.getFromDate();
-        String toDate = weekTodoVO.getToDate();
+        String fromDate = weekVO.getFromDate();
+        String toDate = weekVO.getToDate();
 
 
         WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(fromDate,toDate,family);

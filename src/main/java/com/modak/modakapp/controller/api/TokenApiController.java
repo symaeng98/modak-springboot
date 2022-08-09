@@ -1,12 +1,11 @@
 package com.modak.modakapp.controller.api;
 
-import com.modak.modakapp.DTO.CommonFailResponse;
-import com.modak.modakapp.DTO.CommonSuccessResponse;
-import com.modak.modakapp.DTO.Token.ReissueTokenResponse;
-import com.modak.modakapp.Jwt.TokenService;
-import com.modak.modakapp.VO.Member.OpenVO;
+import com.modak.modakapp.dto.response.CommonFailResponse;
+import com.modak.modakapp.dto.response.CommonSuccessResponse;
+import com.modak.modakapp.dto.response.token.ReissueTokenResponse;
+import com.modak.modakapp.jwt.TokenService;
+import com.modak.modakapp.vo.member.OpenVO;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;

@@ -1,21 +1,22 @@
 package com.modak.modakapp.controller.api;
 
-import com.modak.modakapp.DTO.CommonFailResponse;
-import com.modak.modakapp.DTO.CommonSuccessResponse;
-import com.modak.modakapp.DTO.Member.CreateMemberResponse;
-import com.modak.modakapp.DTO.Member.LoginMemberResponse;
-import com.modak.modakapp.DTO.Token.ReissueTokenResponse;
-import com.modak.modakapp.VO.Member.LoginMemberVO;
-import com.modak.modakapp.VO.Member.OpenVO;
-import com.modak.modakapp.VO.Member.SignUpMemberVO;
-import com.modak.modakapp.domain.Family;
-import com.modak.modakapp.domain.Provider;
-import com.modak.modakapp.domain.Role;
-import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.domain.enums.Category;
+import com.modak.modakapp.domain.enums.Provider;
+import com.modak.modakapp.domain.enums.Role;
+import com.modak.modakapp.dto.response.CommonFailResponse;
+import com.modak.modakapp.dto.response.CommonSuccessResponse;
+import com.modak.modakapp.dto.response.member.CreateMemberResponse;
+import com.modak.modakapp.dto.response.member.LoginMemberResponse;
+import com.modak.modakapp.dto.response.token.ReissueTokenResponse;
+import com.modak.modakapp.vo.member.LoginMemberVO;
+import com.modak.modakapp.vo.member.OpenVO;
+import com.modak.modakapp.vo.member.SignUpMemberVO;
+import com.modak.modakapp.domain.*;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
+import com.modak.modakapp.service.AnniversaryService;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
-import com.modak.modakapp.Jwt.TokenService;
+import com.modak.modakapp.jwt.TokenService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -33,8 +34,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,6 +45,8 @@ public class MemberApiController {
 
     private final MemberService memberService;
     private final FamilyService familyService;
+
+    private final AnniversaryService anniversaryService;
 
     private final TokenService tokenService;
 
@@ -65,17 +68,31 @@ public class MemberApiController {
         }
         Date birthday = Date.valueOf(signUpMemberVO.getBirthday());
 
-        Family family = Family.builder().name("행복한 우리 가족").build();
-        int joinFamilyId = familyService.join(family);
+        int familyId;
+        // 처음 가입하는 회원이면
+        if(signUpMemberVO.getFamilyId()==-1){
+            Family family = Family.builder().name("행복한 우리 가족").build();
+            familyId = familyService.join(family);
+        }
+        else{ // 이미 가족이 있는 회원이면
+            familyId = signUpMemberVO.getFamilyId();
+        }
+
+        Family family = familyService.find(familyId);
 
         Member member = Member.builder().family(family).name(signUpMemberVO.getName()).is_lunar(signUpMemberVO.getIsLunar())
                 .birthday(birthday).role(Role.valueOf(signUpMemberVO.getRole()))
                 .provider(Provider.valueOf(signUpMemberVO.getProvider())).providerId(signUpMemberVO.getProviderId())
-                .chatLastJoined(Timestamp.valueOf(LocalDateTime.now())).color(signUpMemberVO.getColor())
+                .chatLastJoined(Timestamp.valueOf(LocalDateTime.now()))
                 .refreshToken("default refresh").fcmToken("default fcm").build();
+
 
         // 저장
         int memberId = memberService.join(member);
+
+        Anniversary anniversary = Anniversary.builder().member(member).family(family).category(Category.CON).isYear(1)
+                .title(member.getName()+" 생일").startDate(birthday).endDate(birthday).build();
+        int joinAnniversaryId = anniversaryService.join(anniversary);
 
         String accessToken = tokenService.getAccessToken(memberId);
         String refreshToken = tokenService.getRefreshToken(memberId);
@@ -84,7 +101,7 @@ public class MemberApiController {
         servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + accessToken);
         servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + refreshToken);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, joinFamilyId)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, familyId, joinAnniversaryId)));
 
     }
 

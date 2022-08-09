@@ -1,13 +1,13 @@
 package com.modak.modakapp.controller.api;
 
-import com.modak.modakapp.DTO.CommonFailResponse;
-import com.modak.modakapp.DTO.CommonSuccessResponse;
-import com.modak.modakapp.DTO.Member.UpdateMemberResponse;
-import com.modak.modakapp.DTO.Token.ReissueTokenResponse;
-import com.modak.modakapp.Jwt.TokenService;
-import com.modak.modakapp.VO.Member.UpdateMemberVO;
 import com.modak.modakapp.domain.Family;
-import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.dto.response.CommonFailResponse;
+import com.modak.modakapp.dto.response.CommonSuccessResponse;
+import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
+import com.modak.modakapp.jwt.TokenService;
+import com.modak.modakapp.service.FamilyService;
+import com.modak.modakapp.vo.member.UpdateMemberFamilyVO;
+import com.modak.modakapp.vo.member.UpdateMemberVO;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
 import com.modak.modakapp.service.MemberService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -22,8 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/info")
@@ -33,6 +31,8 @@ public class MemberInfoApiController {
     private final TokenService tokenService;
 
     private final MemberService memberService;
+
+    private final FamilyService familyService;
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "토큰 재발급을 성공했습니다."),
@@ -48,6 +48,19 @@ public class MemberInfoApiController {
 
         return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 수정 성공", new UpdateMemberResponse(memberId)));
     }
+
+    @PutMapping("/member/family/{id}")
+    public ResponseEntity<?> updateMemberFamilyInfo(@PathVariable("id") int memberId, @RequestBody UpdateMemberFamilyVO updateMemberVO){
+        String accessToken = updateMemberVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
+        Family family = familyService.find(updateMemberVO.getFamilyId());
+        memberService.updateMemberFamily(memberId, family);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원의 가족 정보 수정 성공", new UpdateMemberResponse(memberId)));
+    }
+
+
 
 
     @ExceptionHandler(MalformedJwtException.class)

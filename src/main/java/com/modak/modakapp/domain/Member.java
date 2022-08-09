@@ -2,18 +2,18 @@ package com.modak.modakapp.domain;
 
 import com.modak.modakapp.BaseTimeEntity;
 import com.modak.modakapp.converter.MDFamilyAttributeConverter;
+import com.modak.modakapp.domain.enums.Provider;
+import com.modak.modakapp.domain.enums.Role;
 import com.modak.modakapp.domain.metadata.MDFamily;
 import com.modak.modakapp.domain.metadata.MDTag;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter

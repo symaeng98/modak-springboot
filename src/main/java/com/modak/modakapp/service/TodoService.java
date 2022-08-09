@@ -1,7 +1,5 @@
 package com.modak.modakapp.service;
 
-import com.modak.modakapp.VO.Todo.UpdateTodoVO;
-import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
 import com.modak.modakapp.domain.TodoDone;
@@ -13,12 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.NoResultException;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @Transactional

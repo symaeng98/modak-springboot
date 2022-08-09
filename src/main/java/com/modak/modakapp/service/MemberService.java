@@ -1,8 +1,9 @@
 package com.modak.modakapp.service;
 
-import com.modak.modakapp.VO.Member.UpdateMemberVO;
+import com.modak.modakapp.domain.Family;
+import com.modak.modakapp.vo.member.UpdateMemberVO;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.domain.Role;
+import com.modak.modakapp.domain.enums.Role;
 import com.modak.modakapp.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -38,6 +39,7 @@ public class MemberService {
     }
 
 
+
     public void updateRefreshToken(int memberId, String refreshToken){
         Member findMember = memberRepository.findOne(memberId);
         isDeleted(findMember);
@@ -53,6 +55,10 @@ public class MemberService {
         findMember.setIs_lunar(updateMemberVO.getIsLunar());
     }
 
+    public void updateMemberFamily(int memberId, Family family){
+        Member member = memberRepository.findOne(memberId);
+        member.setFamily(family);
+    }
 
     public void deleteMember(Member member){
         member.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));

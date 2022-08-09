@@ -1,7 +1,7 @@
 package com.modak.modakapp.repository.date;
 
-import com.modak.modakapp.DTO.Todo.DataDTO;
-import com.modak.modakapp.DTO.Todo.WeekResponse;
+import com.modak.modakapp.dto.TodoDataDTO;
+import com.modak.modakapp.dto.response.todo.WeekResponse;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
@@ -11,9 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.sql.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -39,10 +36,8 @@ public class TodoDateRepository {
                     dates.add(String.valueOf(d));
                 });
 
-
-
         Map<String,List<String>> result1 = new HashMap<>();
-        Map<String,List<DataDTO>> result2 = new HashMap<>();
+        Map<String,List<TodoDataDTO>> result2 = new HashMap<>();
         String firstDate = dates.get(0);
         String lastDate = dates.get(dates.size()-1);
         Date sqlFirstDate = Date.valueOf(firstDate);
@@ -62,7 +57,7 @@ public class TodoDateRepository {
 
         for (String date : dates) {
             List<String> colorList = new ArrayList<>();
-            List<DataDTO> dataDTOList = new ArrayList<>();
+            List<TodoDataDTO> todoDataDTOList = new ArrayList<>();
             for (Todo t : todoList) {
                 Date startDate = t.getStartDate();
                 Date endDate = t.getEndDate();
@@ -77,7 +72,7 @@ public class TodoDateRepository {
                     colorList.add(color);
 
                     int isDone = getIsDone(t, Date.valueOf(date));
-                    DataDTO dataDto = DataDTO.builder().todoId(t.getId())
+                    TodoDataDTO todoDataDto = TodoDataDTO.builder().todoId(t.getId())
                             .title(t.getTitle())
                             .memo(t.getMemo())
                             .timeTag(t.getTimeTag())
@@ -87,7 +82,7 @@ public class TodoDateRepository {
                             .isDone(isDone)
                             .groupTodoId(t.getGroupTodoId())
                             .build();
-                    dataDTOList.add(dataDto);
+                    todoDataDTOList.add(todoDataDto);
                 }
             }
             // 중복 제거
@@ -95,11 +90,11 @@ public class TodoDateRepository {
             List<String> newList = new ArrayList<String>(set);
 
             result1.put(date,newList);
-            result2.put(date,dataDTOList);
+            result2.put(date, todoDataDTOList);
         }
 
         TreeMap<String, List<String>> treeResult1 = new TreeMap<>(result1);
-        TreeMap<String, List<DataDTO>> treeResult2 = new TreeMap<>(result2);
+        TreeMap<String, List<TodoDataDTO>> treeResult2 = new TreeMap<>(result2);
         int gauge = findNumOfDone(family);
 
         return new WeekResponse(treeResult1,treeResult2,gauge);
@@ -110,7 +105,7 @@ public class TodoDateRepository {
 
     public WeekResponse getCreateResponse(Todo t, List<String> dates, Family family) {
         Map<String,List<String>> result1 = new HashMap<>();
-        Map<String,List<DataDTO>> result2 = new HashMap<>();
+        Map<String,List<TodoDataDTO>> result2 = new HashMap<>();
         String firstDate = dates.get(0);
         String lastDate = dates.get(dates.size()-1);
         Date sqlFirstDate = Date.valueOf(firstDate);
@@ -119,7 +114,7 @@ public class TodoDateRepository {
         // 반복 - 단일 수정 삽입
         for (String date : dates) {
             List<String> colorList = new ArrayList<>();
-            List<DataDTO> dataDTOList = new ArrayList<>();
+            List<TodoDataDTO> todoDataDTOList = new ArrayList<>();
 
             Date startDate = t.getStartDate();
             Date endDate = t.getEndDate();
@@ -129,7 +124,7 @@ public class TodoDateRepository {
                     String color = member.getColor();
                     colorList.add(color);
 
-                    DataDTO dataDto = DataDTO.builder().todoId(t.getId())
+                    TodoDataDTO todoDataDto = TodoDataDTO.builder().todoId(t.getId())
                             .title(t.getTitle())
                             .memo(t.getMemo())
                             .timeTag(t.getTimeTag())
@@ -139,7 +134,7 @@ public class TodoDateRepository {
                             .isDone(0)
                             .groupTodoId(t.getGroupTodoId())
                             .build();
-                    dataDTOList.add(dataDto);
+                    todoDataDTOList.add(todoDataDto);
                 }
                 else{ // 반복
                     if(isValidDateAndDay(Date.valueOf(date),t)){ // 요일이 날짜에 해당하면
@@ -147,7 +142,7 @@ public class TodoDateRepository {
                         String color = member.getColor();
                         colorList.add(color);
 
-                        DataDTO dataDto = DataDTO.builder().todoId(t.getId())
+                        TodoDataDTO todoDataDto = TodoDataDTO.builder().todoId(t.getId())
                                 .title(t.getTitle())
                                 .memo(t.getMemo())
                                 .timeTag(t.getTimeTag())
@@ -157,7 +152,7 @@ public class TodoDateRepository {
                                 .isDone(0)
                                 .groupTodoId(t.getGroupTodoId())
                                 .build();
-                        dataDTOList.add(dataDto);
+                        todoDataDTOList.add(todoDataDto);
                     }
                     else {
                         continue;
@@ -168,13 +163,13 @@ public class TodoDateRepository {
                 List<String> newList = new ArrayList<String>(set);
 
                 result1.put(date,newList);
-                result2.put(date,dataDTOList);
+                result2.put(date, todoDataDTOList);
             }
 
         }
         // 정렬
         TreeMap<String, List<String>> treeResult1 = new TreeMap<>(result1);
-        TreeMap<String, List<DataDTO>> treeResult2 = new TreeMap<>(result2);
+        TreeMap<String, List<TodoDataDTO>> treeResult2 = new TreeMap<>(result2);
         int gauge = findNumOfDone(family);
 
         return new WeekResponse(treeResult1,treeResult2,gauge);
