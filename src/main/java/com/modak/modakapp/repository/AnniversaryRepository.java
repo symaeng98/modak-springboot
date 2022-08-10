@@ -17,4 +17,9 @@ public interface AnniversaryRepository extends JpaRepository<Anniversary, Intege
             " and a.family.id = :familyId" +
             " and a.deletedAt is null")
     List<Anniversary> findAnniversariesByDate(@Param("firstDate") Date firstDate, @Param("lastDate") Date lastDate, @Param("familyId") int familyId);
+
+
+    @Query("select a from Anniversary a" +
+            " where a.isMemberBirthday=1 and :memberId = a.member.id and a.deletedAt is null")
+    Anniversary findAnniversaryByIsMemberBirthday(@Param("memberId") int memberId);
 }

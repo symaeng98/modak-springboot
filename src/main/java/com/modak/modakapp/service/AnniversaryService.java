@@ -1,5 +1,6 @@
 package com.modak.modakapp.service;
 
+import com.modak.modakapp.date.KoreanLunarCalendar;
 import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
@@ -36,9 +39,40 @@ public class AnniversaryService {
     }
 
     public Anniversary findAnniversaryById(int id){
-        return anniversaryRepository.findById(id)
+        Anniversary ann = anniversaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchAnniversaryException("기념일이 존재하지 않습니다."));
+        if(ann.getDeletedAt()!=null){
+            throw new NoSuchAnniversaryException("기념일이 존재하지 않습니다.");
+        }
+        else return ann;
     }
+
+    public void deleteAnniversary(int id){
+        Anniversary findAnn = findAnniversaryById(id);
+        findAnn.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
+    }
+
+    public void updateAnniversary(int id, String title, String startDate, String endDate, String category, String memo, int isYear){
+        Anniversary findAnn = findAnniversaryById(id);
+        findAnn.setTitle(title);
+        findAnn.setStartDate(Date.valueOf(startDate));
+        findAnn.setEndDate(Date.valueOf(endDate));
+        findAnn.setCategory(Category.valueOf(category));
+        findAnn.setMemo(memo);
+        findAnn.setIsYear(isYear);
+    }
+
+    public void updateBirthdayAndIsLunar(int id, String birthday,int isLunar){
+        Anniversary findAnn = findAnniversaryById(id);
+        findAnn.setStartDate(Date.valueOf(birthday));
+        findAnn.setEndDate(Date.valueOf(birthday));
+        findAnn.setIsLunar(isLunar);
+    }
+
+    public Anniversary findBirthdayByMember(int memberId){
+        return anniversaryRepository.findAnniversaryByIsMemberBirthday(memberId);
+    }
+
 
     public DateAnniversaryResponse findDateAnniversaryData(String sd, String ed, Family family){
         List<String> dates = new ArrayList<>();
@@ -56,14 +90,35 @@ public class AnniversaryService {
         Date sqlLastDate = Date.valueOf(lastDate);
 
         List<Anniversary> anniversariesByDate = anniversaryRepository.findAnniversariesByDate(sqlFirstDate, sqlLastDate, family.getId());
+        int cnt = 0;
         for (String date : dates) {
             List<AnniversaryDataDTO> anniversaryDataDTOs = new ArrayList<>();
             for (Anniversary a : anniversariesByDate) {
                 Date startDate = a.getStartDate();
-                if (isValid(startDate, Date.valueOf(date))||(a.getIsYear()==1&&isValidYear(startDate.toString(),date))){
-                    AnniversaryDataDTO annDto = AnniversaryDataDTO.builder().title(a.getTitle()).memo(a.getMemo())
-                            .category(a.getCategory().name()).build();
-                    anniversaryDataDTOs.add(annDto);
+                if(a.getIsLunar()==0){ // 양력이면
+                    if(startDate.equals(Date.valueOf(date))){ // 해당 날짜면
+                        AnniversaryDataDTO annDto = AnniversaryDataDTO.builder().annId(a.getId()).title(a.getTitle()).memo(a.getMemo())
+                                .category(a.getCategory().name()).build();
+                        anniversaryDataDTOs.add(annDto);
+                        cnt += 1;
+                    }else{
+                        if(a.getIsYear()==1){ // 매년 반복이면 달, 일만 같으면 됨
+                            if(isValidSolarYear(startDate.toString(),date)){
+                                AnniversaryDataDTO annDto = AnniversaryDataDTO.builder().annId(a.getId()).title(a.getTitle()).memo(a.getMemo())
+                                        .category(a.getCategory().name()).build();
+                                anniversaryDataDTOs.add(annDto);
+                                cnt += 1;
+                            }
+                        }
+                    }
+                }
+                else{ // 음력이면
+                    if(isValidLunarYear(startDate.toString(),date)){
+                        AnniversaryDataDTO annDto = AnniversaryDataDTO.builder().annId(a.getId()).title(a.getTitle()).memo(a.getMemo())
+                                .category(a.getCategory().name()).build();
+                        anniversaryDataDTOs.add(annDto);
+                        cnt += 1;
+                    }
                 }
             }
             result.put(date, anniversaryDataDTOs);
@@ -71,17 +126,17 @@ public class AnniversaryService {
 
         TreeMap<String, List<AnniversaryDataDTO>> treeResult = new TreeMap<>(result);
 
-        return new DateAnniversaryResponse(treeResult);
+        return new DateAnniversaryResponse(cnt,treeResult);
     }
 
-    public boolean isValid(Date start,Date date){
-        return start.equals(date);
+    public boolean isValidLunarYear(String start, String date){
+        KoreanLunarCalendar cal = KoreanLunarCalendar.getInstance();
+        cal.setLunarDate(Integer.parseInt(date.substring(0,4)),Integer.parseInt(start.substring(5,7)),Integer.parseInt(start.substring(8)),false);
+        String solarIsoFormat = cal.getSolarIsoFormat();
+        return solarIsoFormat.substring(5).equals(date.substring(5));
     }
 
-    public boolean isValidYear(String start, String date){
-        if(start.substring(5).equals(date.substring(5))){
-            return true;
-        }
-        return false;
+    public boolean isValidSolarYear(String start, String date){
+        return start.substring(5).equals(date.substring(5));
     }
 }

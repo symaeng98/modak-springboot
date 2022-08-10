@@ -1,10 +1,12 @@
 package com.modak.modakapp.controller.api;
 
+import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
 import com.modak.modakapp.jwt.TokenService;
+import com.modak.modakapp.service.AnniversaryService;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.vo.member.UpdateMemberFamilyVO;
 import com.modak.modakapp.vo.member.UpdateMemberVO;
@@ -31,6 +33,7 @@ public class MemberInfoApiController {
     private final TokenService tokenService;
 
     private final MemberService memberService;
+    private final AnniversaryService anniversaryService;
 
     private final FamilyService familyService;
 
@@ -45,6 +48,10 @@ public class MemberInfoApiController {
         tokenService.isAccessTokenExpired(accessToken);
 
         memberService.updateMember(memberId, updateMemberVO);
+
+        Anniversary a = anniversaryService.findBirthdayByMember(memberId);
+        anniversaryService.updateBirthdayAndIsLunar(a.getId(),updateMemberVO.getBirthday(), updateMemberVO.getIsLunar());
+
 
         return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 수정 성공", new UpdateMemberResponse(memberId)));
     }

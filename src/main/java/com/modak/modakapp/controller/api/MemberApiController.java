@@ -86,13 +86,13 @@ public class MemberApiController {
                 .chatLastJoined(Timestamp.valueOf(LocalDateTime.now()))
                 .refreshToken("default refresh").fcmToken("default fcm").build();
 
-
         // 저장
         int memberId = memberService.join(member);
 
         Anniversary anniversary = Anniversary.builder().member(member).family(family).category(Category.CON).isYear(1)
-                .title(member.getName()+" 생일").startDate(birthday).endDate(birthday).build();
+                .title(member.getName()+" 생일").isMemberBirthday(1).isLunar(signUpMemberVO.getIsLunar()).startDate(birthday).endDate(birthday).build();
         int joinAnniversaryId = anniversaryService.join(anniversary);
+
 
         String accessToken = tokenService.getAccessToken(memberId);
         String refreshToken = tokenService.getRefreshToken(memberId);

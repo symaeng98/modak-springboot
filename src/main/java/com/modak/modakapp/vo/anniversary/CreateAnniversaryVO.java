@@ -10,6 +10,7 @@ public class CreateAnniversaryVO {
     private String category;
     private String memo;
     private int isYear;
+    private int isLunar;
     private String fromDate;
     private String toDate;
 }

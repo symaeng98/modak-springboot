@@ -7,6 +7,7 @@ import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.CreateAnniversaryResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
 import com.modak.modakapp.jwt.TokenService;
+import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.vo.anniversary.CreateAnniversaryVO;
 import com.modak.modakapp.domain.Family;
@@ -39,6 +40,8 @@ public class AnniversaryApiController {
     private final AnniversaryService anniversaryService;
     private final MemberService memberService;
 
+    private final FamilyService familyService;
+
     @ApiResponses({
             @ApiResponse(code = 201, message = "기념일 등록에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
@@ -62,13 +65,66 @@ public class AnniversaryApiController {
 
         Anniversary anniversary = Anniversary.builder().member(findMember).family(family).title(createAnniversaryVO.getTitle())
                 .memo(createAnniversaryVO.getMemo()).category(Category.valueOf(createAnniversaryVO.getCategory())).isYear(createAnniversaryVO.getIsYear())
-                .startDate(date).endDate(date).build();
+                .isLunar(createAnniversaryVO.getIsLunar()).startDate(date).endDate(date).build();
 
         int anniversaryId = anniversaryService.join(anniversary);
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(createAnniversaryVO.getFromDate(), createAnniversaryVO.getToDate(), family);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("기념일 생성 완료", new CreateAnniversaryResponse(familyId, anniversaryId, dar)));
+    }
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "기념일 업데이트에 성공하였습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@ApiParam(value = "기념일 업데이트 정보 및 fromDate, toDate", required = true)@PathVariable("id") int annId, @RequestBody CreateAnniversaryVO createAnniversaryVO) {
+        String accessToken = createAnniversaryVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
+        int memberId = tokenService.getMemberId(accessToken);
+        Member findMember = memberService.findMember(memberId);
+
+        Family family = findMember.getFamily();
+        int familyId = family.getId();
+
+        String title = createAnniversaryVO.getTitle();
+        String date = createAnniversaryVO.getDate();
+        String memo = createAnniversaryVO.getMemo();
+        String category = createAnniversaryVO.getCategory();
+        int isYear = createAnniversaryVO.getIsYear();
+
+        String fromDate = createAnniversaryVO.getFromDate();
+        String toDate = createAnniversaryVO.getToDate();
+
+        anniversaryService.updateAnniversary(annId,title,date,date,category,memo,isYear);
+
+        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromDate, toDate, family);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("기념일 수정 완료", new CreateAnniversaryResponse(familyId, annId, dar)));
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "기념일 삭제에 성공하였습니다."),
+            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true)@PathVariable("id") int annId, @RequestBody WeekVO weekVO) {
+        String accessToken = weekVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
+        anniversaryService.deleteAnniversary(annId);
+
+        Family family = familyService.find(weekVO.getFamilyId());
+
+        String fromDate = weekVO.getFromDate();
+        String toDate = weekVO.getToDate();
+
+        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromDate, toDate, family);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("기념일 삭제 완료", new CreateAnniversaryResponse(family.getId(), annId, dar)));
     }
 
     @ApiResponses({

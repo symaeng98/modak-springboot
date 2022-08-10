@@ -46,12 +46,18 @@ public class Anniversary {
     @Column(name="is_year", columnDefinition = "TINYINT", length=1)
     private int isYear;
 
+    @Column(name="is_lunar", columnDefinition = "TINYINT", length=1)
+    private int isLunar;
+
+    @Column(name="is_user_birthday", columnDefinition = "TINYINT", length=1)
+    private int isMemberBirthday;
+
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
 
     @Builder
 
-    public Anniversary(int id, Member member, Family family, String title, String memo, Category category, Date startDate, Date endDate, int isYear, Timestamp deletedAt) {
+    public Anniversary(int id, Member member, Family family, String title, String memo, Category category, Date startDate, Date endDate, int isYear, int isLunar, int isMemberBirthday, Timestamp deletedAt) {
         this.id = id;
         this.member = member;
         this.family = family;
@@ -61,6 +67,8 @@ public class Anniversary {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isYear = isYear;
+        this.isLunar = isLunar;
+        this.isMemberBirthday = isMemberBirthday;
         this.deletedAt = deletedAt;
     }
 }

@@ -11,5 +11,6 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 public class DateAnniversaryResponse {
+    private int annCount;
     private Map<String, List<AnniversaryDataDTO>> data;
 }
