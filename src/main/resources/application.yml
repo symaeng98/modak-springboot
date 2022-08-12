@@ -1,4 +1,5 @@
 spring:
+
   datasource:
     url: jdbc:mysql://localhost:3306/modak?tinyInt1isBit=false
     username: MODAK_ADMIN

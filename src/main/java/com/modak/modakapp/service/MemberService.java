@@ -1,6 +1,9 @@
 package com.modak.modakapp.service;
 
 import com.modak.modakapp.domain.Family;
+import com.modak.modakapp.domain.metadata.MDFamily;
+import com.modak.modakapp.domain.metadata.MDTag;
+import com.modak.modakapp.dto.MemberDataDTO;
 import com.modak.modakapp.vo.member.UpdateMemberVO;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Role;
@@ -14,6 +17,9 @@ import javax.persistence.NoResultException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -38,6 +44,17 @@ public class MemberService {
         return member;
     }
 
+    public MemberDataDTO getMemberInfo(int memberId){
+        Member member = findMember(memberId);
+
+        return MemberDataDTO.builder().id(member.getId()).birthDay(member.getBirthday().toString())
+                .color(member.getColor()).createdAt(member.getCreatedAt()).familyId(member.getFamily().getId())
+                .tags(member.getMdTag()).familyName(member.getMdFamily())
+                .name(member.getName()).profileImageUrl(member.getProfileImageUrl())
+                .provider(member.getProvider().name()).providerId(member.getProviderId())
+                .role(member.getRole().name()).isLunar(member.getIs_lunar()).updatedAt(member.getUpdatedAt())
+                .build();
+    }
 
 
     public void updateRefreshToken(int memberId, String refreshToken){

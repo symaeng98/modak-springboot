@@ -2,6 +2,7 @@ package com.modak.modakapp.domain;
 
 import com.modak.modakapp.BaseTimeEntity;
 import com.modak.modakapp.converter.MDFamilyAttributeConverter;
+import com.modak.modakapp.converter.MDTagAttributeConverter;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
 import com.modak.modakapp.domain.metadata.MDFamily;
@@ -64,14 +65,14 @@ public class Member extends BaseTimeEntity {
     private Timestamp chatLastJoined;
 
 
-
-
     @Column(name = "connection_id", length = 100)
     private String connectionId;
 
+
     @Column(name = "tag", columnDefinition = "json")
-    @Convert(converter = MDFamilyAttributeConverter.class)
+    @Convert(converter = MDTagAttributeConverter.class)
     private MDTag mdTag;
+
 
     @Convert(converter = MDFamilyAttributeConverter.class)
     @Column(name = "family_name",columnDefinition = "json")

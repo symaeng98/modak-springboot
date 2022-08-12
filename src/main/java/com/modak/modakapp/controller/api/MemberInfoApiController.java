@@ -2,12 +2,15 @@ package com.modak.modakapp.controller.api;
 
 import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
+import com.modak.modakapp.dto.MemberDataDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
+import com.modak.modakapp.dto.response.member.MemberInfoResponse;
 import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
 import com.modak.modakapp.jwt.TokenService;
 import com.modak.modakapp.service.AnniversaryService;
 import com.modak.modakapp.service.FamilyService;
+import com.modak.modakapp.vo.member.GetMemberInfoVO;
 import com.modak.modakapp.vo.member.UpdateMemberFamilyVO;
 import com.modak.modakapp.vo.member.UpdateMemberVO;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
@@ -54,6 +57,21 @@ public class MemberInfoApiController {
 
 
         return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 수정 성공", new UpdateMemberResponse(memberId)));
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "회원 정보 불러오기를 성공했습니다."),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
+    })
+    @PostMapping("/member/{id}")
+    public ResponseEntity<?> getMemberInfo(@PathVariable("id") int memberId, @RequestBody GetMemberInfoVO getMemberInfoVO){
+        String accessToken = getMemberInfoVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+
+        MemberDataDTO memberDto = memberService.getMemberInfo(memberId);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 불러오기 성공", new MemberInfoResponse(memberDto)));
     }
 
     @ApiResponses({
@@ -107,6 +125,7 @@ public class MemberInfoApiController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
     }
 }
