@@ -1,5 +1,4 @@
-package com.modak.modakapp.domain.metadata;
-
+package com.modak.modakapp.dto.metadata;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +10,6 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MDFamily {
-    private Map<Integer,String> familyMemberNames;
+public class MDTag {
+    private List<String> tags;
 }

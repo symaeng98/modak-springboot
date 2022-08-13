@@ -8,7 +8,7 @@ spring:
     hibernate:
       ddl-auto: validate
     show_sql: true
-
+#
 #  datasource:
 #    url: jdbc:mysql://15.164.86.236:3306/modak?tinyInt1isBit=false
 #    username: modak-user

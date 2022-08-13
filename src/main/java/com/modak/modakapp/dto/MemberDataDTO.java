@@ -1,13 +1,12 @@
 package com.modak.modakapp.dto;
 
-import com.modak.modakapp.domain.metadata.MDFamily;
-import com.modak.modakapp.domain.metadata.MDTag;
+import com.modak.modakapp.dto.metadata.MDFamily;
+import com.modak.modakapp.dto.metadata.MDTag;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 public class MemberDataDTO {
@@ -21,14 +20,14 @@ public class MemberDataDTO {
     private String color;
     private String provider;
     private String providerId;
-    private MDTag tags;
-    private MDFamily familyName;
+    private List<String> tags;
+    private List<MemberFamilyNameDTO> familyName;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
     @Builder
 
-    public MemberDataDTO(int id, int familyId, String name, int isLunar, String birthDay, String profileImageUrl, String role, String color, String provider, String providerId, MDTag tags, MDFamily familyName, Timestamp createdAt, Timestamp updatedAt) {
+    public MemberDataDTO(int id, int familyId, String name, int isLunar, String birthDay, String profileImageUrl, String role, String color, String provider, String providerId, List<String> tags, List<MemberFamilyNameDTO> familyName, Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
         this.familyId = familyId;
         this.name = name;

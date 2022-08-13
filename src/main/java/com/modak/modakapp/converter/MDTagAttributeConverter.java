@@ -3,8 +3,7 @@ package com.modak.modakapp.converter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.modak.modakapp.domain.metadata.MDRepeatTag;
-import com.modak.modakapp.domain.metadata.MDTag;
+import com.modak.modakapp.dto.metadata.MDTag;
 
 import javax.persistence.AttributeConverter;
 
@@ -24,7 +23,6 @@ public class MDTagAttributeConverter implements AttributeConverter<MDTag,String>
     @Override
     public MDTag convertToEntityAttribute(String dbData) {
         try {
-            System.out.println("dbData = " + dbData);
             return objectMapper.readValue(dbData, MDTag.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

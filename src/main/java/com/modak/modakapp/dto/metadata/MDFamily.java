@@ -1,7 +1,8 @@
-package com.modak.modakapp.domain.metadata;
+package com.modak.modakapp.dto.metadata;
 
+
+import com.modak.modakapp.dto.MemberFamilyNameDTO;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,6 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MDRepeatTag {
-    private List<String> repeat;
+public class MDFamily {
+    private List<MemberFamilyNameDTO> memberFamilyName;
 }

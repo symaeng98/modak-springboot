@@ -1,4 +1,4 @@
-package com.modak.modakapp.vo.member;
+package com.modak.modakapp.vo.member.info;
 
 import lombok.Data;
 

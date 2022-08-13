@@ -3,7 +3,7 @@ package com.modak.modakapp.converter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.modak.modakapp.domain.metadata.MDFamily;
+import com.modak.modakapp.dto.metadata.MDFamily;
 
 import javax.persistence.AttributeConverter;
 

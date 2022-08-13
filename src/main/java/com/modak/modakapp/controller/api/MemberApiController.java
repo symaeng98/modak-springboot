@@ -3,10 +3,12 @@ package com.modak.modakapp.controller.api;
 import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
+import com.modak.modakapp.dto.MemberDataDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.member.CreateMemberResponse;
 import com.modak.modakapp.dto.response.member.LoginMemberResponse;
+import com.modak.modakapp.dto.response.member.MemberInfoResponse;
 import com.modak.modakapp.dto.response.token.ReissueTokenResponse;
 import com.modak.modakapp.vo.member.LoginMemberVO;
 import com.modak.modakapp.vo.member.OpenVO;
@@ -61,7 +63,7 @@ public class MemberApiController {
     })
     @ApiOperation(value = "회원 가입")
     @PostMapping("/new")
-    public ResponseEntity<?> create(@RequestBody @ApiParam(value = "회원 기본 정보", required = true) SignUpMemberVO signUpMemberVO) {
+    public ResponseEntity<?> create(@RequestBody @ApiParam(value = "회원 기본 정보(familyId 없으면 -1)", required = true) SignUpMemberVO signUpMemberVO) {
 
         if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
             throw new MemberAlreadyExistsException();
@@ -123,7 +125,8 @@ public class MemberApiController {
         servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new LoginMemberResponse(memberId)));
+        MemberDataDTO memberInfo = memberService.getMemberInfo(memberId);
+        return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new MemberInfoResponse(memberInfo)));
 
     }
 
@@ -153,8 +156,8 @@ public class MemberApiController {
 
         servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
-        return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_AND_REFRESH_TOKEN")));
 
+        return ResponseEntity.ok(CommonSuccessResponse.response("토큰 재발급 성공", new ReissueTokenResponse("ACCESS_AND_REFRESH_TOKEN")));
     }
 
     @ExceptionHandler(MalformedJwtException.class)
