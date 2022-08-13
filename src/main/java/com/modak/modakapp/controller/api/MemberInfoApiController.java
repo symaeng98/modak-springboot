@@ -59,7 +59,7 @@ public class MemberInfoApiController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "회원 정보 불러오기를 성공했습니다."),
+            @ApiResponse(code = 200, message = "회원 정보 가져오기를 성공했습니다."),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
     })
@@ -70,7 +70,7 @@ public class MemberInfoApiController {
 
         MemberDataDTO memberDto = memberService.getMemberInfo(memberId);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 불러오기 성공", new MemberInfoResponse(memberDto)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberInfoResponse(memberDto)));
     }
 
     @ApiResponses({
