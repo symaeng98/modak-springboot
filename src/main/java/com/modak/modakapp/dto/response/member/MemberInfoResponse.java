@@ -8,4 +8,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class MemberInfoResponse {
     MemberDataDTO result;
+
 }

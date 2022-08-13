@@ -4,11 +4,12 @@ import com.modak.modakapp.dto.metadata.MDFamily;
 import com.modak.modakapp.dto.metadata.MDTag;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.util.List;
 
-@Getter
+@Getter @Setter
 public class MemberDataDTO {
     private int id;
     private int familyId;
@@ -27,7 +28,7 @@ public class MemberDataDTO {
 
     @Builder
 
-    public MemberDataDTO(int id, int familyId, String name, int isLunar, String birthDay, String profileImageUrl, String role, String color, String provider, String providerId, List<String> tags, List<MemberFamilyNameDTO> familyName, Timestamp createdAt, Timestamp updatedAt) {
+    public MemberDataDTO(int id, int familyId, String name, int isLunar, String birthDay, String profileImageUrl, String role, String color, String provider, String providerId, Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
         this.familyId = familyId;
         this.name = name;
@@ -38,8 +39,6 @@ public class MemberDataDTO {
         this.color = color;
         this.provider = provider;
         this.providerId = providerId;
-        this.tags = tags;
-        this.familyName = familyName;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

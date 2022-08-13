@@ -46,13 +46,24 @@ public class MemberService {
     public MemberDataDTO getMemberInfo(int memberId){
         Member member = findMember(memberId);
 
-        return MemberDataDTO.builder().id(member.getId()).birthDay(member.getBirthday().toString())
+
+        MemberDataDTO memberDto = MemberDataDTO.builder().id(member.getId()).birthDay(member.getBirthday().toString())
                 .color(member.getColor()).createdAt(member.getCreatedAt()).familyId(member.getFamily().getId())
-                .tags(member.getMdTag().getTags()).familyName(member.getMdFamily().getMemberFamilyName())
                 .name(member.getName()).profileImageUrl(member.getProfileImageUrl())
                 .provider(member.getProvider().name()).providerId(member.getProviderId())
                 .role(member.getRole().name()).isLunar(member.getIs_lunar()).updatedAt(member.getUpdatedAt())
                 .build();
+        if(member.getMdTag()==null){
+            memberDto.setTags(null);
+        }else{
+            memberDto.setTags(member.getMdTag().getTags());
+        }
+        if(member.getMdFamily()==null){
+            memberDto.setFamilyName(null);
+        }else {
+            memberDto.setFamilyName(member.getMdFamily().getMemberFamilyName());
+        }
+        return memberDto;
     }
 
     public void updateMemberTag(int memberId, List<String> tags){
