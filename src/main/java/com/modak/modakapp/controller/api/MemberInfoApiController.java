@@ -4,8 +4,10 @@ import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.dto.MemberDataDTO;
+import com.modak.modakapp.dto.MemberFamilyMemberDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
+import com.modak.modakapp.dto.response.member.MemberFamilyMemberInfoResponse;
 import com.modak.modakapp.dto.response.member.MemberInfoResponse;
 import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
 import com.modak.modakapp.jwt.TokenService;
@@ -47,10 +49,11 @@ public class MemberInfoApiController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
     })
-    @PutMapping("/member/{id}")
-    public ResponseEntity<?> updateMemberInfo(@ApiParam(value = "회원 수정 정보", required = true) @PathVariable("id") int memberId, @RequestBody UpdateMemberVO updateMemberVO){
+    @PutMapping("/member")
+    public ResponseEntity<?> updateMemberInfo(@ApiParam(value = "회원 수정 정보", required = true) @RequestBody UpdateMemberVO updateMemberVO){
         String accessToken = updateMemberVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
+        int memberId = tokenService.getMemberId(accessToken);
 
         memberService.updateMember(memberId, updateMemberVO);
 
@@ -61,25 +64,38 @@ public class MemberInfoApiController {
         return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 수정 성공", new UpdateMemberResponse(memberId)));
     }
 
+
     @ApiResponses({
             @ApiResponse(code = 200, message = "회원 정보 가져오기를 성공했습니다.."),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
     })
-    @PostMapping("/member/{id}")
-    public ResponseEntity<?> getMemberInfo(@ApiParam(value = "AccessToken", required = true) @PathVariable("id") int memberId, @RequestBody GetMemberInfoVO getMemberInfoVO){
+    @PostMapping("/member")
+    public ResponseEntity<?> getMemberInfo(@ApiParam(value = "AccessToken", required = true) @RequestBody GetMemberInfoVO getMemberInfoVO){
         String accessToken = getMemberInfoVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
+        int memberId = tokenService.getMemberId(accessToken);
 
         MemberDataDTO memberDto = memberService.getMemberInfo(memberId);
 
-        Member member = memberService.findMember(memberId);
-        Family family = member.getFamily();
-        List<Member> members = family.getMembers();
-
-
-
         return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberInfoResponse(memberDto)));
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "회원의 가족들의 정보 가져오기를 성공했습니다.."),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
+    })
+    @PostMapping("/member/family-member")
+    public ResponseEntity<?> getFamilyMembersInfo(@ApiParam(value = "AccessToken", required = true) @RequestBody GetMemberInfoVO getMemberInfoVO){
+        String accessToken = getMemberInfoVO.getAccessToken().substring(7);
+        tokenService.isAccessTokenExpired(accessToken);
+        int memberId = tokenService.getMemberId(accessToken);
+
+        List<MemberFamilyMemberDTO> mfmInfo = memberService.getMemberFamilyMembersInfo(memberId);
+
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberFamilyMemberInfoResponse(mfmInfo)));
     }
 
     @ApiResponses({
@@ -87,10 +103,11 @@ public class MemberInfoApiController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
     })
-    @PutMapping("/member/family/{id}")
-    public ResponseEntity<?> updateMemberFamilyInfo(@ApiParam(value = "AccessToken과 familyId", required = true)@PathVariable("id") int memberId, @RequestBody UpdateMemberFamilyVO updateMemberVO){
+    @PutMapping("/member/family")
+    public ResponseEntity<?> updateMemberFamilyInfo(@ApiParam(value = "AccessToken과 familyId", required = true)@RequestBody UpdateMemberFamilyVO updateMemberVO){
         String accessToken = updateMemberVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
+        int memberId = tokenService.getMemberId(accessToken);
 
         Family family = familyService.find(updateMemberVO.getFamilyId());
         memberService.updateMemberFamily(memberId, family);
@@ -103,10 +120,11 @@ public class MemberInfoApiController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
     })
-    @PutMapping("/member/tags/{id}")
-    public ResponseEntity<?> updateMemberTagInfo(@ApiParam(value = "AccessToken과 tags(list)", required = true) @PathVariable("id") int memberId, @RequestBody UpdateMemberTagVO updateMemberTagVO){
+    @PutMapping("/member/todo-tags")
+    public ResponseEntity<?> updateMemberTagInfo(@ApiParam(value = "AccessToken과 tags(list)", required = true)@RequestBody UpdateMemberTagVO updateMemberTagVO){
         String accessToken = updateMemberTagVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
+        int memberId = tokenService.getMemberId(accessToken);
 
         memberService.updateMemberTag(memberId,updateMemberTagVO.getTags());
 
@@ -118,14 +136,15 @@ public class MemberInfoApiController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "만료된 Refresh Token 입니다. 재로그인 하세요.(ExpiredJwtException)"),
     })
-    @PutMapping("/member/family-name/{id}")
-    public ResponseEntity<?> updateMemberFamilyNameInfo(@ApiParam(value = "AccessToken과 설정한 가족들 이름", required = true) @PathVariable("id") int memberId, @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO){
+    @PutMapping("/member/family-name")
+    public ResponseEntity<?> updateMemberFamilyNameInfo(@ApiParam(value = "AccessToken과 설정한 가족들 이름", required = true) @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO){
         String accessToken = updateMemberFamilyNameVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
+        int memberId = tokenService.getMemberId(accessToken);
 
         memberService.updateMemberFamilyName(memberId,updateMemberFamilyNameVO.getMemberFamilyName());
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원의 태그 정보 수정 성공", new UpdateMemberResponse(memberId)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원의 가족 정보 수정 성공", new UpdateMemberResponse(memberId)));
     }
 
 

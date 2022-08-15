@@ -1,6 +1,7 @@
 package com.modak.modakapp.service;
 
 import com.modak.modakapp.domain.Family;
+import com.modak.modakapp.dto.MemberFamilyMemberDTO;
 import com.modak.modakapp.dto.metadata.MDFamily;
 import com.modak.modakapp.dto.metadata.MDTag;
 import com.modak.modakapp.dto.MemberDataDTO;
@@ -20,6 +21,7 @@ import javax.persistence.NoResultException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -46,7 +48,7 @@ public class MemberService {
     }
 
     public MemberDataDTO getMemberInfo(int memberId){
-        Member member = findMember(memberId);
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new NoSuchMemberException("회원이 존재하지 않습니다."));
 
 
         MemberDataDTO memberDto = MemberDataDTO.builder().id(member.getId()).birthDay(member.getBirthday().toString())
@@ -68,30 +70,39 @@ public class MemberService {
         return memberDto;
     }
 
+    public List<MemberFamilyMemberDTO> getMemberFamilyMembersInfo(int memberId){
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new NoSuchMemberException("회원이 존재하지 않습니다."));
+        Family family = member.getFamily();
+
+        List<MemberFamilyMemberDTO> result = new ArrayList<>();
+        List<Member> members = family.getMembers();
+        for(Member m : members) {
+            if(m.getId()==memberId) continue;
+            MemberFamilyMemberDTO mfm = MemberFamilyMemberDTO.builder().birthday(m.getBirthday().toString())
+                    .id(m.getId()).isLunar(m.getIs_lunar()).name(m.getName())
+                    .color(m.getColor()).role(m.getRole().name())
+                    .profileImageUrl(m.getProfileImageUrl()).build();
+            result.add(mfm);
+        }
+        return result;
+    }
+
     public List<String> findColors(int familyId){
         return memberRepository.findColorsByFamilyId(familyId);
     }
 
-    public String setColorForMember(int memberId, int familyId){
+    public String getColorForMember(int familyId){
         String[] colorList = {"FFFFAF3D", "FFE8388A", "FF4955FF", "FF38E8A0", "FFFFFE40", "FFFFEA38",
                 "FFE86A33", "FFCF44FF", "FF339EE8", "FF3BFF41", "FFFFD13D", "FFE84C38",
                 "FF9149FF", "FF38DBE8", "FF8EFF40"};
         List<String> colors = memberRepository.findColorsByFamilyId(familyId);
-        if(colors.size()==0){ // 빈 리스트면
-            return colorList[0]; // 첫 번째 색깔 return
-        }else {
-            for(String c : colorList){
-                if(!colors.contains(c)){
-                    return c;
-                }
+
+        for(String c : colorList){
+            if(!colors.contains(c)){
+                return c;
             }
-
         }
-        return "woi";
-    }
-
-    public void updateColor(int memberId, String color){
-
+        return colorList[colors.size()%colorList.length]; // 가족 구성원이 없거나, 모든 색깔을 가족이 다 가지고 있을 때는 계속 반복
     }
 
 

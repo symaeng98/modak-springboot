@@ -76,14 +76,16 @@ public class MemberApiController {
             Family family = Family.builder().name("행복한 우리 가족").build();
             familyId = familyService.join(family);
         }
-        else{ // 이미 가족이 있는 회원이면
+        else{ // 초대받은 회원이면
             familyId = signUpMemberVO.getFamilyId();
         }
 
         Family family = familyService.find(familyId);
+        
+        String colorForMember = memberService.getColorForMember(familyId);
 
         Member member = Member.builder().family(family).name(signUpMemberVO.getName()).is_lunar(signUpMemberVO.getIsLunar())
-                .birthday(birthday).role(Role.valueOf(signUpMemberVO.getRole()))
+                .birthday(birthday).role(Role.valueOf(signUpMemberVO.getRole())).color(colorForMember)
                 .provider(Provider.valueOf(signUpMemberVO.getProvider())).providerId(signUpMemberVO.getProviderId())
                 .chatLastJoined(Timestamp.valueOf(LocalDateTime.now()))
                 .refreshToken("default refresh").fcmToken("default fcm").build();
