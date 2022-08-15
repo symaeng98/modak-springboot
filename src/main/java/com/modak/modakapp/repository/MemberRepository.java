@@ -1,42 +1,22 @@
 package com.modak.modakapp.repository;
 
+import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.exception.member.NoMemberException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
-@Repository
-@RequiredArgsConstructor
-public class MemberRepository {
+public interface MemberRepository extends JpaRepository<Member,Integer> {
+    Member findByProviderId(String providerId);
+    @Query("select m.color from Member m" +
+            " where m.family.id = :familyId and m.deletedAt is null")
+    List<String> findColorsByFamilyId(@Param("familyId") int familyId);
 
-    private final EntityManager em;
-
-    public void save(Member member){
-        em.persist(member);
-    }
-
-    public Member findOne(int id){
-        return em.find(Member.class, id);
-    }
-
-    public Member findOneByProviderId(String providerId){
-        try {
-            return em.createQuery("select m from Member m where m.providerId =:providerId", Member.class)
-                    .setParameter("providerId",providerId)
-                    .getSingleResult();
-        }catch (NoMemberException e) {
-            throw new NoMemberException("등록된 회원 정보가 없습니다.");
-        }
-    }
-
-    public List<Member> findAll(){
-        return em.createQuery("select m from Member m", Member.class)
-                .getResultList();
-    }
-
-
+    @Query("select count (m) > 0 " +
+            "from Member m " +
+            "where m.providerId = :providerId and m.deletedAt is null ")
+    boolean isExists(@Param(value = "providerId") String providerId);
 
 }

@@ -5,6 +5,8 @@ import com.modak.modakapp.dto.metadata.MDFamily;
 import com.modak.modakapp.dto.metadata.MDTag;
 import com.modak.modakapp.dto.MemberDataDTO;
 import com.modak.modakapp.dto.MemberFamilyNameDTO;
+import com.modak.modakapp.exception.family.NoSuchFamilyException;
+import com.modak.modakapp.exception.member.NoSuchMemberException;
 import com.modak.modakapp.vo.member.info.UpdateMemberVO;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Role;
@@ -32,13 +34,13 @@ public class MemberService {
     }
 
     public Member findMember(int memberId){
-        Member member = memberRepository.findOne(memberId);
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new NoSuchMemberException("회원이 존재하지 않습니다."));
         isDeleted(member);
         return member;
     }
 
     public Member findMemberByProviderId(String providerId){
-        Member member = memberRepository.findOneByProviderId(providerId);
+        Member member = memberRepository.findByProviderId(providerId);
         isDeleted(member);
         return member;
     }
@@ -66,24 +68,51 @@ public class MemberService {
         return memberDto;
     }
 
+    public List<String> findColors(int familyId){
+        return memberRepository.findColorsByFamilyId(familyId);
+    }
+
+    public String setColorForMember(int memberId, int familyId){
+        String[] colorList = {"FFFFAF3D", "FFE8388A", "FF4955FF", "FF38E8A0", "FFFFFE40", "FFFFEA38",
+                "FFE86A33", "FFCF44FF", "FF339EE8", "FF3BFF41", "FFFFD13D", "FFE84C38",
+                "FF9149FF", "FF38DBE8", "FF8EFF40"};
+        List<String> colors = memberRepository.findColorsByFamilyId(familyId);
+        if(colors.size()==0){ // 빈 리스트면
+            return colorList[0]; // 첫 번째 색깔 return
+        }else {
+            for(String c : colorList){
+                if(!colors.contains(c)){
+                    return c;
+                }
+            }
+
+        }
+        return "woi";
+    }
+
+    public void updateColor(int memberId, String color){
+
+    }
+
+
     public void updateMemberTag(int memberId, List<String> tags){
-        Member member = findMember(memberId);
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new NoSuchMemberException("회원이 존재하지 않습니다."));
         member.setMdTag(new MDTag(tags));
     }
 
     public void updateMemberFamilyName(int memberId, List<MemberFamilyNameDTO> familyName){
-        Member member = findMember(memberId);
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new NoSuchMemberException("회원이 존재하지 않습니다."));
         member.setMdFamily(new MDFamily(familyName));
     }
 
     public void updateRefreshToken(int memberId, String refreshToken){
-        Member findMember = memberRepository.findOne(memberId);
+        Member findMember = memberRepository.findById(memberId).orElseThrow(()->new NoSuchMemberException("회원이 존재하지 않습니다."));
         isDeleted(findMember);
         findMember.setRefreshToken(refreshToken);
     }
 
     public void updateMember(int memberId, UpdateMemberVO updateMemberVO){
-        Member findMember = memberRepository.findOne(memberId);
+        Member findMember = memberRepository.findById(memberId).orElseThrow(()->new NoSuchMemberException("회원이 존재하지 않습니다."));
         findMember.setName(updateMemberVO.getName());
         findMember.setRole(Role.valueOf(updateMemberVO.getRole()));
         findMember.setColor(updateMemberVO.getColor());
@@ -92,7 +121,7 @@ public class MemberService {
     }
 
     public void updateMemberFamily(int memberId, Family family){
-        Member member = memberRepository.findOne(memberId);
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new NoSuchMemberException("회원이 존재하지 않습니다."));
         member.setFamily(family);
     }
 
@@ -107,12 +136,6 @@ public class MemberService {
     }
 
     public boolean isMemberExists(String providerId) {
-        try {
-            Member findMember = findMemberByProviderId(providerId);
-            isDeleted(findMember);
-        }catch (EmptyResultDataAccessException e){
-            return false;
-        }
-        return true;
+        return memberRepository.isExists(providerId);
     }
 }

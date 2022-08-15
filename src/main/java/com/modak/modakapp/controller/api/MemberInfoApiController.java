@@ -2,6 +2,7 @@ package com.modak.modakapp.controller.api;
 
 import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
+import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.dto.MemberDataDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
@@ -25,6 +26,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,6 +72,12 @@ public class MemberInfoApiController {
         tokenService.isAccessTokenExpired(accessToken);
 
         MemberDataDTO memberDto = memberService.getMemberInfo(memberId);
+
+        Member member = memberService.findMember(memberId);
+        Family family = member.getFamily();
+        List<Member> members = family.getMembers();
+
+
 
         return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberInfoResponse(memberDto)));
     }

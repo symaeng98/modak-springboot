@@ -1,11 +1,8 @@
 package com.modak.modakapp.repository;
 
-import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Todo;
-import com.modak.modakapp.domain.TodoDone;
-import com.modak.modakapp.exception.member.NoMemberException;
+import com.modak.modakapp.exception.member.NoSuchMemberException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -29,8 +26,8 @@ public class TodoRepository {
             return em.createQuery("select t from Todo t where t.groupTodoId =:id and t.deletedAt is null ", Todo.class)
                     .setParameter("id",id)
                     .getResultList();
-        }catch (NoMemberException e) {
-            throw new NoMemberException("등록된 Todo 정보가 없습니다.");
+        }catch (NoSuchMemberException e) {
+            throw new NoSuchMemberException("등록된 Todo 정보가 없습니다.");
         }
     }
 
@@ -41,8 +38,8 @@ public class TodoRepository {
             return em.createQuery("select t from Todo t where t.family.id =:id and t.deletedAt is null ", Todo.class)
                     .setParameter("id",id)
                     .getResultList();
-        }catch (NoMemberException e) {
-            throw new NoMemberException("등록된 Todo 정보가 없습니다.");
+        }catch (NoSuchMemberException e) {
+            throw new NoSuchMemberException("등록된 Todo 정보가 없습니다.");
         }
     }
 
