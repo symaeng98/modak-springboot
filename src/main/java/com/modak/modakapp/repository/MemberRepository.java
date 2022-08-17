@@ -7,9 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member,Integer> {
-    Member findByProviderId(String providerId);
+    Optional<Member> findByProviderId(String providerId);
     @Query("select m.color from Member m" +
             " where m.family.id = :familyId and m.deletedAt is null")
     List<String> findColorsByFamilyId(@Param("familyId") int familyId);

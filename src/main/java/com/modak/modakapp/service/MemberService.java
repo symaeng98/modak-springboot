@@ -42,7 +42,7 @@ public class MemberService {
     }
 
     public Member findMemberByProviderId(String providerId){
-        Member member = memberRepository.findByProviderId(providerId);
+        Member member = memberRepository.findByProviderId(providerId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
         isDeleted(member);
         return member;
     }
