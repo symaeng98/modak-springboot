@@ -14,12 +14,9 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class) // JPA Entity에서 이벤트가 발생할 때마다 특정 로직을 실행
 public abstract class BaseTimeEntity {
     @CreatedDate
-    @Column(columnDefinition = "TIMESTAMP")
-//    @Temporal(TemporalType.TIMESTAMP)
+    @Column(columnDefinition = "TIMESTAMP",updatable = false)
     private Timestamp createdAt;
 
-//    @CreatedDate
-//    @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp updatedAt;
