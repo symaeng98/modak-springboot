@@ -13,6 +13,7 @@ import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodoDoneService;
 import com.modak.modakapp.service.TodoService;
 import com.modak.modakapp.utils.jwt.TokenService;
+import com.modak.modakapp.vo.member.AccessTokenVO;
 import com.modak.modakapp.vo.todo.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -55,8 +56,12 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PostMapping("/new")
-    public ResponseEntity create(@ApiParam(value = "todo 생성 정보 및 fromDate, toDate", required = true) @RequestBody CreateTodoVO createTodoVO) {
-        String accessToken = createTodoVO.getAccessToken().substring(7);
+    public ResponseEntity create(
+            @ApiParam(value = "todo 생성 정보 및 fromDate, toDate", required = true)
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @RequestBody CreateTodoVO createTodoVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         // 담당자 가져오기
@@ -114,8 +119,13 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PutMapping("/single/{id}")
-    public ResponseEntity<?> updateTodo(@ApiParam(value = "단일 todo 수정 정보", required = true) @PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO) {
-        String accessToken = updateTodoVO.getAccessToken().substring(7);
+    public ResponseEntity<?> updateTodo(
+            @ApiParam(value = "단일 todo 수정 정보", required = true)
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @PathVariable("id") int todoId,
+            @RequestBody UpdateTodoVO updateTodoVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         String title = updateTodoVO.getTitle();
@@ -137,8 +147,12 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PutMapping("/repeat/single/{id}")
-    public ResponseEntity<?> updateRepeatTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO) {
-        String accessToken = updateTodoVO.getAccessToken().substring(7);
+    public ResponseEntity<?> updateRepeatTodo(
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @PathVariable("id") int todoId,
+            @RequestBody UpdateTodoVO updateTodoVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);
@@ -211,8 +225,12 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PutMapping("/repeat/later/{id}")
-    public ResponseEntity<?> updateRepeatLaterTodo(@PathVariable("id") int todoId, @RequestBody UpdateTodoVO updateTodoVO) {
-        String accessToken = updateTodoVO.getAccessToken().substring(7);
+    public ResponseEntity<?> updateRepeatLaterTodo(
+            @PathVariable("id") int todoId,
+            @RequestBody UpdateTodoVO updateTodoVO,
+            @RequestHeader AccessTokenVO accessTokenVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);
@@ -257,8 +275,11 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PostMapping("/week")
-    public ResponseEntity<?> weekTodos(@RequestBody WeekVO weekVO) {
-        String accessToken = weekVO.getAccessToken().substring(7);
+    public ResponseEntity<?> weekTodos(
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @RequestBody WeekVO weekVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         int familyId = weekVO.getFamilyId();
@@ -280,8 +301,12 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PutMapping("/done/{id}")
-    public ResponseEntity<?> done(@PathVariable("id") int todoId, @RequestBody DoneTodoVO doneTodoVO) {
-        String accessToken = doneTodoVO.getAccessToken().substring(7);
+    public ResponseEntity<?> done(
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @PathVariable("id") int todoId,
+            @RequestBody DoneTodoVO doneTodoVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         Todo todo = todoService.findTodo(todoId);
@@ -304,8 +329,12 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTodo(@PathVariable("id") int todoId, @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO) {
-        String accessToken = deleteRepeatTodoVO.getAccessToken().substring(7);
+    public ResponseEntity<?> deleteTodo(
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @PathVariable("id") int todoId,
+            @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);
@@ -381,8 +410,12 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @DeleteMapping("/repeat/later/{id}")
-    public ResponseEntity<?> deleteRepeatLaterTodo(@PathVariable("id") int todoId, @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO) {
-        String accessToken = deleteRepeatTodoVO.getAccessToken().substring(7);
+    public ResponseEntity<?> deleteRepeatLaterTodo(
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @PathVariable("id") int todoId,
+            @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);

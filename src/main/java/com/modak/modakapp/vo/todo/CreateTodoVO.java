@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class CreateTodoVO {
-    private String accessToken;
 
     private String title;
 

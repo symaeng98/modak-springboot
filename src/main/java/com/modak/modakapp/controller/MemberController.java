@@ -24,7 +24,6 @@ import com.modak.modakapp.vo.member.AccessTokenVO;
 import com.modak.modakapp.vo.member.SignUpMemberVO;
 import com.modak.modakapp.vo.member.SocialLoginVO;
 import com.modak.modakapp.vo.member.TokenVO;
-import com.modak.modakapp.vo.member.info.GetMemberInfoVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberFamilyNameVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberTagVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberVO;
@@ -200,8 +199,9 @@ public class MemberController {
     })
     @ApiOperation(value = "유저 개인 정보 얻기")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getMemberInfo(@PathVariable("id") int memberId, @RequestBody GetMemberInfoVO getMemberInfoVO) {
-        String accessToken = getMemberInfoVO.getAccessToken().substring(7);
+    public ResponseEntity<?> getMemberInfo(@PathVariable("id") int memberId,
+                                           @RequestHeader AccessTokenVO accessTokenVO) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         MemberDTO memberDto = memberService.getMemberInfo(memberId);
@@ -275,9 +275,10 @@ public class MemberController {
     @PutMapping("/{id}/family/name")
     public ResponseEntity<?> updateMemberFamilyNameInfo(
             @PathVariable("id") int memberId,
+            @RequestHeader AccessTokenVO accessTokenVO,
             @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO
     ) {
-        String accessToken = updateMemberFamilyNameVO.getAccessToken().substring(7);
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         memberService.updateMemberFamilyName(memberId, updateMemberFamilyNameVO.getMemberFamilyName());
