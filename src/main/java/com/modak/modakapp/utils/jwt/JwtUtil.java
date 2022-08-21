@@ -1,6 +1,8 @@
-package com.modak.modakapp.jwt;
+package com.modak.modakapp.utils.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,13 +16,11 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
+    public final static long TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 * 2;
+    //    public final static long TOKEN_VALIDATION_SECOND = 1000L * 60;
+    public final static long REFRESH_TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 * 24 * 2;
     @Value("${jwt.secret}")
     private String SECRET_KEY;
-
-    public final static long TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 * 2;
-//    public final static long TOKEN_VALIDATION_SECOND = 1000L * 60;
-    public final static long REFRESH_TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 *24 * 2;
-
 
     public Map<String, Object> getUserParseInfo(String token) {
         Map<String, Object> result = new HashMap<>();
@@ -87,16 +87,16 @@ public class JwtUtil {
     }
 
     // 발췌한 payload에서 userid 추출
-    public int getMemberId (String token) {
+    public int getMemberId(String token) {
         return extractAllClaims(token).get("memberId", Integer.class);
     }
 
 
     /**
-     *  JWT Payload에 담는 정보의 한 '조각'을 Claim이라 한다.
-     *  Jwt Parser를 빌드하고 Parser에 토큰 넣어서 payload(body) 부분 발췌
+     * JWT Payload에 담는 정보의 한 '조각'을 Claim이라 한다.
+     * Jwt Parser를 빌드하고 Parser에 토큰 넣어서 payload(body) 부분 발췌
      */
-    private Claims extractAllClaims(String token){
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey(SECRET_KEY))
                 .build()

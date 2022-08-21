@@ -6,6 +6,5 @@ import java.util.List;
 
 @Data
 public class UpdateMemberTagVO {
-    private String accessToken;
     private List<String> tags;
 }

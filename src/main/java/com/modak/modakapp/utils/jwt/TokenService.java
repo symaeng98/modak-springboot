@@ -1,4 +1,5 @@
-package com.modak.modakapp.jwt;
+package com.modak.modakapp.utils.jwt;
+
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TokenService {
     private final JwtUtil jwtUtil;
-//    private final RedisUtil redisUtil;
+    //    private final RedisUtil redisUtil;
     private final MemberService memberService;
 
     /**
@@ -40,7 +41,7 @@ public class TokenService {
         int memberId = jwtUtil.getMemberId(accessToken);
         Member findMember = memberService.findMember(memberId);
         // 2. Refresh Token 유효 여부 판F단
-        if(jwtUtil.isTokenExpired(findMember.getRefreshToken())) {
+        if (jwtUtil.isTokenExpired(findMember.getRefreshToken())) {
             System.out.println("로그인 다시 해야됨!");
             throw new ExpiredRefreshTokenException("재 로그인이 필요합니다!");
         }
@@ -49,12 +50,12 @@ public class TokenService {
     }
 
     public void isAccessTokenExpired(String accessToken) {
-        if(jwtUtil.isTokenExpired(accessToken)){
+        if (jwtUtil.isTokenExpired(accessToken)) {
             throw new ExpiredAccessTokenException("AccessToken이 만료되었습니다.");
         }
     }
 
-    public int getMemberId(String token){
+    public int getMemberId(String token) {
         return jwtUtil.getMemberId(token);
     }
 }

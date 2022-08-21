@@ -9,7 +9,7 @@ import java.sql.Date;
 import java.util.List;
 
 public interface AnniversaryRepository extends JpaRepository<Anniversary, Integer> {
-    @Query("select a from Anniversary a"+
+    @Query("select a from Anniversary a" +
             " where ((a.startDate <= :firstDate and :firstDate <= a.endDate)" +
             " or (:firstDate<=a.startDate and a.endDate <= :lastDate)" +
             " or (a.startDate<=:lastDate and :lastDate <= a.endDate)" +
@@ -20,6 +20,6 @@ public interface AnniversaryRepository extends JpaRepository<Anniversary, Intege
 
 
     @Query("select a from Anniversary a" +
-            " where a.isMemberBirthday=1 and :memberId = a.member.id and a.deletedAt is null")
-    Anniversary findAnniversaryByIsMemberBirthday(@Param("memberId") int memberId);
+            " where a.isBirthday=1 and :memberId = a.member.id and a.deletedAt is null")
+    Anniversary findAnniversaryByIsBirthday(@Param("memberId") int memberId);
 }

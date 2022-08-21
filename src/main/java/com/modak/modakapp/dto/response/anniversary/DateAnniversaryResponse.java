@@ -1,7 +1,7 @@
 package com.modak.modakapp.dto.response.anniversary;
 
 
-import com.modak.modakapp.dto.AnniversaryDataDTO;
+import com.modak.modakapp.dto.AnniversaryDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,5 +12,5 @@ import java.util.Map;
 @AllArgsConstructor
 public class DateAnniversaryResponse {
     private int annCount;
-    private Map<String, List<AnniversaryDataDTO>> data;
+    private Map<String, List<AnniversaryDTO>> data;
 }

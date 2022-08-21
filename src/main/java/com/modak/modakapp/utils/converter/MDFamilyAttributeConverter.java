@@ -1,4 +1,4 @@
-package com.modak.modakapp.converter;
+package com.modak.modakapp.utils.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -7,10 +7,11 @@ import com.modak.modakapp.dto.metadata.MDFamily;
 
 import javax.persistence.AttributeConverter;
 
-public class MDFamilyAttributeConverter implements AttributeConverter<MDFamily,String> {
+public class MDFamilyAttributeConverter implements AttributeConverter<MDFamily, String> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     @Override
     public String convertToDatabaseColumn(MDFamily attribute) {
         try {

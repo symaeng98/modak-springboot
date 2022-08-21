@@ -5,9 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel(value = "회원 정보",description = "이름, 생년월일, 음력유무, 역할, fcm 토큰, 프로바이더, 프로바이더 아이디를 가진 클래스")
+@ApiModel(value = "회원 정보", description = "이름, 생년월일, 음력유무, 역할, fcm 토큰, 프로바이더, 프로바이더 아이디를 가진 클래스")
 public class SignUpMemberVO {
-
     @ApiModelProperty(value = "가족 id (없으면 -1)", required = true)
     private int familyId;
 
@@ -31,6 +30,4 @@ public class SignUpMemberVO {
 
     @ApiModelProperty(value = "프로바이더 아이디")
     private String providerId;
-
-
 }

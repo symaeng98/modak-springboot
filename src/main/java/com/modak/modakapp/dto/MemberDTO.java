@@ -1,7 +1,5 @@
 package com.modak.modakapp.dto;
 
-import com.modak.modakapp.dto.metadata.MDFamily;
-import com.modak.modakapp.dto.metadata.MDTag;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +7,9 @@ import lombok.Setter;
 import java.sql.Timestamp;
 import java.util.List;
 
-@Getter @Setter
-public class MemberDataDTO {
+@Getter
+@Setter
+public class MemberDTO {
     private int id;
     private int familyId;
     private String name;
@@ -27,8 +26,7 @@ public class MemberDataDTO {
     private Timestamp updatedAt;
 
     @Builder
-
-    public MemberDataDTO(int id, int familyId, String name, int isLunar, String birthDay, String profileImageUrl, String role, String color, String provider, String providerId, Timestamp createdAt, Timestamp updatedAt) {
+    public MemberDTO(int id, int familyId, String name, int isLunar, String birthDay, String profileImageUrl, String role, String color, String provider, String providerId, Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
         this.familyId = familyId;
         this.name = name;

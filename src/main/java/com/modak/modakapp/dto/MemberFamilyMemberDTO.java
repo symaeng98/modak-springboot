@@ -4,7 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 public class MemberFamilyMemberDTO {
     private int id;
     private String name;
@@ -15,7 +16,15 @@ public class MemberFamilyMemberDTO {
     private String color;
 
     @Builder
-    public MemberFamilyMemberDTO(int id, String name, int isLunar, String birthday, String profileImageUrl, String role, String color) {
+    public MemberFamilyMemberDTO(
+            int id,
+            String name,
+            int isLunar,
+            String birthday,
+            String profileImageUrl,
+            String role,
+            String color
+    ) {
         this.id = id;
         this.name = name;
         this.isLunar = isLunar;

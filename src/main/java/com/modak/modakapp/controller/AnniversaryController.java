@@ -1,19 +1,19 @@
-package com.modak.modakapp.controller.api;
+package com.modak.modakapp.controller;
 
 import com.modak.modakapp.domain.Anniversary;
+import com.modak.modakapp.domain.Family;
+import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.CreateAnniversaryResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
-import com.modak.modakapp.jwt.TokenService;
-import com.modak.modakapp.service.FamilyService;
-import com.modak.modakapp.service.MemberService;
-import com.modak.modakapp.vo.anniversary.CreateAnniversaryVO;
-import com.modak.modakapp.domain.Family;
-import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
 import com.modak.modakapp.service.AnniversaryService;
+import com.modak.modakapp.service.FamilyService;
+import com.modak.modakapp.service.MemberService;
+import com.modak.modakapp.utils.jwt.TokenService;
+import com.modak.modakapp.vo.anniversary.CreateAnniversaryVO;
 import com.modak.modakapp.vo.todo.WeekVO;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -34,17 +34,17 @@ import java.sql.Date;
 @RequiredArgsConstructor
 @RequestMapping("/api/anniversary")
 @Slf4j
-public class AnniversaryApiController {
-
+public class AnniversaryController {
     private final TokenService tokenService;
     private final AnniversaryService anniversaryService;
     private final MemberService memberService;
-
     private final FamilyService familyService;
+
+    private final String TOKENEXPIREDMESSAGE = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)";
 
     @ApiResponses({
             @ApiResponse(code = 201, message = "기념일 등록에 성공하였습니다."),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+            @ApiResponse(code = 401, message = TOKENEXPIREDMESSAGE),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PostMapping("/new")
@@ -73,13 +73,14 @@ public class AnniversaryApiController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("기념일 생성 완료", new CreateAnniversaryResponse(familyId, anniversaryId, dar)));
     }
+
     @ApiResponses({
             @ApiResponse(code = 200, message = "기념일 업데이트에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@ApiParam(value = "기념일 업데이트 정보 및 fromDate, toDate", required = true)@PathVariable("id") int annId, @RequestBody CreateAnniversaryVO createAnniversaryVO) {
+    public ResponseEntity<?> update(@PathVariable("id") int annId, @RequestBody CreateAnniversaryVO createAnniversaryVO) {
         String accessToken = createAnniversaryVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
@@ -98,7 +99,7 @@ public class AnniversaryApiController {
         String fromDate = createAnniversaryVO.getFromDate();
         String toDate = createAnniversaryVO.getToDate();
 
-        anniversaryService.updateAnniversary(annId,title,date,date,category,memo,isYear);
+        anniversaryService.updateAnniversary(annId, title, date, date, category, memo, isYear);
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromDate, toDate, family);
 
@@ -111,7 +112,7 @@ public class AnniversaryApiController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true)@PathVariable("id") int annId, @RequestBody WeekVO weekVO) {
+    public ResponseEntity<?> delete(@ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true) @PathVariable("id") int annId, @RequestBody WeekVO weekVO) {
         String accessToken = weekVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
@@ -148,7 +149,6 @@ public class AnniversaryApiController {
 
         return ResponseEntity.ok(CommonSuccessResponse.response("해당 날짜의 기념일을 불러왔습니다.", dar));
     }
-
 
 
     @ExceptionHandler(MalformedJwtException.class)
