@@ -14,10 +14,12 @@ import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.utils.jwt.TokenService;
 import com.modak.modakapp.vo.anniversary.CreateAnniversaryVO;
+import com.modak.modakapp.vo.member.AccessTokenVO;
 import com.modak.modakapp.vo.todo.WeekVO;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -43,15 +45,22 @@ public class AnniversaryController {
     private final String TOKENEXPIREDMESSAGE = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)";
 
     @ApiResponses({
-            @ApiResponse(code = 201, message = "기념일 등록에 성공하였습니다."),
+            @ApiResponse(code = 201, message = "기념일 생성을 성공하였습니다."),
             @ApiResponse(code = 401, message = TOKENEXPIREDMESSAGE),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @PostMapping("/new")
-    public ResponseEntity<?> create(@ApiParam(value = "기념일 생성 정보 및 fromDate, toDate", required = true) @RequestBody CreateAnniversaryVO createAnniversaryVO) {
-        String accessToken = createAnniversaryVO.getAccessToken().substring(7);
+    @ApiOperation(value = "기념일 생성")
+    @PostMapping("/")
+    public ResponseEntity<?> create(
+            @ApiParam(value = "기념일 생성 정보 및 fromDate, toDate", required = true)
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @RequestBody CreateAnniversaryVO createAnniversaryVO
+    ) {
+        // Access Token 검증
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
+        // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(accessToken);
         Member findMember = memberService.findMember(memberId);
 
@@ -59,13 +68,20 @@ public class AnniversaryController {
         Family family = findMember.getFamily();
         int familyId = family.getId();
 
-
         // 날짜 변형
         Date date = Date.valueOf(createAnniversaryVO.getDate());
 
-        Anniversary anniversary = Anniversary.builder().member(findMember).family(family).title(createAnniversaryVO.getTitle())
-                .memo(createAnniversaryVO.getMemo()).category(Category.valueOf(createAnniversaryVO.getCategory())).isYear(createAnniversaryVO.getIsYear())
-                .isLunar(createAnniversaryVO.getIsLunar()).startDate(date).endDate(date).build();
+        Anniversary anniversary = Anniversary.builder()
+                .member(findMember)
+                .family(family)
+                .title(createAnniversaryVO.getTitle())
+                .memo(createAnniversaryVO.getMemo())
+                .category(Category.valueOf(createAnniversaryVO.getCategory()))
+                .isYear(createAnniversaryVO.getIsYear())
+                .isLunar(createAnniversaryVO.getIsLunar())
+                .startDate(date)
+                .endDate(date)
+                .build();
 
         int anniversaryId = anniversaryService.join(anniversary);
 
@@ -75,13 +91,18 @@ public class AnniversaryController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "기념일 업데이트에 성공하였습니다."),
+            @ApiResponse(code = 200, message = "기념일 정보 변경에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
+    @ApiOperation(value = "기념일 정보 변경")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") int annId, @RequestBody CreateAnniversaryVO createAnniversaryVO) {
-        String accessToken = createAnniversaryVO.getAccessToken().substring(7);
+    public ResponseEntity<?> update(
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @PathVariable("id") int annId,
+            @RequestBody CreateAnniversaryVO createAnniversaryVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         int memberId = tokenService.getMemberId(accessToken);
@@ -112,8 +133,12 @@ public class AnniversaryController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true) @PathVariable("id") int annId, @RequestBody WeekVO weekVO) {
-        String accessToken = weekVO.getAccessToken().substring(7);
+    public ResponseEntity<?> delete(
+            @ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true)
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @PathVariable("id") int annId, @RequestBody WeekVO weekVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         anniversaryService.deleteAnniversary(annId);
@@ -134,8 +159,12 @@ public class AnniversaryController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PostMapping("/from-to-date")
-    public ResponseEntity<?> getAnniversaries(@ApiParam(value = "fromDate~toDate 기념일 정보", required = true) @RequestBody WeekVO weekVO) {
-        String accessToken = weekVO.getAccessToken().substring(7);
+    public ResponseEntity<?> getAnniversaries(
+            @ApiParam(value = "fromDate~toDate 기념일 정보", required = true)
+            @RequestHeader AccessTokenVO accessTokenVO,
+            @RequestBody WeekVO weekVO
+    ) {
+        String accessToken = accessTokenVO.getAccessToken().substring(7);
         tokenService.isAccessTokenExpired(accessToken);
 
         int memberId = tokenService.getMemberId(accessToken);
@@ -143,7 +172,6 @@ public class AnniversaryController {
 
         // 가족 가져오기
         Family family = findMember.getFamily();
-
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(weekVO.getFromDate(), weekVO.getToDate(), family);
 

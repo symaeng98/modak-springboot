@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class CreateAnniversaryVO {
-    private String accessToken;
     private String title;
     private String date;
     private String category;

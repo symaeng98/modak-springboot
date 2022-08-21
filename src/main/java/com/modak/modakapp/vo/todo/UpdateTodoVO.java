@@ -5,8 +5,6 @@ import lombok.Data;
 @Data
 public class UpdateTodoVO {
 
-    private String accessToken;
-
     private String title;
 
     private String memo;

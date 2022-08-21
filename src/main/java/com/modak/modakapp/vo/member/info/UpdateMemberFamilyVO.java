@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class UpdateMemberFamilyVO {
-    private String accessToken;
     private int familyId;
 }
