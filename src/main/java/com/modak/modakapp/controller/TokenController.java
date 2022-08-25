@@ -4,8 +4,9 @@ import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.token.ReissueTokenResponse;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
+import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
+import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.utils.jwt.TokenService;
-import com.modak.modakapp.vo.member.TokenVO;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("api/token")
 public class TokenController {
     private final TokenService tokenService;
+    private final MemberService memberService;
     private final HttpServletResponse servletResponse;
     private final String TOKEN_HEADER = "Bearer ";
 
@@ -29,11 +31,24 @@ public class TokenController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @GetMapping("/reissue")
-    public ResponseEntity<?> reissue(@RequestHeader TokenVO tokenVO) {
-        String accessToken = tokenVO.getAccessToken().substring(7);
-        String refreshToken = tokenVO.getRefreshToken().substring(7);
+    public ResponseEntity<?> reissue(
+            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = "REFRESH_TOKEN") String refreshToken
+    ) {
+        String subAccessToken = accessToken.substring(7);
+        String subRefreshToken = refreshToken.substring(7);
 
-        String newAccessToken = tokenService.reissueToken(accessToken);
+        // refresh 만료 확인
+        tokenService.validateRefreshTokenExpired(subRefreshToken);
+
+        int memberId = tokenService.getMemberId(subRefreshToken);
+
+        // refresh가 DB에 있는 값과 같은지 확인
+        if (!tokenService.isSameRefreshToken(memberService.findMember(memberId), subRefreshToken)) {
+            throw new NotMatchRefreshTokenException("회원이 가지고 있는 Refresh Token과 요청한 Refresh Token이 다릅니다.");
+        }
+
+        String newAccessToken = tokenService.reissueToken(subAccessToken);
 
         servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
 
@@ -43,6 +58,11 @@ public class TokenController {
     @ExceptionHandler(ExpiredRefreshTokenException.class)
     public ResponseEntity<?> handleExpiredRefreshTokenException() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("RefreshToken이 만료되었습니다. 다시 로그인 하세요.", "ExpiredRefreshTokenException"));
+    }
+
+    @ExceptionHandler(NotMatchRefreshTokenException.class)
+    public ResponseEntity<?> handleNotMatchRefreshTokenException() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("회원이 가지고 있는 Refresh Token과 요청한 Refresh Token이 다릅니다.", "NotMatchRefreshTokenException"));
     }
 
     @ExceptionHandler(Exception.class)

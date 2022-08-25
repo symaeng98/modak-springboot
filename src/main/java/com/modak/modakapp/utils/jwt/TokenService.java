@@ -62,7 +62,7 @@ public class TokenService {
         try {
             jwtUtil.isTokenExpired(refreshToken);
         } catch (ExpiredJwtException e) {
-            throw new ExpiredAccessTokenException("RefreshToken이 만료되었습니다.");
+            throw new ExpiredRefreshTokenException("RefreshToken이 만료되었습니다.");
         }
     }
 

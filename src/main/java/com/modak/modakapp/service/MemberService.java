@@ -2,6 +2,7 @@ package com.modak.modakapp.service;
 
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
 import com.modak.modakapp.dto.MemberDTO;
 import com.modak.modakapp.dto.MemberFamilyMemberDTO;
@@ -37,7 +38,7 @@ public class MemberService {
         return memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
-    public Member findMemberByProviderId(String provider, String providerId) {
+    public Member findMemberByProviderAndProviderId(Provider provider, String providerId) {
         return memberRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 

@@ -17,8 +17,9 @@ import java.util.Map;
 public class JwtUtil {
 
     //    public final static long TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 * 2;
-    public final static long TOKEN_VALIDATION_SECOND = 1000L * 60;
-    public final static long REFRESH_TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 * 24 * 2;
+    public final static long TOKEN_VALIDATION_SECOND = 1000L * 60; // AccessToken 1분
+    //    public final static long REFRESH_TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 * 24 * 2;
+    public final static long REFRESH_TOKEN_VALIDATION_SECOND = 1000L * 60; // RefreshToken 1분
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 

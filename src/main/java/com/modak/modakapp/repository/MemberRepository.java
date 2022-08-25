@@ -1,6 +1,7 @@
 package com.modak.modakapp.repository;
 
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.domain.enums.Provider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +16,7 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 
     @Query("select m from Member m" +
             " where m.providerId = :providerId and m.provider = :provider and m.deletedAt is null ")
-    Optional<Member> findByProviderAndProviderId(@Param("provider") String provider, @Param("providerId") String providerId);
+    Optional<Member> findByProviderAndProviderId(@Param("provider") Provider provider, @Param("providerId") String providerId);
 
     @Query("select m" +
             " from Member m join fetch m.family" +

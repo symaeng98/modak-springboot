@@ -17,6 +17,7 @@ import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
+import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
 import com.modak.modakapp.service.AnniversaryService;
 import com.modak.modakapp.service.FamilyService;
@@ -26,7 +27,6 @@ import com.modak.modakapp.vo.member.SignUpMemberVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberFamilyNameVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberTagVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberVO;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import io.swagger.annotations.ApiOperation;
@@ -134,7 +134,7 @@ public class MemberController {
             @RequestHeader(value = "PROVIDER") String provider,
             @RequestHeader(value = "PROVIDER_ID") String providerId
     ) {
-        Member findMember = memberService.findMemberByProviderId(provider, providerId);
+        Member findMember = memberService.findMemberByProviderAndProviderId(Provider.valueOf(provider), providerId);
         int memberId = findMember.getId();
 
         String newRefreshToken = tokenService.getRefreshToken(memberId);
@@ -305,16 +305,17 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Refresh Token 입니다.", "ExpiredJwtException"));
-    }
 
     @ExceptionHandler(ExpiredAccessTokenException.class)
     public ResponseEntity<?> handleExpiredAccessTokenException(ExpiredAccessTokenException e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Access Token 입니다.", "ExpiredAccessTokenException"));
+    }
+
+    @ExceptionHandler(ExpiredRefreshTokenException.class)
+    public ResponseEntity<?> handleExpiredRefreshTokenException(ExpiredRefreshTokenException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Refresh Token 입니다. 다시 로그인하세요", "ExpiredRefreshTokenException"));
     }
 
     @ExceptionHandler(NotMatchRefreshTokenException.class)
