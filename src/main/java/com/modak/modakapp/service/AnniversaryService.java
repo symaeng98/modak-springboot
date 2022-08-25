@@ -8,6 +8,7 @@ import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
 import com.modak.modakapp.exception.anniversary.NoSuchAnniversaryException;
 import com.modak.modakapp.repository.AnniversaryRepository;
 import com.modak.modakapp.utils.date.KoreanLunarCalendar;
+import com.modak.modakapp.vo.anniversary.AnniversaryVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,44 +25,48 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+@Transactional(readOnly = true)
 public class AnniversaryService {
 
     private final AnniversaryRepository anniversaryRepository;
 
+    @Transactional
     public int join(Anniversary anniversary) {
         Anniversary savedAnniversary = anniversaryRepository.save(anniversary);
         return savedAnniversary.getId();
     }
 
     public Anniversary findAnniversaryById(int id) {
-        Anniversary ann = anniversaryRepository.findById(id)
+        return anniversaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchAnniversaryException("기념일이 존재하지 않습니다."));
-        if (ann.getDeletedAt() != null) {
-            throw new NoSuchAnniversaryException("기념일이 존재하지 않습니다.");
-        } else return ann;
     }
 
+    @Transactional
     public void deleteAnniversary(int id) {
         Anniversary findAnn = findAnniversaryById(id);
-        findAnn.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
+        findAnn.removeAnniversary(Timestamp.valueOf(LocalDateTime.now()));
     }
 
-    public void updateAnniversary(int id, String title, String startDate, String endDate, String category, String memo, int isYear) {
+    @Transactional
+    public void updateAnniversary(int id, AnniversaryVO anniversaryVO) {
         Anniversary findAnn = findAnniversaryById(id);
-        findAnn.setTitle(title);
-        findAnn.setStartDate(Date.valueOf(startDate));
-        findAnn.setEndDate(Date.valueOf(endDate));
-        findAnn.setCategory(Category.valueOf(category));
-        findAnn.setMemo(memo);
-        findAnn.setIsYear(isYear);
+        findAnn.changeAnniversary(
+                anniversaryVO.getTitle(),
+                Date.valueOf(anniversaryVO.getDate()),
+                Date.valueOf(anniversaryVO.getDate()),
+                Category.valueOf(anniversaryVO.getCategory()),
+                anniversaryVO.getMemo(),
+                anniversaryVO.getIsYear()
+        );
     }
 
+    @Transactional
     public void updateBirthdayAndIsLunar(int id, String birthday, int isLunar) {
         Anniversary findAnn = findAnniversaryById(id);
-        findAnn.setStartDate(Date.valueOf(birthday));
-        findAnn.setEndDate(Date.valueOf(birthday));
-        findAnn.setIsLunar(isLunar);
+        findAnn.changeBirthdayAndIsLunar(
+                Date.valueOf(birthday),
+                isLunar
+        );
     }
 
     public Anniversary findBirthdayByMember(int memberId) {

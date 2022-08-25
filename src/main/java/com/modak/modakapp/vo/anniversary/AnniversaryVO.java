@@ -3,7 +3,7 @@ package com.modak.modakapp.vo.anniversary;
 import lombok.Data;
 
 @Data
-public class CreateAnniversaryVO {
+public class AnniversaryVO {
     private String title;
     private String date;
     private String category;

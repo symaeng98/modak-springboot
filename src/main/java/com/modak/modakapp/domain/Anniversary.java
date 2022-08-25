@@ -13,7 +13,6 @@ import java.sql.Timestamp;
 @Entity
 @NoArgsConstructor
 @Getter
-@Setter
 public class Anniversary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -88,4 +87,35 @@ public class Anniversary {
         this.isBirthday = isBirthday;
         this.deletedAt = deletedAt;
     }
+
+    public void removeAnniversary(Timestamp deletedAt){
+        this.deletedAt = deletedAt;
+    }
+
+    public void changeAnniversary(
+            String title,
+            Date startDate,
+            Date endDate,
+            Category category,
+            String memo,
+            int isYear
+    ){
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.category = category;
+        this.memo = memo;
+        this.isYear = isYear;
+    }
+
+    public void changeBirthdayAndIsLunar(
+            Date birthday,
+            int isLunar
+    ){
+        this.startDate = birthday;
+        this.endDate = birthday;
+        this.isLunar = isLunar;
+    }
+
+
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CreateAnniversaryResponse {
+public class AnniversaryResponse {
     private int familyId;
     private int anniversaryId;
     private DateAnniversaryResponse updateLists;

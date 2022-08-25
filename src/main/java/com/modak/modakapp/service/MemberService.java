@@ -42,6 +42,10 @@ public class MemberService {
         return memberRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
+    public Member findMemberWithFamily(int memberId) {
+        return memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
+    }
+
     public MemberDTO getMemberInfo(int memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
 
