@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
 @Transactional
 @RequiredArgsConstructor
 public class FamilyService {
-
     private final FamilyRepository familyRepository;
 
     public int join(Family family) {
@@ -25,19 +23,11 @@ public class FamilyService {
     }
 
     public Family find(int id) {
-        Family family = familyRepository.findById(id).orElseThrow(() -> new NoSuchFamilyException("가족 정보가 없습니다."));
-        isDeleted(family);
-        return family;
+        return familyRepository.findById(id).orElseThrow(() -> new NoSuchFamilyException("가족 정보가 없습니다."));
     }
-
 
     public void deleteFamily(Family family) {
-        family.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
+        family.removeFamily(Timestamp.valueOf(LocalDateTime.now()));
     }
 
-    public void isDeleted(Family family) {
-        if (family.getDeletedAt() != null) {
-            throw new NoResultException();
-        }
-    }
 }

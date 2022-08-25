@@ -3,7 +3,6 @@ package com.modak.modakapp.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -12,7 +11,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @RequiredArgsConstructor
 public class Family extends BaseTimeEntity {
     @Id
@@ -49,5 +47,9 @@ public class Family extends BaseTimeEntity {
         this.name = name;
         this.deletedAt = deletedAt;
         this.members = members;
+    }
+
+    public void removeFamily(Timestamp deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }
