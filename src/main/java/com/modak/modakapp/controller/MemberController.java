@@ -81,6 +81,7 @@ public class MemberController {
         Date birthday = Date.valueOf(signUpMemberVO.getBirthday());
         String colorForMember = memberService.getColorForMember(familyId);
 
+        // 회원 등록
         Member member = Member.builder()
                 .family(family)
                 .name(signUpMemberVO.getName())
@@ -95,6 +96,9 @@ public class MemberController {
                 .fcmToken("default fcm")
                 .build();
 
+        int memberId = memberService.join(member);
+
+        // 생일 생성
         Anniversary anniversary = Anniversary.builder()
                 .member(member)
                 .family(family)
@@ -109,7 +113,6 @@ public class MemberController {
 
         int joinAnniversaryId = anniversaryService.join(anniversary);
 
-        int memberId = memberService.join(member);
         String accessToken = tokenService.getAccessToken(memberId);
         String refreshToken = tokenService.getRefreshToken(memberId);
         memberService.updateRefreshToken(memberId, refreshToken);
@@ -151,14 +154,13 @@ public class MemberController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "토큰 로그인")
-    @GetMapping("/login/token")
+    @GetMapping("{member_id}/login/token")
     public ResponseEntity<?> tokenLogin(
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
-            @RequestHeader(value = "REFRESH_TOKEN") String refreshToken
+            @RequestHeader(value = "REFRESH_TOKEN") String refreshToken,
+            @PathVariable("member_id") int memberId
     ) {
         String findRefreshToken = tokenService.validateToken(accessToken, refreshToken);
-
-        int memberId = tokenService.getMemberId(findRefreshToken);
 
         if (!tokenService.isSameRefreshToken(memberService.findMember(memberId), findRefreshToken)) {
             throw new NotMatchRefreshTokenException("회원이 가지고 있는 Refresh Token과 요청한 Refresh Token이 다릅니다.");
@@ -187,7 +189,7 @@ public class MemberController {
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberVO updateMemberVO
     ) {
-        tokenService.isAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken.substring(7));
 
         memberService.updateMember(memberId, updateMemberVO);
 
@@ -208,7 +210,7 @@ public class MemberController {
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId
     ) {
-        tokenService.isAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken.substring(7));
 
         MemberDTO memberDto = memberService.getMemberInfo(memberId);
 
@@ -227,7 +229,7 @@ public class MemberController {
             @PathVariable("member_id") int memberId,
             @PathVariable("family_id") int familyId
     ) {
-        tokenService.isAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken.substring(7));
 
         Family family = familyService.find(familyId);
         memberService.updateMemberFamily(memberId, family);
@@ -247,7 +249,7 @@ public class MemberController {
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberTagVO updateMemberTagVO
     ) {
-        tokenService.isAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken.substring(7));
 
         memberService.updateMemberTag(memberId, updateMemberTagVO.getTags());
 
@@ -265,7 +267,7 @@ public class MemberController {
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId
     ) {
-        tokenService.isAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken.substring(7));
 
         List<MemberFamilyMemberDTO> mfmInfo = memberService.getMemberFamilyMembersInfo(memberId);
 
@@ -284,7 +286,7 @@ public class MemberController {
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO
     ) {
-        tokenService.isAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken.substring(7));
 
         memberService.updateMemberFamilyName(memberId, updateMemberFamilyNameVO.getMemberFamilyName());
 
@@ -335,6 +337,7 @@ public class MemberController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e) {
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
     }
 }

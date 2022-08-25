@@ -58,7 +58,7 @@ public class AnniversaryController {
     ) {
         // Access Token 검증
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(accessToken);
@@ -103,7 +103,7 @@ public class AnniversaryController {
             @RequestBody CreateAnniversaryVO createAnniversaryVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         int memberId = tokenService.getMemberId(accessToken);
         Member findMember = memberService.findMember(memberId);
@@ -139,7 +139,7 @@ public class AnniversaryController {
             @PathVariable("id") int annId, @RequestBody WeekVO weekVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         anniversaryService.deleteAnniversary(annId);
 
@@ -165,7 +165,7 @@ public class AnniversaryController {
             @RequestBody WeekVO weekVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         int memberId = tokenService.getMemberId(accessToken);
         Member findMember = memberService.findMember(memberId);

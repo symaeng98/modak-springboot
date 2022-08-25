@@ -3,8 +3,8 @@ package com.modak.modakapp.utils.jwt;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
-import com.modak.modakapp.exception.token.NotMatchTokenException;
 import com.modak.modakapp.service.MemberService;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -50,9 +50,19 @@ public class TokenService {
         return getAccessToken(memberId);
     }
 
-    public void isAccessTokenExpired(String accessToken) {
-        if (jwtUtil.isTokenExpired(accessToken)) {
+    public void validateAccessTokenExpired(String accessToken) {
+        try {
+            jwtUtil.isTokenExpired(accessToken);
+        } catch (ExpiredJwtException e) {
             throw new ExpiredAccessTokenException("AccessToken이 만료되었습니다.");
+        }
+    }
+
+    public void validateRefreshTokenExpired(String refreshToken) {
+        try {
+            jwtUtil.isTokenExpired(refreshToken);
+        } catch (ExpiredJwtException e) {
+            throw new ExpiredAccessTokenException("RefreshToken이 만료되었습니다.");
         }
     }
 
@@ -64,8 +74,7 @@ public class TokenService {
     public String validateToken(String accessToken, String refreshToken) {
         String at = accessToken.substring(7);
         String rt = refreshToken.substring(7);
-        if (getMemberId(at) != getMemberId(rt))
-            throw new NotMatchTokenException("accessToken과 refreshToken을 다시 확인하세요.");
+        validateRefreshTokenExpired(rt);
         return rt;
     }
 

@@ -62,7 +62,7 @@ public class TodoController {
             @RequestBody CreateTodoVO createTodoVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         // 담당자 가져오기
         int memberId = createTodoVO.getMemberId();
@@ -126,7 +126,7 @@ public class TodoController {
             @RequestBody UpdateTodoVO updateTodoVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         String title = updateTodoVO.getTitle();
         String memo = updateTodoVO.getMemo();
@@ -153,7 +153,7 @@ public class TodoController {
             @RequestBody UpdateTodoVO updateTodoVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);
 
@@ -231,7 +231,7 @@ public class TodoController {
             @RequestHeader AccessTokenVO accessTokenVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);
 
@@ -280,7 +280,7 @@ public class TodoController {
             @RequestBody WeekVO weekVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         int familyId = weekVO.getFamilyId();
         Family family = familyService.find(familyId);
@@ -307,7 +307,7 @@ public class TodoController {
             @RequestBody DoneTodoVO doneTodoVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         Todo todo = todoService.findTodo(todoId);
         Date date = Date.valueOf(doneTodoVO.getDate());
@@ -335,7 +335,7 @@ public class TodoController {
             @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);
 
@@ -416,7 +416,7 @@ public class TodoController {
             @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO
     ) {
         String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.isAccessTokenExpired(accessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         Todo findTodo = todoService.findTodo(todoId);
         Family family = findTodo.getFamily();
