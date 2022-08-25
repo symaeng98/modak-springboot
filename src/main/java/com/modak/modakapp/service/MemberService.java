@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -23,26 +22,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
 
+    @Transactional
     public int join(Member member) {
         memberRepository.save(member);
         return member.getId();
     }
 
     public Member findMember(int memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        isDeleted(member);
-        return member;
+        return memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
-    public Member findMemberByProviderId(String providerId) {
-        Member member = memberRepository.findByProviderId(providerId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        isDeleted(member);
-        return member;
+    public Member findMemberByProviderId(String provider, String providerId) {
+        return memberRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
     public MemberDTO getMemberInfo(int memberId) {
@@ -59,7 +55,7 @@ public class MemberService {
                 .provider(member.getProvider().name())
                 .providerId(member.getProviderId())
                 .role(member.getRole().name())
-                .isLunar(member.getIs_lunar())
+                .isLunar(member.getIsLunar())
                 .updatedAt(member.getUpdatedAt())
                 .build();
 
@@ -79,7 +75,7 @@ public class MemberService {
     }
 
     public List<MemberFamilyMemberDTO> getMemberFamilyMembersInfo(int memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
+        Member member = memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
         Family family = member.getFamily();
 
         List<MemberFamilyMemberDTO> result = new ArrayList<>();
@@ -94,7 +90,7 @@ public class MemberService {
                     .builder()
                     .birthday(m.getBirthday().toString())
                     .id(m.getId())
-                    .isLunar(m.getIs_lunar())
+                    .isLunar(m.getIsLunar())
                     .name(m.getName())
                     .color(m.getColor())
                     .role(m.getRole().name())
@@ -124,46 +120,47 @@ public class MemberService {
         return colorList[colors.size() % colorList.length]; // 가족 구성원이 없거나, 모든 색깔을 가족이 다 가지고 있을 때는 계속 반복
     }
 
-
+    @Transactional
     public void updateMemberTag(int memberId, List<String> tags) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        member.setMdTag(new MDTag(tags));
+        member.changeMemberTag(new MDTag(tags));
     }
 
+    @Transactional
     public void updateMemberFamilyName(int memberId, List<MemberFamilyNameDTO> familyName) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        member.setMdFamily(new MDFamily(familyName));
+        member.changeMemberFamilyName(new MDFamily(familyName));
     }
 
+    @Transactional
     public void updateRefreshToken(int memberId, String refreshToken) {
         Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        isDeleted(findMember);
-        findMember.setRefreshToken(refreshToken);
+        findMember.changeRefreshToken(refreshToken);
     }
 
+    @Transactional
     public void updateMember(int memberId, UpdateMemberVO updateMemberVO) {
         Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        findMember.setName(updateMemberVO.getName());
-        findMember.setRole(Role.valueOf(updateMemberVO.getRole()));
-        findMember.setColor(updateMemberVO.getColor());
-        findMember.setBirthday(Date.valueOf(updateMemberVO.getBirthday()));
-        findMember.setIs_lunar(updateMemberVO.getIsLunar());
+        findMember.changeMemberInfo(
+                updateMemberVO.getName(),
+                Role.valueOf(updateMemberVO.getRole()),
+                updateMemberVO.getColor(),
+                Date.valueOf(updateMemberVO.getBirthday()),
+                updateMemberVO.getIsLunar()
+        );
     }
 
+    @Transactional
     public void updateMemberFamily(int memberId, Family family) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        member.setFamily(family);
+        member.changeMemberFamily(family);
     }
 
+    @Transactional
     public void deleteMember(Member member) {
-        member.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
+        member.removeMember(Timestamp.valueOf(LocalDateTime.now()));
     }
 
-    public void isDeleted(Member member) {
-        if (member.getDeletedAt() != null) {
-            throw new NoResultException();
-        }
-    }
 
     public boolean isMemberExists(String providerId) {
         return memberRepository.isExists(providerId);

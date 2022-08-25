@@ -3,6 +3,7 @@ package com.modak.modakapp.utils.jwt;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
+import com.modak.modakapp.exception.token.NotMatchTokenException;
 import com.modak.modakapp.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -57,5 +58,18 @@ public class TokenService {
 
     public int getMemberId(String token) {
         return jwtUtil.getMemberId(token);
+    }
+
+    // access와 refresh가 이상한 값인지 확인 후 refresh 토큰 반환
+    public String validateToken(String accessToken, String refreshToken) {
+        String at = accessToken.substring(7);
+        String rt = refreshToken.substring(7);
+        if (getMemberId(at) != getMemberId(rt))
+            throw new NotMatchTokenException("accessToken과 refreshToken을 다시 확인하세요.");
+        return rt;
+    }
+
+    public boolean isSameRefreshToken(Member member, String refreshToken) {
+        return member.getRefreshToken().equals(refreshToken);
     }
 }

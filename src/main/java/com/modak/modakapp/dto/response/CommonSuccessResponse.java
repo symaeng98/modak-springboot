@@ -19,7 +19,11 @@ public class CommonSuccessResponse {
         this.status = status;
     }
 
-    public static CommonSuccessResponse response(String message, Object data){
+    public static CommonSuccessResponse response(String message, Object data) {
         return CommonSuccessResponse.builder().message(message).data(data).status(true).build();
+    }
+
+    public static CommonSuccessResponse successResponse(String message) {
+        return CommonSuccessResponse.builder().message(message).status(true).build();
     }
 }
