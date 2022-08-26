@@ -2,6 +2,8 @@ package com.modak.modakapp.vo.todo;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class UpdateTodoVO {
 
@@ -19,4 +21,7 @@ public class UpdateTodoVO {
 
     private String toDate;
 
+    private List<Integer> repeat;
+
+    private int isAfterUpdate;
 }

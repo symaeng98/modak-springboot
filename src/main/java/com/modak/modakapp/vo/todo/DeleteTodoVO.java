@@ -9,4 +9,8 @@ public class DeleteTodoVO {
 
     private String toDate;
 
+    private String date;
+
+    private int isAfterDelete;
+
 }

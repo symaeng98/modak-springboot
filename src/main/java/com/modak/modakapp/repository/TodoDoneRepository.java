@@ -1,25 +1,14 @@
 package com.modak.modakapp.repository;
 
-import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.domain.Todo;
 import com.modak.modakapp.domain.TodoDone;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import javax.persistence.EntityManager;
-import java.sql.Date;
+import java.util.Optional;
 
-@Repository
-@RequiredArgsConstructor
-public class TodoDoneRepository {
-    private final EntityManager em;
-
-    public void save(TodoDone todoDone){
-        em.persist(todoDone);
-    }
-
-    public TodoDone findOne(int id){
-        return em.find(TodoDone.class, id);
-    }
-
+public interface TodoDoneRepository extends JpaRepository<TodoDone, Integer> {
+    @Query("select td from TodoDone td" +
+            " where td.id = :id and td.deletedAt is null")
+    Optional<TodoDone> findById(@Param("id") int id);
 }

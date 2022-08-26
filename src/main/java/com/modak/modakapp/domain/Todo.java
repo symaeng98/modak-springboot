@@ -3,7 +3,6 @@ package com.modak.modakapp.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -12,7 +11,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 public class Todo extends BaseTimeEntity {
     @Id
@@ -115,5 +113,52 @@ public class Todo extends BaseTimeEntity {
         this.isFriday = isFriday;
         this.isSaturday = isSaturday;
         this.deletedAt = deletedAt;
+    }
+
+    public void changeSingleTodo(
+            String title,
+            String memo,
+            Member member,
+            Date date,
+            String timeTag
+    ) {
+        this.title = title;
+        this.memo = memo;
+        this.member = member;
+        this.startDate = date;
+        this.endDate = date;
+        this.timeTag = timeTag;
+    }
+
+    public void changeRepeatTodo(
+            String title,
+            String memo,
+            Member member,
+            String timeTag
+    ) {
+        this.title = title;
+        this.memo = memo;
+        this.member = member;
+        this.timeTag = timeTag;
+    }
+
+    public void changeGroupTodoId(int groupTodoId) {
+        this.groupTodoId = groupTodoId;
+    }
+
+    public void changeEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public void changeStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public void removeTodo(Timestamp deletedAt) {
+        this.deletedAt = deletedAt;
+        // todo 삭제할 때 자동으로 todoDone 삭제
+        this.todoDone.forEach(td -> {
+            td.removeTodoDone(deletedAt);
+        });
     }
 }

@@ -5,7 +5,9 @@ import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
-import com.modak.modakapp.dto.response.todo.*;
+import com.modak.modakapp.dto.response.todo.CreateTodoResponse;
+import com.modak.modakapp.dto.response.todo.UpdateSingleTodoResponse;
+import com.modak.modakapp.dto.response.todo.WeekResponse;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.repository.date.TodoDateRepository;
 import com.modak.modakapp.service.FamilyService;
@@ -13,7 +15,6 @@ import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodoDoneService;
 import com.modak.modakapp.service.TodoService;
 import com.modak.modakapp.utils.jwt.TokenService;
-import com.modak.modakapp.vo.member.AccessTokenVO;
 import com.modak.modakapp.vo.todo.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -29,8 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -55,28 +54,25 @@ public class TodoController {
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @PostMapping("/new")
-    public ResponseEntity create(
+    @PostMapping()
+    public ResponseEntity<?> create(
             @ApiParam(value = "todo 생성 정보 및 fromDate, toDate", required = true)
-            @RequestHeader AccessTokenVO accessTokenVO,
+            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @RequestBody CreateTodoVO createTodoVO
     ) {
-        String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.validateAccessTokenExpired(accessToken);
+        String subAccessToken = accessToken.substring(7);
+        tokenService.validateAccessTokenExpired(subAccessToken);
 
         // 담당자 가져오기
         int memberId = createTodoVO.getMemberId();
-        Member findMember = memberService.findMember(memberId);
+        Member memberWithFamily = memberService.findMemberWithFamily(memberId);
 
         // 가족 가져오기
-        Family family = findMember.getFamily();
-        int familyId = family.getId();
-
+        Family family = memberWithFamily.getFamily();
 
         // 날짜 변형
         Date startDate = Date.valueOf(createTodoVO.getDate());
         Date endDate = Date.valueOf("2025-01-01");
-
 
         // 반복 로직 ex) [0,0,0,0,1,0,0]
         List<Integer> repeat = createTodoVO.getRepeat();
@@ -87,7 +83,7 @@ public class TodoController {
             endDate = startDate;
         }
 
-        Todo todo = Todo.builder().member(findMember).
+        Todo todo = Todo.builder().member(memberWithFamily).
                 family(family).
                 title(createTodoVO.getTitle()).
                 memo(createTodoVO.getMemo()).
@@ -107,167 +103,176 @@ public class TodoController {
         int todoId = todoService.join(todo);
         todoService.updateGroupTodoId(todoId, todoId);
 
-
-//        WeekResponse wr = todoDateRepository.getCreateResponse(todo, dates, family);
         WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(createTodoVO.getFromDate(), createTodoVO.getToDate(), family);
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("투두 생성 완료", new CreateTodoResponse(todoId, wr)));
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "단일 todo 수정에 성공하였습니다."),
+            @ApiResponse(code = 200, message = "todo 수정에 성공하였습니다."),
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @PutMapping("/single/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateTodo(
-            @ApiParam(value = "단일 todo 수정 정보", required = true)
-            @RequestHeader AccessTokenVO accessTokenVO,
+            @ApiParam(value = "todo 수정 정보", required = true)
+            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int todoId,
             @RequestBody UpdateTodoVO updateTodoVO
     ) {
-        String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.validateAccessTokenExpired(accessToken);
+        String subAccessToken = accessToken.substring(7);
+        tokenService.validateAccessTokenExpired(subAccessToken);
 
-        String title = updateTodoVO.getTitle();
-        String memo = updateTodoVO.getMemo();
-        Member member = memberService.findMember(updateTodoVO.getMemberId());
-        String date = updateTodoVO.getDate();
-        String timeTag = updateTodoVO.getTimeTag();
-        Family family = member.getFamily();
+        // 담당자
+        Member memberWithFamily = memberService.findMemberWithFamily(updateTodoVO.getMemberId());
+        Family family = memberWithFamily.getFamily();
 
-        todoService.updateTodo(todoId, title, memo, member, date, timeTag);
+        // 반복 로직 ex) [0,0,0,0,1,0,0]
+        List<Integer> repeat = updateTodoVO.getRepeat();
+
+        String repeatTag = todoService.getRepeatTag(repeat);
+        // 반복 x
+        if (repeatTag == null) {
+            todoService.updateSingleTodo(todoId, updateTodoVO, memberWithFamily);
+        } else { // 반복
+            if (updateTodoVO.getIsAfterUpdate() == 1) { // 이후 모두 수정
+                todoService.updateRepeatTodoAfter(todoId, updateTodoVO, memberWithFamily);
+            } else { // 단일 이벤트 수정
+                todoService.updateRepeatTodoSingle(todoId, updateTodoVO, memberWithFamily);
+            }
+        }
+
         WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
 
         return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", wr));
     }
 
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "반복 todo - 단일 수정에 성공하였습니다."),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-    })
-    @PutMapping("/repeat/single/{id}")
-    public ResponseEntity<?> updateRepeatTodo(
-            @RequestHeader AccessTokenVO accessTokenVO,
-            @PathVariable("id") int todoId,
-            @RequestBody UpdateTodoVO updateTodoVO
-    ) {
-        String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Todo findTodo = todoService.findTodo(todoId);
-
-        String title = updateTodoVO.getTitle();
-        String memo = updateTodoVO.getMemo();
-        Member member = memberService.findMember(updateTodoVO.getMemberId());
-        Date date = Date.valueOf(updateTodoVO.getDate());
-        String timeTag = updateTodoVO.getTimeTag();
-
-        Family family = member.getFamily();
-
-        // 이미 수정한 적이 있으면
-        if (findTodo.getStartDate().equals(findTodo.getEndDate())) {
-            todoService.updateTodo(todoId, title, memo, member, updateTodoVO.getDate(), timeTag);
-            WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
-            return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateSingleTodoResponse(todoId, wr)));
-        }
-
-        Todo todo = Todo.builder().member(member).
-                family(family).
-                title(title).
-                memo(memo).
-                timeTag(timeTag).
-                startDate(date).
-                endDate(date).
-                repeatTag(findTodo.getRepeatTag()).
-                groupTodoId(findTodo.getGroupTodoId()).
-                isSunday(findTodo.getIsSunday()).
-                isMonday(findTodo.getIsMonday()).
-                isTuesday(findTodo.getIsTuesday()).
-                isWednesday(findTodo.getIsWednesday()).
-                isThursday(findTodo.getIsThursday()).
-                isFriday(findTodo.getIsFriday()).
-                isSaturday(findTodo.getIsSaturday()).
-                build();
-
-        Date endDate = findTodo.getEndDate();
-        Date yestDate = todoService.updateEndDateYest(todoId, date);
-        Todo todo2 = Todo.builder().member(findTodo.getMember()).
-                family(findTodo.getFamily()).
-                title(findTodo.getTitle()).
-                memo(findTodo.getMemo()).
-                timeTag(findTodo.getTimeTag()).
-                startDate(date).
-                endDate(endDate).
-                repeatTag(findTodo.getRepeatTag()).
-                groupTodoId(findTodo.getGroupTodoId()).
-                isSunday(findTodo.getIsSunday()).
-                isMonday(findTodo.getIsMonday()).
-                isTuesday(findTodo.getIsTuesday()).
-                isWednesday(findTodo.getIsWednesday()).
-                isThursday(findTodo.getIsThursday()).
-                isFriday(findTodo.getIsFriday()).
-                isSaturday(findTodo.getIsSaturday()).
-                build();
-
-        int newTodoId = todoService.join(todo);
-        int afterTodoId = todoService.join(todo2);
-        Date tomDate = todoService.updateStartDateTom(afterTodoId, date);
-        System.out.println(yestDate + "\n" + tomDate);
-
-        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
-        return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateTodoResponse(newTodoId, afterTodoId, wr)));
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "반복 todo 이후 수정에 성공하였습니다."),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-    })
-    @PutMapping("/repeat/later/{id}")
-    public ResponseEntity<?> updateRepeatLaterTodo(
-            @PathVariable("id") int todoId,
-            @RequestBody UpdateTodoVO updateTodoVO,
-            @RequestHeader AccessTokenVO accessTokenVO
-    ) {
-        String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Todo findTodo = todoService.findTodo(todoId);
-
-        String title = updateTodoVO.getTitle();
-        String memo = updateTodoVO.getMemo();
-        Member member = memberService.findMember(updateTodoVO.getMemberId());
-        Date date = Date.valueOf(updateTodoVO.getDate());
-        Date endDate = Date.valueOf("2025-01-01");
-        String timeTag = updateTodoVO.getTimeTag();
-        Family family = member.getFamily();
-
-        todoService.updateEndDateYest(todoId, date);
-
-        Todo todo = Todo.builder().member(member).
-                family(family).
-                title(title).
-                memo(memo).
-                timeTag(timeTag).
-                startDate(date).
-                endDate(endDate).
-                repeatTag(findTodo.getRepeatTag()).
-                groupTodoId(findTodo.getGroupTodoId()).
-                isSunday(findTodo.getIsSunday()).
-                isMonday(findTodo.getIsMonday()).
-                isTuesday(findTodo.getIsTuesday()).
-                isWednesday(findTodo.getIsWednesday()).
-                isThursday(findTodo.getIsThursday()).
-                isFriday(findTodo.getIsFriday()).
-                isSaturday(findTodo.getIsSaturday()).
-                build();
-
-        int newTodoId = todoService.join(todo);
-
-        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
-        return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateSingleTodoResponse(newTodoId, wr)));
-    }
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "반복 todo - 단일 수정에 성공하였습니다."),
+//            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+//            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+//    })
+//    @PutMapping("/repeat/single/{id}")
+//    public ResponseEntity<?> updateRepeatTodo(
+//            @RequestHeader AccessTokenVO accessTokenVO,
+//            @PathVariable("id") int todoId,
+//            @RequestBody UpdateTodoVO updateTodoVO
+//    ) {
+//        String accessToken = accessTokenVO.getAccessToken().substring(7);
+//        tokenService.validateAccessTokenExpired(accessToken);
+//
+//        Todo findTodo = todoService.findTodo(todoId);
+//
+//        String title = updateTodoVO.getTitle();
+//        String memo = updateTodoVO.getMemo();
+//        Member member = memberService.findMember(updateTodoVO.getMemberId());
+//        Date date = Date.valueOf(updateTodoVO.getDate());
+//        String timeTag = updateTodoVO.getTimeTag();
+//
+//        Family family = member.getFamily();
+//
+//        // 이미 수정한 적이 있으면
+//        if (findTodo.getStartDate().equals(findTodo.getEndDate())) {
+//            todoService.updateTodo(todoId, title, memo, member, updateTodoVO.getDate(), timeTag);
+//            WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
+//            return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateSingleTodoResponse(todoId, wr)));
+//        }
+//
+//        Todo todo = Todo.builder().member(member).
+//                family(family).
+//                title(title).
+//                memo(memo).
+//                timeTag(timeTag).
+//                startDate(date).
+//                endDate(date).
+//                repeatTag(findTodo.getRepeatTag()).
+//                groupTodoId(findTodo.getGroupTodoId()).
+//                isSunday(findTodo.getIsSunday()).
+//                isMonday(findTodo.getIsMonday()).
+//                isTuesday(findTodo.getIsTuesday()).
+//                isWednesday(findTodo.getIsWednesday()).
+//                isThursday(findTodo.getIsThursday()).
+//                isFriday(findTodo.getIsFriday()).
+//                isSaturday(findTodo.getIsSaturday()).
+//                build();
+//
+//        Date endDate = findTodo.getEndDate();
+//        Date yestDate = todoService.updateEndDateYest(todoId, date);
+//        Todo todo2 = Todo.builder().member(findTodo.getMember()).
+//                family(findTodo.getFamily()).
+//                title(findTodo.getTitle()).
+//                memo(findTodo.getMemo()).
+//                timeTag(findTodo.getTimeTag()).
+//                startDate(date).
+//                endDate(endDate).
+//                repeatTag(findTodo.getRepeatTag()).
+//                groupTodoId(findTodo.getGroupTodoId()).
+//                isSunday(findTodo.getIsSunday()).
+//                isMonday(findTodo.getIsMonday()).
+//                isTuesday(findTodo.getIsTuesday()).
+//                isWednesday(findTodo.getIsWednesday()).
+//                isThursday(findTodo.getIsThursday()).
+//                isFriday(findTodo.getIsFriday()).
+//                isSaturday(findTodo.getIsSaturday()).
+//                build();
+//
+//        int newTodoId = todoService.join(todo);
+//        int afterTodoId = todoService.join(todo2);
+//        Date tomDate = todoService.updateStartDateTom(afterTodoId, date);
+//        System.out.println(yestDate + "\n" + tomDate);
+//
+//        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
+//        return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateTodoResponse(newTodoId, afterTodoId, wr)));
+//    }
+//
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "반복 todo 이후 수정에 성공하였습니다."),
+//            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+//            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+//    })
+//    @PutMapping("/repeat/later/{id}")
+//    public ResponseEntity<?> updateRepeatLaterTodo(
+//            @PathVariable("id") int todoId,
+//            @RequestBody UpdateTodoVO updateTodoVO,
+//            @RequestHeader AccessTokenVO accessTokenVO
+//    ) {
+//        String accessToken = accessTokenVO.getAccessToken().substring(7);
+//        tokenService.validateAccessTokenExpired(accessToken);
+//
+//        Todo findTodo = todoService.findTodo(todoId);
+//
+//        String title = updateTodoVO.getTitle();
+//        String memo = updateTodoVO.getMemo();
+//        Member member = memberService.findMember(updateTodoVO.getMemberId());
+//        Date date = Date.valueOf(updateTodoVO.getDate());
+//        Date endDate = Date.valueOf("2025-01-01");
+//        String timeTag = updateTodoVO.getTimeTag();
+//        Family family = member.getFamily();
+//
+//        todoService.updateEndDateYest(todoId, date);
+//
+//        Todo todo = Todo.builder().member(member).
+//                family(family).
+//                title(title).
+//                memo(memo).
+//                timeTag(timeTag).
+//                startDate(date).
+//                endDate(endDate).
+//                repeatTag(findTodo.getRepeatTag()).
+//                groupTodoId(findTodo.getGroupTodoId()).
+//                isSunday(findTodo.getIsSunday()).
+//                isMonday(findTodo.getIsMonday()).
+//                isTuesday(findTodo.getIsTuesday()).
+//                isWednesday(findTodo.getIsWednesday()).
+//                isThursday(findTodo.getIsThursday()).
+//                isFriday(findTodo.getIsFriday()).
+//                isSaturday(findTodo.getIsSaturday()).
+//                build();
+//
+//        int newTodoId = todoService.join(todo);
+//
+//        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
+//        return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", new UpdateSingleTodoResponse(newTodoId, wr)));
+//    }
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "요청한 정보를 성공적으로 불러왔습니다."),
@@ -276,21 +281,19 @@ public class TodoController {
     })
     @PostMapping("/week")
     public ResponseEntity<?> weekTodos(
-            @RequestHeader AccessTokenVO accessTokenVO,
+            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @RequestBody WeekVO weekVO
     ) {
-        String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.validateAccessTokenExpired(accessToken);
+        String subAccessToken = accessToken.substring(7);
+        tokenService.validateAccessTokenExpired(subAccessToken);
 
-        int familyId = weekVO.getFamilyId();
-        Family family = familyService.find(familyId);
+        // 회원 id 가져와서 회원 찾기
+        int memberId = tokenService.getMemberId(subAccessToken);
+        Member memberWithFamily = memberService.findMemberWithFamily(memberId);
 
-        String fromDate = weekVO.getFromDate();
-        String toDate = weekVO.getToDate();
+        Family family = memberWithFamily.getFamily();
 
-
-        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(fromDate, toDate, family);
-
+        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(weekVO.getFromDate(), weekVO.getToDate(), family);
         return ResponseEntity.ok(CommonSuccessResponse.response("일주일치 정보", weekColorsAndItemsByDateRange));
     }
 
@@ -302,12 +305,12 @@ public class TodoController {
     })
     @PutMapping("/done/{id}")
     public ResponseEntity<?> done(
-            @RequestHeader AccessTokenVO accessTokenVO,
+            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int todoId,
             @RequestBody DoneTodoVO doneTodoVO
     ) {
-        String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.validateAccessTokenExpired(accessToken);
+        String subAccessToken = accessToken.substring(7);
+        tokenService.validateAccessTokenExpired(subAccessToken);
 
         Todo todo = todoService.findTodo(todoId);
         Date date = Date.valueOf(doneTodoVO.getDate());
@@ -315,7 +318,6 @@ public class TodoController {
         int isDone = doneTodoVO.getIsDone();
 
         int todoDoneId = todoDoneService.updateIsDone(todo, date, isDone);
-
 
         WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(doneTodoVO.getFromDate(), doneTodoVO.getToDate(), family);
         return ResponseEntity.ok(CommonSuccessResponse.response("완료/취소 처리 성공", new UpdateSingleTodoResponse(todoId, wr)));
@@ -330,103 +332,59 @@ public class TodoController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTodo(
-            @RequestHeader AccessTokenVO accessTokenVO,
+            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int todoId,
-            @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO
+            @RequestBody DeleteTodoVO deleteTodoVO
     ) {
-        String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.validateAccessTokenExpired(accessToken);
+        String subAccessToken = accessToken.substring(7);
+        tokenService.validateAccessTokenExpired(subAccessToken);
 
-        Todo findTodo = todoService.findTodo(todoId);
+        // 회원 id 가져와서 회원과 가족 찾기
+        int memberId = tokenService.getMemberId(subAccessToken);
+        Member memberWithFamily = memberService.findMemberWithFamily(memberId);
+        Family family = memberWithFamily.getFamily();
 
-        Member member = findTodo.getMember();
-        Family family = member.getFamily();
+        Todo todo = todoService.findTodo(todoId);
 
-        // 단일 삭제면
-        if (findTodo.getStartDate().equals(findTodo.getEndDate())) {
-            todoService.deleteSingleTodo(todoId);
-
-            WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteRepeatTodoVO.getFromDate(), deleteRepeatTodoVO.getToDate(), family);
-            return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new DeleteSingleTodoResponse(todoId, wr)));
+        // 이후 모두 삭제면
+        if (deleteTodoVO.getIsAfterDelete() == 1) {
+            todoService.deleteRepeatTodoAfter(todoId, deleteTodoVO);
+        } else { // 단일 이벤트 삭제면
+            // 단일 삭제면
+            if (todo.getStartDate().equals(todo.getEndDate())) {
+                todoService.deleteSingleTodo(todoId);
+            } else { // 반복에서 단일 삭제면
+                todoService.deleteRepeatTodoSingle(todoId, deleteTodoVO);
+            }
         }
 
-        String title = findTodo.getTitle();
-        String memo = findTodo.getMemo();
-        Date date = Date.valueOf(deleteRepeatTodoVO.getDate());
-        String timeTag = findTodo.getTimeTag();
-
-
-        Todo todo = Todo.builder().member(member).
-                family(family).
-                title(title).
-                memo(memo).
-                timeTag(timeTag).
-                startDate(date).
-                endDate(date).
-                repeatTag(findTodo.getRepeatTag()).
-                groupTodoId(findTodo.getGroupTodoId()).
-                isSunday(findTodo.getIsSunday()).
-                isMonday(findTodo.getIsMonday()).
-                isTuesday(findTodo.getIsTuesday()).
-                isWednesday(findTodo.getIsWednesday()).
-                isThursday(findTodo.getIsThursday()).
-                isFriday(findTodo.getIsFriday()).
-                isSaturday(findTodo.getIsSaturday()).
-                deletedAt(Timestamp.valueOf(LocalDateTime.now())). // 삭제 todo 생성
-                        build();
-
-        Date endDate = findTodo.getEndDate();
-        Date yestDate = todoService.updateEndDateYest(todoId, date);
-        Todo todo2 = Todo.builder().member(findTodo.getMember()).
-                family(findTodo.getFamily()).
-                title(findTodo.getTitle()).
-                memo(findTodo.getMemo()).
-                timeTag(findTodo.getTimeTag()).
-                startDate(date).
-                endDate(endDate).
-                repeatTag(findTodo.getRepeatTag()).
-                groupTodoId(findTodo.getGroupTodoId()).
-                isSunday(findTodo.getIsSunday()).
-                isMonday(findTodo.getIsMonday()).
-                isTuesday(findTodo.getIsTuesday()).
-                isWednesday(findTodo.getIsWednesday()).
-                isThursday(findTodo.getIsThursday()).
-                isFriday(findTodo.getIsFriday()).
-                isSaturday(findTodo.getIsSaturday()).
-                build();
-
-        int newTodoId = todoService.join(todo);
-        int afterTodoId = todoService.join(todo2);
-        Date tomDate = todoService.updateStartDateTom(afterTodoId, date);
-        System.out.println(yestDate + "\n" + tomDate);
-
-        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteRepeatTodoVO.getFromDate(), deleteRepeatTodoVO.getToDate(), family);
-        return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new UpdateTodoResponse(newTodoId, afterTodoId, wr)));
+        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteTodoVO.getFromDate(), deleteTodoVO.getToDate(), family);
+        return ResponseEntity.ok(CommonSuccessResponse.response("수정 성공", wr));
     }
 
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "반복 todo - 이후 삭제를 성공했습니다."),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-    })
-    @DeleteMapping("/repeat/later/{id}")
-    public ResponseEntity<?> deleteRepeatLaterTodo(
-            @RequestHeader AccessTokenVO accessTokenVO,
-            @PathVariable("id") int todoId,
-            @RequestBody DeleteRepeatTodoVO deleteRepeatTodoVO
-    ) {
-        String accessToken = accessTokenVO.getAccessToken().substring(7);
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Todo findTodo = todoService.findTodo(todoId);
-        Family family = findTodo.getFamily();
-
-        todoService.updateEndDateYest(todoId, Date.valueOf(deleteRepeatTodoVO.getDate()));
-        todoService.deleteByGroupTodoId(findTodo.getGroupTodoId(), Date.valueOf(deleteRepeatTodoVO.getDate()));
-
-        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteRepeatTodoVO.getFromDate(), deleteRepeatTodoVO.getToDate(), family);
-        return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new UpdateSingleTodoResponse(todoId, wr)));
-    }
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "반복 todo - 이후 삭제를 성공했습니다."),
+//            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
+//            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+//    })
+//    @DeleteMapping("/repeat/later/{id}")
+//    public ResponseEntity<?> deleteRepeatLaterTodo(
+//            @RequestHeader AccessTokenVO accessTokenVO,
+//            @PathVariable("id") int todoId,
+//            @RequestBody DeleteTodoVO deleteTodoVO
+//    ) {
+//        String accessToken = accessTokenVO.getAccessToken().substring(7);
+//        tokenService.validateAccessTokenExpired(accessToken);
+//
+//        Todo findTodo = todoService.findTodo(todoId);
+//        Family family = findTodo.getFamily();
+//
+//        todoService.updateEndDateYest(todoId, Date.valueOf(deleteRepeatTodoVO.getDate()));
+//        todoService.deleteByGroupTodoId(findTodo.getGroupTodoId(), Date.valueOf(deleteRepeatTodoVO.getDate()));
+//
+//        WeekResponse wr = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(deleteRepeatTodoVO.getFromDate(), deleteRepeatTodoVO.getToDate(), family);
+//        return ResponseEntity.ok(CommonSuccessResponse.response("삭제 성공", new UpdateSingleTodoResponse(todoId, wr)));
+//    }
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {

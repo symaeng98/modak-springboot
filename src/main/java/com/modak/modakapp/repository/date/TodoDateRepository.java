@@ -180,15 +180,20 @@ public class TodoDateRepository {
 
 
     public int getIsDone(Todo todo, Date date) {
+        System.out.println("이번 todo id: " + todo.getGroupTodoId());
         List<TodoDone> todoDones = todo.getTodoDone();
         if (todoDones == null) {
+            System.out.println("1");
             return 0;
         }
         List<TodoDone> todoDoneList = todoDones.stream().filter(t -> t.getDate().equals(date)).collect(Collectors.toList());
         if (todoDoneList.size() == 0) {
+            System.out.println(2);
             return 0;
         }
         TodoDone todoDone = todoDoneList.get(0);
+        System.out.println("3");
+        System.out.println(todoDone.getIsDone());
         return todoDone.getIsDone();
     }
 

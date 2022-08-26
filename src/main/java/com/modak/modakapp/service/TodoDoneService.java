@@ -9,43 +9,45 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.sql.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class TodoDoneService {
     private final TodoDoneRepository todoDoneRepository;
 
-    public int join(TodoDone todoDone){
+    public int join(TodoDone todoDone) {
         todoDoneRepository.save(todoDone);
         return todoDone.getId();
     }
 
-    public TodoDone findTodo(int id){
-        TodoDone todoDone = todoDoneRepository.findOne(id);
-        isDeleted(todoDone);
-        return todoDone;
-    }
+//    public TodoDone findTodo(int id) {
+//        TodoDone todoDone = todoDoneRepository.findOne(id);
+//        isDeleted(todoDone);
+//        return todoDone;
+//    }
 
-
-    public int updateIsDone(Todo todo, Date date, int isDone){
+    @Transactional
+    public int updateIsDone(Todo todo, Date date, int isDone) {
         List<TodoDone> todoDones = todo.getTodoDone();
-        if(todoDones.size()==0){ // 완료된 적 없음
+        if (todoDones.size() == 0) { // 완료된 적 없음
             Member member = todo.getMember();
             Family family = todo.getFamily();
-            TodoDone todoDone = TodoDone.builder().member(member).family(family)
-                    .todo(todo).isDone(isDone)
-                    .date(date).build();
+            TodoDone todoDone = TodoDone.builder()
+                    .member(member)
+                    .family(family)
+                    .todo(todo)
+                    .isDone(isDone)
+                    .date(date)
+                    .build();
             todoDoneRepository.save(todoDone);
             return todoDone.getId();
         }
         List<TodoDone> todoDoneList = todoDones.stream().filter(t -> t.getDate().equals(date)).collect(Collectors.toList());
-        if(todoDoneList.size()==0){ // 다른 단일은 있는데, 같은 날짜 찾아보니 없음
+        if (todoDoneList.size() == 0) { // 다른 단일은 있는데, 같은 날짜 찾아보니 없음
             Member member = todo.getMember();
             Family family = todo.getFamily();
             TodoDone todoDone = TodoDone.builder().member(member).family(family)
@@ -55,13 +57,7 @@ public class TodoDoneService {
             return todoDone.getId();
         }
         TodoDone todoDone = todoDoneList.get(0);
-        todoDone.setIsDone(isDone);
+        todoDone.changeIsDone(isDone);
         return todoDone.getId();
-    }
-
-    public void isDeleted(TodoDone todoDone){
-        if(todoDone.getDeletedAt()!=null){
-            throw new NoResultException();
-        }
     }
 }

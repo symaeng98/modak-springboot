@@ -3,7 +3,6 @@ package com.modak.modakapp.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -11,7 +10,6 @@ import java.sql.Timestamp;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 public class TodoDone extends BaseTimeEntity {
     @Id
@@ -66,6 +64,14 @@ public class TodoDone extends BaseTimeEntity {
         this.date = date;
         this.isDone = isDone;
         this.imageUrl = imageUrl;
+        this.deletedAt = deletedAt;
+    }
+
+    public void changeIsDone(int isDone) {
+        this.isDone = isDone;
+    }
+
+    public void removeTodoDone(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
     }
 }

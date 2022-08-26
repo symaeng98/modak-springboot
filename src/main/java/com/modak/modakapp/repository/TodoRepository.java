@@ -1,49 +1,38 @@
 package com.modak.modakapp.repository;
 
 import com.modak.modakapp.domain.Todo;
-import com.modak.modakapp.exception.member.NoSuchMemberException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import javax.persistence.EntityManager;
+import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 
-@Repository
-@RequiredArgsConstructor
-public class TodoRepository {
-    private final EntityManager em;
-    public void save(Todo todo){
-        em.persist(todo);
-    }
+public interface TodoRepository extends JpaRepository<Todo, Integer> {
+    @Query("select t from Todo t" +
+            " join fetch t.family" +
+            " join fetch t.member" +
+            " where t.id = :id" +
+            " and t.deletedAt is null")
+    Optional<Todo> findById(@Param("id") int id);
 
-    public Todo findOneByTodoId(int id){
-        return em.find(Todo.class,id);
-    }
+    @Query("select t from Todo t" +
+            " where t.groupTodoId =:groupId" +
+            " and t.deletedAt is null")
+    List<Todo> findAllByGroupId(@Param("groupId") int groupId);
 
+    @Query("select t from Todo t" +
+            " where t.family.id =:familyId" +
+            " and t.deletedAt is null")
+    List<Todo> findAllByFamilyId(@Param("familyId") int familyId);
 
-    public List<Todo> findAllByGroupId(int id){
-        try {
-            return em.createQuery("select t from Todo t where t.groupTodoId =:id and t.deletedAt is null ", Todo.class)
-                    .setParameter("id",id)
-                    .getResultList();
-        }catch (NoSuchMemberException e) {
-            throw new NoSuchMemberException("등록된 Todo 정보가 없습니다.");
-        }
-    }
-
-
-
-    public List<Todo> findAllByFamilyId(int id){
-        try {
-            return em.createQuery("select t from Todo t where t.family.id =:id and t.deletedAt is null ", Todo.class)
-                    .setParameter("id",id)
-                    .getResultList();
-        }catch (NoSuchMemberException e) {
-            throw new NoSuchMemberException("등록된 Todo 정보가 없습니다.");
-        }
-    }
-
-
-
-
+    @Query("select t from Todo t" +
+            " where t.endDate >= :date" +
+            " and t.groupTodoId = :groupTodoId" +
+            " and t.deletedAt is null ")
+    List<Todo> findAllByGroupIdAndDate(
+            @Param("date") Date date,
+            @Param("groupTodoId") int groupTodoId
+    );
 }
