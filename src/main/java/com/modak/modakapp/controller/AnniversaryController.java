@@ -137,10 +137,14 @@ public class AnniversaryController {
         String subAccessToken = accessToken.substring(7);
         tokenService.validateAccessTokenExpired(subAccessToken);
 
-        anniversaryService.deleteAnniversary(annId);
+        // 회원 id 가져와서 회원 찾기
+        int memberId = tokenService.getMemberId(subAccessToken);
+        Member memberWithFamily = memberService.findMemberWithFamily(memberId);
 
-        Family family = familyService.find(weekVO.getFamilyId());
+        Family family = memberWithFamily.getFamily();
         int familyId = family.getId();
+
+        anniversaryService.deleteAnniversary(annId);
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(weekVO.getFromDate(), weekVO.getToDate(), family);
 

@@ -6,5 +6,4 @@ import lombok.Getter;
 public class WeekVO {
     private String fromDate;
     private String toDate;
-    private int familyId;
 }
