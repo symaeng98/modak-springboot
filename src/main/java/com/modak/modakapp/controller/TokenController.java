@@ -7,6 +7,8 @@ import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.utils.jwt.TokenService;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +37,7 @@ public class TokenController {
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @RequestHeader(value = "REFRESH_TOKEN") String refreshToken
     ) {
-        String subAccessToken = accessToken.substring(7);
-        String subRefreshToken = refreshToken.substring(7);
-
-        // refresh 만료 확인
-        tokenService.validateRefreshTokenExpired(subRefreshToken);
-
+        String subRefreshToken = tokenService.validateAccessTokenAndRefreshToken(accessToken, refreshToken);
         int memberId = tokenService.getMemberId(subRefreshToken);
 
         // refresh가 DB에 있는 값과 같은지 확인
@@ -48,11 +45,23 @@ public class TokenController {
             throw new NotMatchRefreshTokenException("회원이 가지고 있는 Refresh Token과 요청한 Refresh Token이 다릅니다.");
         }
 
-        String newAccessToken = tokenService.reissueToken(subAccessToken);
+        String newAccessToken = tokenService.getAccessToken(memberId);
 
         servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
 
         return ResponseEntity.ok(CommonSuccessResponse.response("AccessToken 재발급", new ReissueTokenResponse("ACCESS_TOKEN")));
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<?> handleSignatureException(SignatureException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
     }
 
     @ExceptionHandler(ExpiredRefreshTokenException.class)

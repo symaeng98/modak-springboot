@@ -1,12 +1,11 @@
 package com.modak.modakapp.vo.todo;
 
-import lombok.Data;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
+@Getter
 public class CreateTodoVO {
-
     private String title;
 
     private String memo;
@@ -22,5 +21,4 @@ public class CreateTodoVO {
     private String toDate;
 
     private List<Integer> repeat;
-
 }

@@ -8,7 +8,6 @@ import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.AnniversaryResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
-import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.service.AnniversaryService;
@@ -16,9 +15,7 @@ import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.utils.jwt.TokenService;
 import com.modak.modakapp.vo.anniversary.AnniversaryVO;
-import com.modak.modakapp.vo.member.AccessTokenVO;
-import com.modak.modakapp.vo.todo.WeekVO;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.modak.modakapp.vo.todo.FromToDateVO;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import io.swagger.annotations.ApiOperation;
@@ -52,14 +49,13 @@ public class AnniversaryController {
     })
     @ApiOperation(value = "기념일 생성")
     @PostMapping()
-    public ResponseEntity<?> create(
+    public ResponseEntity<?> createAnniversary(
             @ApiParam(value = "기념일 생성 정보 및 fromDate, toDate", required = true)
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
         // Access Token 검증
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
@@ -98,14 +94,13 @@ public class AnniversaryController {
     })
     @ApiOperation(value = "기념일 정보 변경")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(
+    public ResponseEntity<?> updateAnniversary(
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int annId,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
         // Access Token 검증
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
@@ -127,15 +122,14 @@ public class AnniversaryController {
             @ApiResponse(code = 401, message = "1. Access Token이 만료되었습니다.(ExpiredAccessTokenException)\n2. 만료된 Refresh Token 입니다. 다시 로그인하세요.(ExpiredRefreshTokenException)"),
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(
+    public ResponseEntity<?> deleteAnniversary(
             @ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true)
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int annId,
-            @RequestBody WeekVO weekVO
+            @RequestBody FromToDateVO fromToDateVO
     ) {
         // Access Token 검증
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
@@ -146,7 +140,7 @@ public class AnniversaryController {
 
         anniversaryService.deleteAnniversary(annId);
 
-        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(weekVO.getFromDate(), weekVO.getToDate(), family);
+        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromToDateVO.getFromDate(), fromToDateVO.getToDate(), family);
 
         return ResponseEntity.ok(CommonSuccessResponse.response("기념일 삭제 완료", new AnniversaryResponse(familyId, annId, dar)));
     }
@@ -160,11 +154,10 @@ public class AnniversaryController {
     public ResponseEntity<?> getAnniversaries(
             @ApiParam(value = "fromDate~toDate 기념일 정보", required = true)
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
-            @RequestBody WeekVO weekVO
+            @RequestBody FromToDateVO fromToDateVO
     ) {
         // Access Token 검증
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
@@ -172,7 +165,7 @@ public class AnniversaryController {
 
         Family family = memberWithFamily.getFamily();
 
-        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(weekVO.getFromDate(), weekVO.getToDate(), family);
+        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromToDateVO.getFromDate(), fromToDateVO.getToDate(), family);
 
         return ResponseEntity.ok(CommonSuccessResponse.response("해당 날짜의 기념일을 불러왔습니다.", dar));
     }

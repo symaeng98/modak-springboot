@@ -78,23 +78,24 @@ public class TodoService {
         // 수정하기 전 todo의 마지막 날
         Date todoEndDate = todo.getEndDate();
         // 수정할 날의 할 일 생성
-        Todo newSingleTodo = Todo.builder().member(member).
-                family(family).
-                title(title).
-                memo(memo).
-                timeTag(timeTag).
-                startDate(date).
-                endDate(date).
-                repeatTag(todo.getRepeatTag()).
-                groupTodoId(todo.getGroupTodoId()).
-                isSunday(todo.getIsSunday()).
-                isMonday(todo.getIsMonday()).
-                isTuesday(todo.getIsTuesday()).
-                isWednesday(todo.getIsWednesday()).
-                isThursday(todo.getIsThursday()).
-                isFriday(todo.getIsFriday()).
-                isSaturday(todo.getIsSaturday()).
-                build();
+        Todo newSingleTodo = Todo.builder()
+                .member(member)
+                .family(family)
+                .title(title)
+                .memo(memo)
+                .timeTag(timeTag)
+                .startDate(date)
+                .endDate(date)
+                .repeatTag(todo.getRepeatTag())
+                .groupTodoId(todo.getGroupTodoId())
+                .isSunday(todo.getIsSunday())
+                .isMonday(todo.getIsMonday())
+                .isTuesday(todo.getIsTuesday())
+                .isWednesday(todo.getIsWednesday())
+                .isThursday(todo.getIsThursday())
+                .isFriday(todo.getIsFriday())
+                .isSaturday(todo.getIsSaturday())
+                .build();
         todoRepository.save(newSingleTodo);
 
         if (todoEndDate.equals(date)) {
@@ -124,23 +125,24 @@ public class TodoService {
         cal.add(Calendar.DATE, -1);
         Date newBeforeDate = new Date(cal.getTime().getTime());
 
-        Todo newBeforeTodo = Todo.builder().member(todo.getMember()).
-                family(todo.getFamily()).
-                title(todo.getTitle()).
-                memo(todo.getMemo()).
-                timeTag(todo.getTimeTag()).
-                startDate(todoStartDate).
-                endDate(newBeforeDate).
-                repeatTag(todo.getRepeatTag()).
-                groupTodoId(todo.getGroupTodoId()).
-                isSunday(todo.getIsSunday()).
-                isMonday(todo.getIsMonday()).
-                isTuesday(todo.getIsTuesday()).
-                isWednesday(todo.getIsWednesday()).
-                isThursday(todo.getIsThursday()).
-                isFriday(todo.getIsFriday()).
-                isSaturday(todo.getIsSaturday()).
-                build();
+        Todo newBeforeTodo = Todo.builder()
+                .member(todo.getMember())
+                .family(todo.getFamily())
+                .title(todo.getTitle())
+                .memo(todo.getMemo())
+                .timeTag(todo.getTimeTag())
+                .startDate(todoStartDate)
+                .endDate(newBeforeDate)
+                .repeatTag(todo.getRepeatTag())
+                .groupTodoId(todo.getGroupTodoId())
+                .isSunday(todo.getIsSunday())
+                .isMonday(todo.getIsMonday())
+                .isTuesday(todo.getIsTuesday())
+                .isWednesday(todo.getIsWednesday())
+                .isThursday(todo.getIsThursday())
+                .isFriday(todo.getIsFriday())
+                .isSaturday(todo.getIsSaturday())
+                .build();
         todoRepository.save(newBeforeTodo);
     }
 
@@ -155,30 +157,31 @@ public class TodoService {
 
         for (Todo t : todos) {
             // 시작 일은 date 보다 전인데 종료일은 date 보다 뒤인 경우
-            if (!t.getStartDate().equals(date) && t.getStartDate().before(date)) {
+            if (t.getStartDate().before(date)) {
                 // 종료일이 date 전날인 todo 생성
                 Calendar cal = new GregorianCalendar();
                 cal.setTime(date);
                 cal.add(Calendar.DATE, -1);
                 Date newBeforeDate = new Date(cal.getTime().getTime());
 
-                Todo newBeforeTodo = Todo.builder().member(t.getMember()).
-                        family(t.getFamily()).
-                        title(t.getTitle()).
-                        memo(t.getMemo()).
-                        timeTag(t.getTimeTag()).
-                        startDate(t.getStartDate()).
-                        endDate(newBeforeDate).
-                        repeatTag(t.getRepeatTag()).
-                        groupTodoId(t.getGroupTodoId()).
-                        isSunday(t.getIsSunday()).
-                        isMonday(t.getIsMonday()).
-                        isTuesday(t.getIsTuesday()).
-                        isWednesday(t.getIsWednesday()).
-                        isThursday(t.getIsThursday()).
-                        isFriday(t.getIsFriday()).
-                        isSaturday(t.getIsSaturday()).
-                        build();
+                Todo newBeforeTodo = Todo.builder()
+                        .member(t.getMember())
+                        .family(t.getFamily())
+                        .title(t.getTitle())
+                        .memo(t.getMemo())
+                        .timeTag(t.getTimeTag())
+                        .startDate(t.getStartDate())
+                        .endDate(newBeforeDate)
+                        .repeatTag(t.getRepeatTag())
+                        .groupTodoId(t.getGroupTodoId())
+                        .isSunday(t.getIsSunday())
+                        .isMonday(t.getIsMonday())
+                        .isTuesday(t.getIsTuesday())
+                        .isWednesday(t.getIsWednesday())
+                        .isThursday(t.getIsThursday())
+                        .isFriday(t.getIsFriday())
+                        .isSaturday(t.getIsSaturday())
+                        .build();
                 todoRepository.save(newBeforeTodo);
 
                 t.changeStartDate(date);
@@ -245,23 +248,24 @@ public class TodoService {
         cal.add(Calendar.DATE, -1);
         Date newBeforeDate = new Date(cal.getTime().getTime());
 
-        Todo newBeforeTodo = Todo.builder().member(todo.getMember()).
-                family(todo.getFamily()).
-                title(todo.getTitle()).
-                memo(todo.getMemo()).
-                timeTag(todo.getTimeTag()).
-                startDate(todoStartDate).
-                endDate(newBeforeDate).
-                repeatTag(todo.getRepeatTag()).
-                groupTodoId(todo.getGroupTodoId()).
-                isSunday(todo.getIsSunday()).
-                isMonday(todo.getIsMonday()).
-                isTuesday(todo.getIsTuesday()).
-                isWednesday(todo.getIsWednesday()).
-                isThursday(todo.getIsThursday()).
-                isFriday(todo.getIsFriday()).
-                isSaturday(todo.getIsSaturday()).
-                build();
+        Todo newBeforeTodo = Todo.builder()
+                .member(todo.getMember())
+                .family(todo.getFamily())
+                .title(todo.getTitle())
+                .memo(todo.getMemo())
+                .timeTag(todo.getTimeTag())
+                .startDate(todoStartDate)
+                .endDate(newBeforeDate)
+                .repeatTag(todo.getRepeatTag())
+                .groupTodoId(todo.getGroupTodoId())
+                .isSunday(todo.getIsSunday())
+                .isMonday(todo.getIsMonday())
+                .isTuesday(todo.getIsTuesday())
+                .isWednesday(todo.getIsWednesday())
+                .isThursday(todo.getIsThursday())
+                .isFriday(todo.getIsFriday())
+                .isSaturday(todo.getIsSaturday())
+                .build();
         todoRepository.save(newBeforeTodo);
     }
 
@@ -276,7 +280,7 @@ public class TodoService {
 
         for (Todo t : todos) {
             // 시작 일은 date 보다 전인데 종료일은 date 보다 뒤인 경우
-            if (!t.getStartDate().equals(date) && t.getStartDate().before(date)) {
+            if (t.getStartDate().before(date)) {
                 // 종료일을 date 전날로 수정
                 Calendar cal = new GregorianCalendar();
                 cal.setTime(date);

@@ -1,10 +1,9 @@
 package com.modak.modakapp.vo.todo;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class DeleteTodoVO {
-
     private String fromDate;
 
     private String toDate;
@@ -12,5 +11,4 @@ public class DeleteTodoVO {
     private String date;
 
     private int isAfterDelete;
-
 }

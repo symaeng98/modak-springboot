@@ -1,8 +1,8 @@
 package com.modak.modakapp.vo.member.info;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class UpdateMemberFamilyVO {
     private int familyId;
 }

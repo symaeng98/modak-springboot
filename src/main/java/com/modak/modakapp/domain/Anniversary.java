@@ -4,7 +4,6 @@ import com.modak.modakapp.domain.enums.Category;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -88,7 +87,7 @@ public class Anniversary {
         this.deletedAt = deletedAt;
     }
 
-    public void removeAnniversary(Timestamp deletedAt){
+    public void removeAnniversary(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
     }
 
@@ -99,7 +98,7 @@ public class Anniversary {
             Category category,
             String memo,
             int isYear
-    ){
+    ) {
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -108,10 +107,10 @@ public class Anniversary {
         this.isYear = isYear;
     }
 
-    public void changeBirthdayAndIsLunar(
+    public void changeBirthday(
             Date birthday,
             int isLunar
-    ){
+    ) {
         this.startDate = birthday;
         this.endDate = birthday;
         this.isLunar = isLunar;

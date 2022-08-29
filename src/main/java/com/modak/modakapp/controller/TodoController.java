@@ -10,7 +10,6 @@ import com.modak.modakapp.dto.response.todo.UpdateSingleTodoResponse;
 import com.modak.modakapp.dto.response.todo.WeekResponse;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.repository.date.TodoDateRepository;
-import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodoDoneService;
 import com.modak.modakapp.service.TodoService;
@@ -39,15 +38,9 @@ import java.util.List;
 public class TodoController {
     private final TodoService todoService;
     private final MemberService memberService;
-
     private final TokenService tokenService;
-    private final FamilyService familyService;
-
     private final TodoDateRepository todoDateRepository;
-
     private final TodoDoneService todoDoneService;
-
-//    private final HttpServletResponse servletResponse;
 
     @ApiResponses({
             @ApiResponse(code = 201, message = "할 일 등록에 성공하였습니다."),
@@ -55,13 +48,12 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PostMapping()
-    public ResponseEntity<?> create(
+    public ResponseEntity<?> createTodo(
             @ApiParam(value = "todo 생성 정보 및 fromDate, toDate", required = true)
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @RequestBody CreateTodoVO createTodoVO
     ) {
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         // 담당자 가져오기
         int memberId = createTodoVO.getMemberId();
@@ -83,22 +75,23 @@ public class TodoController {
             endDate = startDate;
         }
 
-        Todo todo = Todo.builder().member(memberWithFamily).
-                family(family).
-                title(createTodoVO.getTitle()).
-                memo(createTodoVO.getMemo()).
-                timeTag(createTodoVO.getTimeTag()).
-                startDate(startDate).
-                endDate(endDate).
-                repeatTag(repeatTag).
-                isSunday(repeat.get(0)).
-                isMonday(repeat.get(1)).
-                isTuesday(repeat.get(2)).
-                isWednesday(repeat.get(3)).
-                isThursday(repeat.get(4)).
-                isFriday(repeat.get(5)).
-                isSaturday(repeat.get(6)).
-                build();
+        Todo todo = Todo.builder()
+                .member(memberWithFamily)
+                .family(family)
+                .title(createTodoVO.getTitle())
+                .memo(createTodoVO.getMemo())
+                .timeTag(createTodoVO.getTimeTag())
+                .startDate(startDate)
+                .endDate(endDate)
+                .repeatTag(repeatTag)
+                .isSunday(repeat.get(0))
+                .isMonday(repeat.get(1))
+                .isTuesday(repeat.get(2))
+                .isWednesday(repeat.get(3))
+                .isThursday(repeat.get(4))
+                .isFriday(repeat.get(5))
+                .isSaturday(repeat.get(6))
+                .build();
 
         int todoId = todoService.join(todo);
         todoService.updateGroupTodoId(todoId, todoId);
@@ -119,8 +112,7 @@ public class TodoController {
             @PathVariable("id") int todoId,
             @RequestBody UpdateTodoVO updateTodoVO
     ) {
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         // 담당자
         Member memberWithFamily = memberService.findMemberWithFamily(updateTodoVO.getMemberId());
@@ -279,13 +271,12 @@ public class TodoController {
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @PostMapping("/week")
-    public ResponseEntity<?> weekTodos(
+    @PostMapping("/from-to-date")
+    public ResponseEntity<?> getTodosByFromToDate(
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
-            @RequestBody WeekVO weekVO
+            @RequestBody FromToDateVO fromToDateVO
     ) {
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
@@ -293,7 +284,7 @@ public class TodoController {
 
         Family family = memberWithFamily.getFamily();
 
-        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(weekVO.getFromDate(), weekVO.getToDate(), family);
+        WeekResponse weekColorsAndItemsByDateRange = todoDateRepository.findWeekColorsAndItemsAndGaugeByDateRange(fromToDateVO.getFromDate(), fromToDateVO.getToDate(), family);
         return ResponseEntity.ok(CommonSuccessResponse.response("일주일치 정보", weekColorsAndItemsByDateRange));
     }
 
@@ -309,8 +300,7 @@ public class TodoController {
             @PathVariable("id") int todoId,
             @RequestBody DoneTodoVO doneTodoVO
     ) {
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        tokenService.validateAccessTokenExpired(accessToken);
 
         Todo todo = todoService.findTodo(todoId);
         Date date = Date.valueOf(doneTodoVO.getDate());
@@ -336,8 +326,7 @@ public class TodoController {
             @PathVariable("id") int todoId,
             @RequestBody DeleteTodoVO deleteTodoVO
     ) {
-        String subAccessToken = accessToken.substring(7);
-        tokenService.validateAccessTokenExpired(subAccessToken);
+        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원과 가족 찾기
         int memberId = tokenService.getMemberId(subAccessToken);

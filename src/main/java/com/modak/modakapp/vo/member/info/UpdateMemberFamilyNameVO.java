@@ -1,11 +1,11 @@
 package com.modak.modakapp.vo.member.info;
 
 import com.modak.modakapp.dto.MemberFamilyNameDTO;
-import lombok.Data;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
+@Getter
 public class UpdateMemberFamilyNameVO {
     private List<MemberFamilyNameDTO> memberFamilyName;
 }

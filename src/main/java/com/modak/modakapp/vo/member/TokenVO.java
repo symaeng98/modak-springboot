@@ -1,9 +1,9 @@
 package com.modak.modakapp.vo.member;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class TokenVO {
     @ApiModelProperty(value = "Access 토큰")
     private String accessToken;

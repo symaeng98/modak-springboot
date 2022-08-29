@@ -61,9 +61,9 @@ public class AnniversaryService {
     }
 
     @Transactional
-    public void updateBirthdayAndIsLunar(int id, String birthday, int isLunar) {
-        Anniversary findAnn = findAnniversaryById(id);
-        findAnn.changeBirthdayAndIsLunar(
+    public void updateBirthday(int id, String birthday, int isLunar) {
+        Anniversary anniversary = findAnniversaryById(id);
+        anniversary.changeBirthday(
                 Date.valueOf(birthday),
                 isLunar
         );

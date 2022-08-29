@@ -6,12 +6,12 @@ import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
+import com.modak.modakapp.dto.FamilyMemberDTO;
 import com.modak.modakapp.dto.MemberDTO;
-import com.modak.modakapp.dto.MemberFamilyMemberDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.member.CreateMemberResponse;
-import com.modak.modakapp.dto.response.member.MemberFamilyMemberInfoResponse;
+import com.modak.modakapp.dto.response.member.FamilyMemberInfoResponse;
 import com.modak.modakapp.dto.response.member.MemberInfoResponse;
 import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
@@ -111,7 +111,7 @@ public class MemberController {
                 .endDate(birthday)
                 .build();
 
-        int joinAnniversaryId = anniversaryService.join(anniversary);
+        anniversaryService.join(anniversary);
 
         String accessToken = tokenService.getAccessToken(memberId);
         String refreshToken = tokenService.getRefreshToken(memberId);
@@ -159,7 +159,7 @@ public class MemberController {
             @RequestHeader(value = "REFRESH_TOKEN") String refreshToken,
             @PathVariable("member_id") int memberId
     ) {
-        String findRefreshToken = tokenService.validateRefreshToken(refreshToken);
+        String findRefreshToken = tokenService.validateRefreshTokenExpired(refreshToken);
 
         if (!tokenService.isSameRefreshToken(memberService.findMember(memberId), findRefreshToken)) {
             throw new NotMatchRefreshTokenException("회원이 가지고 있는 Refresh Token과 요청한 Refresh Token이 다릅니다.");
@@ -188,12 +188,12 @@ public class MemberController {
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberVO updateMemberVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken);
 
         memberService.updateMember(memberId, updateMemberVO);
 
         Anniversary anniversary = anniversaryService.findBirthdayByMember(memberId);
-        anniversaryService.updateBirthdayAndIsLunar(anniversary.getId(), updateMemberVO.getBirthday(), updateMemberVO.getIsLunar());
+        anniversaryService.updateBirthday(anniversary.getId(), updateMemberVO.getBirthday(), updateMemberVO.getIsLunar());
 
         return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 수정 성공", new UpdateMemberResponse(memberId)));
     }
@@ -209,7 +209,7 @@ public class MemberController {
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId
     ) {
-        tokenService.validateAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken);
 
         MemberDTO memberDto = memberService.getMemberInfo(memberId);
 
@@ -228,7 +228,7 @@ public class MemberController {
             @PathVariable("member_id") int memberId,
             @PathVariable("family_id") int familyId
     ) {
-        tokenService.validateAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken);
 
         Family family = familyService.find(familyId);
         memberService.updateMemberFamily(memberId, family);
@@ -248,7 +248,7 @@ public class MemberController {
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberTagVO updateMemberTagVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken);
 
         memberService.updateMemberTag(memberId, updateMemberTagVO.getTags());
 
@@ -266,11 +266,11 @@ public class MemberController {
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId
     ) {
-        tokenService.validateAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken);
 
-        List<MemberFamilyMemberDTO> mfmInfo = memberService.getMemberFamilyMembersInfo(memberId);
+        List<FamilyMemberDTO> mfmInfo = memberService.getFamilyMembersInfo(memberId);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberFamilyMemberInfoResponse(mfmInfo)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new FamilyMemberInfoResponse(mfmInfo)));
     }
 
     @ApiResponses({
@@ -285,7 +285,7 @@ public class MemberController {
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken.substring(7));
+        tokenService.validateAccessTokenExpired(accessToken);
 
         memberService.updateMemberFamilyName(memberId, updateMemberFamilyNameVO.getMemberFamilyName());
 

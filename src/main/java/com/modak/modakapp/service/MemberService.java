@@ -4,8 +4,8 @@ import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
+import com.modak.modakapp.dto.FamilyMemberDTO;
 import com.modak.modakapp.dto.MemberDTO;
-import com.modak.modakapp.dto.MemberFamilyMemberDTO;
 import com.modak.modakapp.dto.MemberFamilyNameDTO;
 import com.modak.modakapp.dto.metadata.MDFamily;
 import com.modak.modakapp.dto.metadata.MDTag;
@@ -79,11 +79,11 @@ public class MemberService {
         return memberDto;
     }
 
-    public List<MemberFamilyMemberDTO> getMemberFamilyMembersInfo(int memberId) {
+    public List<FamilyMemberDTO> getFamilyMembersInfo(int memberId) {
         Member member = memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
         Family family = member.getFamily();
 
-        List<MemberFamilyMemberDTO> result = new ArrayList<>();
+        List<FamilyMemberDTO> result = new ArrayList<>();
         List<Member> members = family.getMembers();
 
         for (Member m : members) {
@@ -91,7 +91,7 @@ public class MemberService {
                 continue;
             }
 
-            MemberFamilyMemberDTO mfm = MemberFamilyMemberDTO
+            FamilyMemberDTO familyMemberDto = FamilyMemberDTO
                     .builder()
                     .birthday(m.getBirthday().toString())
                     .id(m.getId())
@@ -101,7 +101,7 @@ public class MemberService {
                     .role(m.getRole().name())
                     .profileImageUrl(m.getProfileImageUrl())
                     .build();
-            result.add(mfm);
+            result.add(familyMemberDto);
         }
 
         return result;
