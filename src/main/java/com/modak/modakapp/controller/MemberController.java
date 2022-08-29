@@ -120,7 +120,7 @@ public class MemberController {
         servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + accessToken);
         servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + refreshToken);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, familyId, joinAnniversaryId)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, familyId)));
     }
 
     @ApiResponses({
@@ -156,11 +156,10 @@ public class MemberController {
     @ApiOperation(value = "토큰 로그인")
     @GetMapping("{member_id}/login/token")
     public ResponseEntity<?> tokenLogin(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @RequestHeader(value = "REFRESH_TOKEN") String refreshToken,
             @PathVariable("member_id") int memberId
     ) {
-        String findRefreshToken = tokenService.validateToken(accessToken, refreshToken);
+        String findRefreshToken = tokenService.validateRefreshToken(refreshToken);
 
         if (!tokenService.isSameRefreshToken(memberService.findMember(memberId), findRefreshToken)) {
             throw new NotMatchRefreshTokenException("회원이 가지고 있는 Refresh Token과 요청한 Refresh Token이 다릅니다.");
@@ -184,7 +183,7 @@ public class MemberController {
     })
     @ApiOperation(value = "유저 개인 정보 변경")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMemberInfo(
+    public ResponseEntity<?> updateMember(
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberVO updateMemberVO
@@ -206,7 +205,7 @@ public class MemberController {
     })
     @ApiOperation(value = "유저 개인 정보 얻기")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getMemberInfo(
+    public ResponseEntity<?> getMember(
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId
     ) {
@@ -244,7 +243,7 @@ public class MemberController {
     })
     @ApiOperation(value = "유저 개인 태그 업데이트")
     @PutMapping("/{id}/tag")
-    public ResponseEntity<?> updateMemberTagInfo(
+    public ResponseEntity<?> updateMemberTag(
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberTagVO updateMemberTagVO
@@ -263,7 +262,7 @@ public class MemberController {
     })
     @ApiOperation(value = "가족들 정보 얻기")
     @GetMapping("/{id}/family")
-    public ResponseEntity<?> getFamilyMembersInfo(
+    public ResponseEntity<?> getFamilyMembers(
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId
     ) {
@@ -281,7 +280,7 @@ public class MemberController {
     })
     @ApiOperation(value = "가족의 이름 별명으로 바꾸기")
     @PutMapping("/{id}/family/name")
-    public ResponseEntity<?> updateMemberFamilyNameInfo(
+    public ResponseEntity<?> updateFamilyMemberName(
             @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO

@@ -70,9 +70,8 @@ public class TokenService {
         return jwtUtil.getMemberId(token);
     }
 
-    // access와 refresh가 이상한 값인지 확인 후 refresh 토큰 반환
-    public String validateToken(String accessToken, String refreshToken) {
-        String at = accessToken.substring(7);
+    // refresh가 이상한 값인지 확인 후 refresh 토큰 반환
+    public String validateRefreshToken(String refreshToken) {
         String rt = refreshToken.substring(7);
         validateRefreshTokenExpired(rt);
         return rt;

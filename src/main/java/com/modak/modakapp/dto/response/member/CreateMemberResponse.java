@@ -8,5 +8,4 @@ import lombok.Data;
 public class CreateMemberResponse {
     private int memberId;
     private int familyId;
-    private int anniversaryId;
 }
