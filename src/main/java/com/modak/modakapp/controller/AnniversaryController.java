@@ -11,7 +11,6 @@ import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.service.AnniversaryService;
-import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.utils.jwt.TokenService;
 import com.modak.modakapp.vo.anniversary.AnniversaryVO;
@@ -39,7 +38,6 @@ public class AnniversaryController {
     private final TokenService tokenService;
     private final AnniversaryService anniversaryService;
     private final MemberService memberService;
-    private final FamilyService familyService;
 
     // 공통되는 응답 코멘트 부분 변수로 묶기 - 추후 (ACCESS_TOKEN_EXCEPTION_MESSAGE)
     @ApiResponses({
@@ -170,7 +168,6 @@ public class AnniversaryController {
         return ResponseEntity.ok(CommonSuccessResponse.response("해당 날짜의 기념일을 불러왔습니다.", dar));
     }
 
-
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
         e.printStackTrace();
@@ -200,7 +197,6 @@ public class AnniversaryController {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요", "EmptyResultDataAccessException"));
     }
-
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e) {
