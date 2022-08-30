@@ -14,6 +14,7 @@ import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodoDoneService;
 import com.modak.modakapp.service.TodoService;
 import com.modak.modakapp.utils.jwt.TokenService;
+import com.modak.modakapp.utils.todo.TodoRepeatTag;
 import com.modak.modakapp.vo.todo.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -69,7 +70,7 @@ public class TodoController {
         // 반복 로직 ex) [0,0,0,0,1,0,0]
         List<Integer> repeat = createTodoVO.getRepeat();
 
-        String repeatTag = todoService.getRepeatTag(repeat);
+        String repeatTag = new TodoRepeatTag().getRepeatTag(repeat);
         // 반복 x
         if (repeatTag == null) {
             endDate = startDate;
@@ -121,7 +122,7 @@ public class TodoController {
         // 반복 로직 ex) [0,0,0,0,1,0,0]
         List<Integer> repeat = updateTodoVO.getRepeat();
 
-        String repeatTag = todoService.getRepeatTag(repeat);
+        String repeatTag = new TodoRepeatTag().getRepeatTag(repeat);
         // 반복 x
         if (repeatTag == null) {
             todoService.updateSingleTodo(todoId, updateTodoVO, memberWithFamily);
