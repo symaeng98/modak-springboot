@@ -147,7 +147,9 @@ public class MemberController {
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
         MemberDTO memberInfo = memberService.getMemberInfo(memberId);
-        return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new MemberInfoResponse(memberInfo)));
+        List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new MemberInfoResponse(memberInfo, familyMembersInfo)));
     }
 
     @ApiResponses({
@@ -214,8 +216,9 @@ public class MemberController {
         tokenService.validateAccessTokenExpired(accessToken);
 
         MemberDTO memberDto = memberService.getMemberInfo(memberId);
+        List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberInfoResponse(memberDto)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberInfoResponse(memberDto, familyMembersInfo)));
     }
 
     @ApiResponses({
