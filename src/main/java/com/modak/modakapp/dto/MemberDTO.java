@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class MemberDTO {
-    private int id;
+    private int memberId;
     private int familyId;
     private String name;
     private int isLunar;
@@ -26,8 +26,20 @@ public class MemberDTO {
     private Timestamp updatedAt;
 
     @Builder
-    public MemberDTO(int id, int familyId, String name, int isLunar, String birthDay, String profileImageUrl, String role, String color, String provider, String providerId, Timestamp createdAt, Timestamp updatedAt) {
-        this.id = id;
+    public MemberDTO(
+            int memberId,
+            int familyId,
+            String name,
+            int isLunar,
+            String birthDay,
+            String profileImageUrl,
+            String role, String color,
+            String provider,
+            String providerId,
+            Timestamp createdAt,
+            Timestamp updatedAt
+    ) {
+        this.memberId = memberId;
         this.familyId = familyId;
         this.name = name;
         this.isLunar = isLunar;

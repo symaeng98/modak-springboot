@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FamilyMemberDTO {
-    private int id;
+    private int memberId;
     private String name;
     private int isLunar;
     private String birthday;
@@ -17,7 +17,7 @@ public class FamilyMemberDTO {
 
     @Builder
     public FamilyMemberDTO(
-            int id,
+            int memberId,
             String name,
             int isLunar,
             String birthday,
@@ -25,7 +25,7 @@ public class FamilyMemberDTO {
             String role,
             String color
     ) {
-        this.id = id;
+        this.memberId = memberId;
         this.name = name;
         this.isLunar = isLunar;
         this.birthday = birthday;
