@@ -50,7 +50,7 @@ public class MemberService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
 
         MemberDTO memberDto = MemberDTO.builder()
-                .id(member.getId())
+                .memberId(member.getId())
                 .birthDay(member.getBirthday().toString())
                 .color(member.getColor())
                 .createdAt(member.getCreatedAt())
@@ -94,7 +94,7 @@ public class MemberService {
             FamilyMemberDTO familyMemberDto = FamilyMemberDTO
                     .builder()
                     .birthday(m.getBirthday().toString())
-                    .id(m.getId())
+                    .memberId(m.getId())
                     .isLunar(m.getIsLunar())
                     .name(m.getName())
                     .color(m.getColor())

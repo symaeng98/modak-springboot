@@ -10,7 +10,6 @@ import com.modak.modakapp.dto.FamilyMemberDTO;
 import com.modak.modakapp.dto.MemberDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
-import com.modak.modakapp.dto.response.member.CreateMemberResponse;
 import com.modak.modakapp.dto.response.member.FamilyMemberInfoResponse;
 import com.modak.modakapp.dto.response.member.MemberInfoResponse;
 import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
@@ -122,7 +121,10 @@ public class MemberController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + accessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + refreshToken);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, familyId)));
+        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
+        List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
+
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원 가입 성공", new MemberInfoResponse(memberInfo, familyMembersInfo)));
     }
 
     @ApiResponses({

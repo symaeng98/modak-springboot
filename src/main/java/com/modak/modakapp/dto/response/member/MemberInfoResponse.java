@@ -10,6 +10,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class MemberInfoResponse {
-    MemberDTO result;
-    List<FamilyMemberDTO> membersData;
+    MemberDTO memberResult;
+    List<FamilyMemberDTO> familyMembersResult;
 }
