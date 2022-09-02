@@ -3,8 +3,11 @@ package com.modak.modakapp.service;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
+import com.modak.modakapp.dto.TodoDTO;
+import com.modak.modakapp.dto.response.todo.WeekResponse;
 import com.modak.modakapp.exception.todo.NoSuchTodoException;
 import com.modak.modakapp.repository.TodoRepository;
+import com.modak.modakapp.utils.todo.TodoUtil;
 import com.modak.modakapp.vo.todo.DeleteTodoVO;
 import com.modak.modakapp.vo.todo.UpdateTodoVO;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -24,6 +25,7 @@ import java.util.List;
 public class TodoService {
 
     private final TodoRepository todoRepository;
+    private final TodoUtil todoUtil;
 
     @Transactional
     public int join(Todo todo) {
@@ -31,9 +33,10 @@ public class TodoService {
         return todo.getId();
     }
 
-    public Todo findTodo(int todoId) {
+    public Todo findTodoWithMemberAndFamily(int todoId) {
         return todoRepository.findById(todoId).orElseThrow(() -> new NoSuchTodoException("todo가 존재하지 않습니다."));
     }
+
 
     @Transactional
     public void updateGroupTodoId(int todoId, int groupTodoId) {
@@ -80,7 +83,6 @@ public class TodoService {
         // 수정할 날의 할 일 생성
         Todo newSingleTodo = Todo.builder()
                 .member(member)
-                .family(family)
                 .title(title)
                 .memo(memo)
                 .timeTag(timeTag)
@@ -96,6 +98,7 @@ public class TodoService {
                 .isFriday(todo.getIsFriday())
                 .isSaturday(todo.getIsSaturday())
                 .build();
+        newSingleTodo.changeFamily(family);
         todoRepository.save(newSingleTodo);
 
         if (todoEndDate.equals(date)) {
@@ -127,7 +130,6 @@ public class TodoService {
 
         Todo newBeforeTodo = Todo.builder()
                 .member(todo.getMember())
-                .family(todo.getFamily())
                 .title(todo.getTitle())
                 .memo(todo.getMemo())
                 .timeTag(todo.getTimeTag())
@@ -143,6 +145,7 @@ public class TodoService {
                 .isFriday(todo.getIsFriday())
                 .isSaturday(todo.getIsSaturday())
                 .build();
+        newBeforeTodo.changeFamily(todo.getFamily());
         todoRepository.save(newBeforeTodo);
     }
 
@@ -317,4 +320,61 @@ public class TodoService {
 //            });
 //        }
 //    }
+
+    // 색깔, to-do 한 번에 가져오기
+    // 추후 수정...
+    public WeekResponse findWeekColorsAndItemsAndGaugeByDateRange(String fromDate, String toDate, Family family) {
+        // 시작일 ~ 종료일 String List 로 변환
+        List<String> dates = todoUtil.getFromToDateList(fromDate, toDate);
+
+        Map<String, List<String>> colorListByDate = new HashMap<>();
+        Map<String, List<TodoDTO>> todoListByDate = new HashMap<>();
+        Date sqlFromDate = Date.valueOf(fromDate);
+        Date sqlToDate = Date.valueOf(toDate);
+        List<Todo> todoList = todoRepository.findAllByFromDateAndToDate(sqlFromDate, sqlToDate, family.getId());
+
+        for (String date : dates) {
+            List<String> colorList = new ArrayList<>();
+            List<TodoDTO> todoDTOList = new ArrayList<>();
+            for (Todo t : todoList) {
+                Date startDate = t.getStartDate();
+                Date endDate = t.getEndDate();
+                if (todoUtil.isCurrentDateValidByStartDateAndEndDate(startDate, endDate, Date.valueOf(date))) {
+                    if (t.getRepeatTag() != null) { // 반복이면
+                        // 현재 날짜가 todo의 반복 요일에 포함이 되는지 확인
+                        if (!todoUtil.isTodoDayOfWeekIncludesCurrentDate(Date.valueOf(date), t)) {
+                            continue;
+                        }
+                    }
+                    Member member = t.getMember();
+                    String color = member.getColor();
+                    colorList.add(color);
+
+                    int isDone = todoUtil.getIsDone(t, Date.valueOf(date));
+                    TodoDTO todoDto = TodoDTO.builder()
+                            .todoId(t.getId())
+                            .title(t.getTitle())
+                            .memo(t.getMemo())
+                            .timeTag(t.getTimeTag())
+                            .repeatTag(t.getRepeatTag())
+                            .color(member.getColor())
+                            .memberId(member.getId())
+                            .isDone(isDone)
+                            .groupTodoId(t.getGroupTodoId())
+                            .build();
+                    todoDTOList.add(todoDto);
+                }
+            }
+            // 중복 제거
+            Set<String> set = new HashSet<>(colorList);
+            List<String> newList = new ArrayList<>(set);
+
+            colorListByDate.put(date, newList);
+            todoListByDate.put(date, todoDTOList);
+        }
+
+        TreeMap<String, List<String>> colorListByDateSorted = new TreeMap<>(colorListByDate);
+        TreeMap<String, List<TodoDTO>> todoListByDateSorted = new TreeMap<>(todoListByDate);
+        return WeekResponse.builder().color(colorListByDateSorted).items(todoListByDateSorted).build();
+    }
 }

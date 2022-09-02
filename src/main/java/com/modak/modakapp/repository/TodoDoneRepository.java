@@ -11,4 +11,8 @@ public interface TodoDoneRepository extends JpaRepository<TodoDone, Integer> {
     @Query("select td from TodoDone td" +
             " where td.id = :id and td.deletedAt is null")
     Optional<TodoDone> findById(@Param("id") int id);
+
+    @Query("select count(td) from TodoDone td" +
+            " where td.family.id = :familyId and td.isDone=1 and td.deletedAt is null ")
+    Long findNumOfDoneByFamilyId(@Param("familyId") int familyId);
 }

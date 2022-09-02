@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class TodoDoneService {
     private final TodoDoneRepository todoDoneRepository;
 
+    @Transactional
     public int join(TodoDone todoDone) {
         todoDoneRepository.save(todoDone);
         return todoDone.getId();
@@ -30,8 +31,13 @@ public class TodoDoneService {
 //        return todoDone;
 //    }
 
+    public int findNumOfTodoDone(int familyId) {
+        Long doneNum = todoDoneRepository.findNumOfDoneByFamilyId(familyId);
+        return doneNum.intValue();
+    }
+
     @Transactional
-    public int updateIsDone(Todo todo, Date date, int isDone) {
+    public void updateIsDone(Todo todo, Date date, int isDone) {
         List<TodoDone> todoDones = todo.getTodoDone();
         if (todoDones.size() == 0) { // 완료된 적 없음
             Member member = todo.getMember();
@@ -39,25 +45,28 @@ public class TodoDoneService {
             TodoDone todoDone = TodoDone.builder()
                     .member(member)
                     .family(family)
-                    .todo(todo)
                     .isDone(isDone)
                     .date(date)
                     .build();
+            todoDone.changeTodo(todo);
             todoDoneRepository.save(todoDone);
-            return todoDone.getId();
+            return;
         }
         List<TodoDone> todoDoneList = todoDones.stream().filter(t -> t.getDate().equals(date)).collect(Collectors.toList());
         if (todoDoneList.size() == 0) { // 다른 단일은 있는데, 같은 날짜 찾아보니 없음
             Member member = todo.getMember();
             Family family = todo.getFamily();
-            TodoDone todoDone = TodoDone.builder().member(member).family(family)
-                    .todo(todo).isDone(isDone)
-                    .date(date).build();
+            TodoDone todoDone = TodoDone.builder()
+                    .member(member)
+                    .family(family)
+                    .isDone(isDone)
+                    .date(date)
+                    .build();
+            todoDone.changeTodo(todo);
             todoDoneRepository.save(todoDone);
-            return todoDone.getId();
+            return;
         }
         TodoDone todoDone = todoDoneList.get(0);
         todoDone.changeIsDone(isDone);
-        return todoDone.getId();
     }
 }

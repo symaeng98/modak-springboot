@@ -158,7 +158,7 @@ public class MemberService {
     @Transactional
     public void updateMemberFamily(int memberId, Family family) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        member.changeMemberFamily(family);
+        member.changeFamily(family);
     }
 
     @Transactional

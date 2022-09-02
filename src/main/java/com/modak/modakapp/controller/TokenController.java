@@ -25,7 +25,8 @@ public class TokenController {
     private final TokenService tokenService;
     private final MemberService memberService;
     private final HttpServletResponse servletResponse;
-    private final String TOKEN_HEADER = "Bearer ";
+    private final String ACCESS_TOKEN = "Access-Token";
+    private final String REFRESH_TOKEN = "Refresh-Token";
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "Access Token을 재발급 하였습니다."),
@@ -34,8 +35,8 @@ public class TokenController {
     })
     @GetMapping("/reissue")
     public ResponseEntity<?> reissue(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
-            @RequestHeader(value = "REFRESH_TOKEN") String refreshToken
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+            @RequestHeader(value = REFRESH_TOKEN) String refreshToken
     ) {
         String subRefreshToken = tokenService.validateAccessTokenAndRefreshToken(accessToken, refreshToken);
         int memberId = tokenService.getMemberId(subRefreshToken);
@@ -47,9 +48,9 @@ public class TokenController {
 
         String newAccessToken = tokenService.getAccessToken(memberId);
 
-        servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
+        servletResponse.setHeader(ACCESS_TOKEN, "Bearer " + newAccessToken);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("AccessToken 재발급", new ReissueTokenResponse("ACCESS_TOKEN")));
+        return ResponseEntity.ok(CommonSuccessResponse.response("AccessToken 재발급", new ReissueTokenResponse(ACCESS_TOKEN)));
     }
 
     @ExceptionHandler(MalformedJwtException.class)

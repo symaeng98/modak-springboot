@@ -51,11 +51,11 @@ public class TokenService {
         try {
             String subAccessToken = accessToken.substring(7);
             String subRefreshToken = refreshToken.substring(7);
-            validateAccessTokenExpired(subAccessToken);
+            validateAccessTokenExpired(accessToken);
             return subRefreshToken;
         } catch (ExpiredAccessTokenException e) {
             String subRefreshToken = refreshToken.substring(7);
-            validateRefreshTokenExpired(subRefreshToken);
+            validateRefreshTokenExpired(refreshToken);
             return subRefreshToken;
         }
     }

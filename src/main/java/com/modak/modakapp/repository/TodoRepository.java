@@ -35,4 +35,16 @@ public interface TodoRepository extends JpaRepository<Todo, Integer> {
             @Param("date") Date date,
             @Param("groupTodoId") int groupTodoId
     );
+
+    // gg
+    @Query("select t from Todo t" +
+            " where ((:fromDate <= t.startDate and t.startDate <= :toDate)" +
+            " or (t.startDate < :fromDate and :fromDate <= t.endDate))" +
+            " and t.family.id = :familyId" +
+            " and t.deletedAt is null")
+    List<Todo> findAllByFromDateAndToDate(
+            @Param("fromDate") Date fromDate,
+            @Param("toDate") Date toDate,
+            @Param("familyId") int familyId
+    );
 }

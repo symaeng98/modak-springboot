@@ -53,9 +53,7 @@ public class TodoDone extends BaseTimeEntity {
             Family family,
             Todo todo,
             Date date,
-            int isDone,
-            String imageUrl,
-            Timestamp deletedAt
+            int isDone
     ) {
         this.id = id;
         this.member = member;
@@ -63,12 +61,15 @@ public class TodoDone extends BaseTimeEntity {
         this.todo = todo;
         this.date = date;
         this.isDone = isDone;
-        this.imageUrl = imageUrl;
-        this.deletedAt = deletedAt;
     }
 
     public void changeIsDone(int isDone) {
         this.isDone = isDone;
+    }
+
+    public void changeTodo(Todo todo) {
+        this.todo = todo;
+        todo.getTodoDone().add(this);
     }
 
     public void removeTodoDone(Timestamp deletedAt) {

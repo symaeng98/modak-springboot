@@ -55,6 +55,8 @@ public class MemberController {
     private final TokenService tokenService;
     private final HttpServletResponse servletResponse;
     private final String TOKEN_HEADER = "Bearer ";
+    private final String ACCESS_TOKEN = "Access-Token";
+    private final String REFRESH_TOKEN = "Refresh-Token";
 
     @ApiResponses({
             @ApiResponse(code = 201, message = "성공적으로 회원 가입을 마쳤습니다."),
@@ -117,8 +119,8 @@ public class MemberController {
         String refreshToken = tokenService.getRefreshToken(memberId);
         memberService.updateRefreshToken(memberId, refreshToken);
 
-        servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + accessToken);
-        servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + refreshToken);
+        servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + accessToken);
+        servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + refreshToken);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("회원 생성 완료", new CreateMemberResponse(memberId, familyId)));
     }
@@ -131,8 +133,8 @@ public class MemberController {
     @ApiOperation(value = "소셜 로그인 버튼 클릭시 호출")
     @GetMapping("/login/social")
     public ResponseEntity<?> socialLogin(
-            @RequestHeader(value = "PROVIDER") String provider,
-            @RequestHeader(value = "PROVIDER_ID") String providerId
+            @RequestHeader(value = "Provider") String provider,
+            @RequestHeader(value = "Provider-Id") String providerId
     ) {
         Member findMember = memberService.findMemberByProviderAndProviderId(Provider.valueOf(provider), providerId);
         int memberId = findMember.getId();
@@ -141,8 +143,8 @@ public class MemberController {
         String newAccessToken = tokenService.getAccessToken(memberId);
         memberService.updateRefreshToken(memberId, newRefreshToken);
 
-        servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
-        servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
+        servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
+        servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
         MemberDTO memberInfo = memberService.getMemberInfo(memberId);
         return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new MemberInfoResponse(memberInfo)));
@@ -156,7 +158,7 @@ public class MemberController {
     @ApiOperation(value = "토큰 로그인")
     @GetMapping("{member_id}/login/token")
     public ResponseEntity<?> tokenLogin(
-            @RequestHeader(value = "REFRESH_TOKEN") String refreshToken,
+            @RequestHeader(value = REFRESH_TOKEN) String refreshToken,
             @PathVariable("member_id") int memberId
     ) {
         String findRefreshToken = tokenService.validateRefreshTokenExpired(refreshToken);
@@ -170,8 +172,8 @@ public class MemberController {
 
         memberService.updateRefreshToken(memberId, newRefreshToken);
 
-        servletResponse.setHeader("ACCESS_TOKEN", TOKEN_HEADER + newAccessToken);
-        servletResponse.setHeader("REFRESH_TOKEN", TOKEN_HEADER + newRefreshToken);
+        servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
+        servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
         return ResponseEntity.ok(CommonSuccessResponse.successResponse("Access Token, Refresh Token 발급 성공"));
     }
@@ -184,7 +186,7 @@ public class MemberController {
     @ApiOperation(value = "유저 개인 정보 변경")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateMember(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberVO updateMemberVO
     ) {
@@ -206,7 +208,7 @@ public class MemberController {
     @ApiOperation(value = "유저 개인 정보 얻기")
     @GetMapping("/{id}")
     public ResponseEntity<?> getMember(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
@@ -224,7 +226,7 @@ public class MemberController {
     @ApiOperation(value = "가족 ID 넘어가기")
     @PutMapping("/{member_id}/family/{family_id}")
     public ResponseEntity<?> updateMemberFamilyID(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("member_id") int memberId,
             @PathVariable("family_id") int familyId
     ) {
@@ -244,7 +246,7 @@ public class MemberController {
     @ApiOperation(value = "유저 개인 태그 업데이트")
     @PutMapping("/{id}/tag")
     public ResponseEntity<?> updateMemberTag(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberTagVO updateMemberTagVO
     ) {
@@ -263,7 +265,7 @@ public class MemberController {
     @ApiOperation(value = "가족들 정보 얻기")
     @GetMapping("/{id}/family")
     public ResponseEntity<?> getFamilyMembers(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
@@ -281,7 +283,7 @@ public class MemberController {
     @ApiOperation(value = "가족의 이름 별명으로 바꾸기")
     @PutMapping("/{id}/family/name")
     public ResponseEntity<?> updateFamilyMemberName(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO
     ) {

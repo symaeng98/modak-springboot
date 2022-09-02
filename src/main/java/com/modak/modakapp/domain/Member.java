@@ -150,8 +150,9 @@ public class Member extends BaseTimeEntity {
         this.isLunar = isLunar;
     }
 
-    public void changeMemberFamily(Family family) {
+    public void changeFamily(Family family) {
         this.family = family;
+        family.getMembers().add(this);
     }
 
     public void removeMember(Timestamp deletedAt) {

@@ -38,6 +38,7 @@ public class AnniversaryController {
     private final TokenService tokenService;
     private final AnniversaryService anniversaryService;
     private final MemberService memberService;
+    private final String ACCESS_TOKEN = "Access-Token";
 
     // 공통되는 응답 코멘트 부분 변수로 묶기 - 추후 (ACCESS_TOKEN_EXCEPTION_MESSAGE)
     @ApiResponses({
@@ -49,7 +50,7 @@ public class AnniversaryController {
     @PostMapping()
     public ResponseEntity<?> createAnniversary(
             @ApiParam(value = "기념일 생성 정보 및 fromDate, toDate", required = true)
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
         // Access Token 검증
@@ -93,7 +94,7 @@ public class AnniversaryController {
     @ApiOperation(value = "기념일 정보 변경")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateAnniversary(
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int annId,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
@@ -122,7 +123,7 @@ public class AnniversaryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteAnniversary(
             @ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true)
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int annId,
             @RequestBody FromToDateVO fromToDateVO
     ) {
@@ -151,7 +152,7 @@ public class AnniversaryController {
     @PostMapping("/from-to-date")
     public ResponseEntity<?> getAnniversaries(
             @ApiParam(value = "fromDate~toDate 기념일 정보", required = true)
-            @RequestHeader(value = "ACCESS_TOKEN") String accessToken,
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody FromToDateVO fromToDateVO
     ) {
         // Access Token 검증
