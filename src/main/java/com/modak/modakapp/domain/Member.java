@@ -7,6 +7,7 @@ import com.modak.modakapp.dto.metadata.MDTag;
 import com.modak.modakapp.utils.converter.MDFamilyAttributeConverter;
 import com.modak.modakapp.utils.converter.MDTagAttributeConverter;
 import com.sun.istack.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,8 @@ import java.sql.Timestamp;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user", indexes = @Index(name = "idx_connection_id", columnList = "connection_id"))
 public class Member extends BaseTimeEntity {
@@ -84,45 +87,6 @@ public class Member extends BaseTimeEntity {
 
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
-
-    @Builder
-    public Member(
-            int id,
-            Family family,
-            String name,
-            int isLunar,
-            Date birthday,
-            String profileImageUrl,
-            Role role,
-            String color,
-            String refreshToken,
-            String fcmToken,
-            Provider provider,
-            String providerId,
-            Timestamp chatLastJoined,
-            String connectionId,
-            MDTag mdTag,
-            MDFamily mdFamily,
-            Timestamp deletedAt
-    ) {
-        this.id = id;
-        this.family = family;
-        this.name = name;
-        this.isLunar = isLunar;
-        this.birthday = birthday;
-        this.profileImageUrl = profileImageUrl;
-        this.role = role;
-        this.color = color;
-        this.refreshToken = refreshToken;
-        this.fcmToken = fcmToken;
-        this.provider = provider;
-        this.providerId = providerId;
-        this.chatLastJoined = chatLastJoined;
-        this.connectionId = connectionId;
-        this.mdTag = mdTag;
-        this.mdFamily = mdFamily;
-        this.deletedAt = deletedAt;
-    }
 
     public void changeMemberTag(MDTag mdTag) {
         this.mdTag = mdTag;

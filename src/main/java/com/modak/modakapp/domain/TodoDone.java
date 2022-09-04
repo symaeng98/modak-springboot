@@ -1,5 +1,6 @@
 package com.modak.modakapp.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,8 @@ import java.sql.Timestamp;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class TodoDone extends BaseTimeEntity {
     @Id
@@ -45,23 +48,6 @@ public class TodoDone extends BaseTimeEntity {
 
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
-
-    @Builder
-    public TodoDone(
-            int id,
-            Member member,
-            Family family,
-            Todo todo,
-            Date date,
-            int isDone
-    ) {
-        this.id = id;
-        this.member = member;
-        this.family = family;
-        this.todo = todo;
-        this.date = date;
-        this.isDone = isDone;
-    }
 
     public void changeIsDone(int isDone) {
         this.isDone = isDone;

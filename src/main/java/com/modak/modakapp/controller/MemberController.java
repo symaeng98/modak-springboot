@@ -7,11 +7,11 @@ import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
 import com.modak.modakapp.dto.FamilyMemberDTO;
+import com.modak.modakapp.dto.MemberAndFamilyMemberDTO;
 import com.modak.modakapp.dto.MemberDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.member.FamilyMemberInfoResponse;
-import com.modak.modakapp.dto.response.member.MemberInfoResponse;
 import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
@@ -64,7 +64,7 @@ public class MemberController {
     })
     @ApiOperation(value = "회원 가입")
     @PostMapping()
-    public ResponseEntity<?> createMember(@RequestBody SignUpMemberVO signUpMemberVO) {
+    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> createMember(@RequestBody SignUpMemberVO signUpMemberVO) {
         if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
             throw new MemberAlreadyExistsException();
         }
@@ -84,7 +84,6 @@ public class MemberController {
 
         // 회원 등록
         Member member = Member.builder()
-                .family(family)
                 .name(signUpMemberVO.getName())
                 .isLunar(signUpMemberVO.getIsLunar())
                 .birthday(birthday)
@@ -96,6 +95,7 @@ public class MemberController {
                 .refreshToken("default refresh")
                 .fcmToken("default fcm")
                 .build();
+        member.changeFamily(family);
 
         int memberId = memberService.join(member);
 
@@ -123,8 +123,9 @@ public class MemberController {
 
         MemberDTO memberInfo = memberService.getMemberInfo(memberId);
         List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberInfo, familyMembersInfo);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원 가입 성공", new MemberInfoResponse(memberInfo, familyMembersInfo)));
+        return ResponseEntity.ok(new CommonSuccessResponse<MemberAndFamilyMemberDTO>("회원 가입 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
@@ -151,7 +152,7 @@ public class MemberController {
         MemberDTO memberInfo = memberService.getMemberInfo(memberId);
         List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new MemberInfoResponse(memberInfo, familyMembersInfo)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new MemberAndFamilyMemberDTO(memberInfo, familyMembersInfo)));
     }
 
     @ApiResponses({
@@ -220,7 +221,7 @@ public class MemberController {
         MemberDTO memberDto = memberService.getMemberInfo(memberId);
         List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberInfoResponse(memberDto, familyMembersInfo)));
+        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberAndFamilyMemberDTO(memberDto, familyMembersInfo)));
     }
 
     @ApiResponses({

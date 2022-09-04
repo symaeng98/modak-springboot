@@ -1,5 +1,6 @@
 package com.modak.modakapp.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,8 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class Todo extends BaseTimeEntity {
     @Id
@@ -36,6 +39,7 @@ public class Todo extends BaseTimeEntity {
     @Column(name = "memo")
     private String memo;
 
+    @Builder.Default
     @OneToMany(mappedBy = "todo")
     private List<TodoDone> todoDone = new ArrayList<>();
 
@@ -74,47 +78,6 @@ public class Todo extends BaseTimeEntity {
 
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
-
-    @Builder
-    public Todo(
-            int id,
-            Member member,
-            Family family,
-            int groupTodoId,
-            String title,
-            String memo,
-            Date startDate,
-            Date endDate,
-            String timeTag,
-            String repeatTag,
-            int isSunday,
-            int isMonday,
-            int isTuesday,
-            int isWednesday,
-            int isThursday,
-            int isFriday,
-            int isSaturday,
-            Timestamp deletedAt
-    ) {
-        this.id = id;
-        this.member = member;
-        this.family = family;
-        this.groupTodoId = groupTodoId;
-        this.title = title;
-        this.memo = memo;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.timeTag = timeTag;
-        this.repeatTag = repeatTag;
-        this.isSunday = isSunday;
-        this.isMonday = isMonday;
-        this.isTuesday = isTuesday;
-        this.isWednesday = isWednesday;
-        this.isThursday = isThursday;
-        this.isFriday = isFriday;
-        this.isSaturday = isSaturday;
-        this.deletedAt = deletedAt;
-    }
 
     public void changeSingleTodo(
             String title,

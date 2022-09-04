@@ -6,14 +6,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CommonSuccessResponse {
+public class CommonSuccessResponse<T> {
     private String message;
-    private Object data;
+    private T data;
     private boolean status;
 
-
     @Builder
-    public CommonSuccessResponse(String message, Object data, boolean status) {
+    public CommonSuccessResponse(String message, T data, boolean status) {
         this.message = message;
         this.data = data;
         this.status = status;

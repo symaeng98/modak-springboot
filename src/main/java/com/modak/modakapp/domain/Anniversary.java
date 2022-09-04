@@ -1,6 +1,7 @@
 package com.modak.modakapp.domain;
 
 import com.modak.modakapp.domain.enums.Category;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +11,10 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
-@NoArgsConstructor
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Anniversary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,34 +61,6 @@ public class Anniversary {
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
 
-    @Builder
-    public Anniversary(
-            int id,
-            Member member,
-            Family family,
-            String title,
-            String memo,
-            Category category,
-            Date startDate,
-            Date endDate,
-            int isYear,
-            int isLunar,
-            int isBirthday,
-            Timestamp deletedAt
-    ) {
-        this.id = id;
-        this.member = member;
-        this.family = family;
-        this.title = title;
-        this.memo = memo;
-        this.category = category;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.isYear = isYear;
-        this.isLunar = isLunar;
-        this.isBirthday = isBirthday;
-        this.deletedAt = deletedAt;
-    }
 
     public void removeAnniversary(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
