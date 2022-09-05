@@ -51,7 +51,7 @@ public class MemberService {
 
         MemberDTO memberDto = MemberDTO.builder()
                 .memberId(member.getId())
-                .birthDay(member.getBirthday().toString())
+                .birthday(member.getBirthday().toString())
                 .color(member.getColor())
                 .createdAt(member.getCreatedAt())
                 .familyId(member.getFamily().getId())

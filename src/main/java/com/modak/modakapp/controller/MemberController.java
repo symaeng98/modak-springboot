@@ -6,13 +6,10 @@ import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
-import com.modak.modakapp.dto.FamilyMemberDTO;
 import com.modak.modakapp.dto.MemberAndFamilyMemberDTO;
 import com.modak.modakapp.dto.MemberDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
-import com.modak.modakapp.dto.response.member.FamilyMemberInfoResponse;
-import com.modak.modakapp.dto.response.member.UpdateMemberResponse;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
@@ -41,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -121,11 +117,9 @@ public class MemberController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + accessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + refreshToken);
 
-        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
-        List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberInfo, familyMembersInfo);
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
 
-        return ResponseEntity.ok(new CommonSuccessResponse<MemberAndFamilyMemberDTO>("회원 가입 성공", memberAndFamilyMemberDTO, true));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("회원 가입 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
@@ -135,7 +129,7 @@ public class MemberController {
     })
     @ApiOperation(value = "소셜 로그인 버튼 클릭시 호출")
     @GetMapping("/login/social")
-    public ResponseEntity<?> socialLogin(
+    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> socialLogin(
             @RequestHeader(value = "Provider") String provider,
             @RequestHeader(value = "Provider-Id") String providerId
     ) {
@@ -149,10 +143,9 @@ public class MemberController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
-        List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("로그인 성공", new MemberAndFamilyMemberDTO(memberInfo, familyMembersInfo)));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("소셜 로그인 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
@@ -162,7 +155,7 @@ public class MemberController {
     })
     @ApiOperation(value = "토큰 로그인")
     @GetMapping("{member_id}/login/token")
-    public ResponseEntity<?> tokenLogin(
+    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> tokenLogin(
             @RequestHeader(value = REFRESH_TOKEN) String refreshToken,
             @PathVariable("member_id") int memberId
     ) {
@@ -180,7 +173,9 @@ public class MemberController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        return ResponseEntity.ok(CommonSuccessResponse.successResponse("Access Token, Refresh Token 발급 성공"));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("Access Token, Refresh Token 발급 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
@@ -190,7 +185,7 @@ public class MemberController {
     })
     @ApiOperation(value = "유저 개인 정보 변경")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMember(
+    public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateMember(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberVO updateMemberVO
@@ -202,7 +197,9 @@ public class MemberController {
         Anniversary anniversary = anniversaryService.findBirthdayByMember(memberId);
         anniversaryService.updateBirthday(anniversary.getId(), updateMemberVO.getBirthday(), updateMemberVO.getIsLunar());
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 수정 성공", new UpdateMemberResponse(memberId)));
+        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 개인 정보 변경 성공", memberInfo, true));
     }
 
     @ApiResponses({
@@ -212,16 +209,15 @@ public class MemberController {
     })
     @ApiOperation(value = "유저 개인 정보 얻기")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getMember(
+    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> getMember(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        MemberDTO memberDto = memberService.getMemberInfo(memberId);
-        List<FamilyMemberDTO> familyMembersInfo = memberService.getFamilyMembersInfo(memberId);
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new MemberAndFamilyMemberDTO(memberDto, familyMembersInfo)));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
@@ -231,7 +227,7 @@ public class MemberController {
     })
     @ApiOperation(value = "가족 ID 넘어가기")
     @PutMapping("/{member_id}/family/{family_id}")
-    public ResponseEntity<?> updateMemberFamilyID(
+    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> updateMemberFamilyID(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("member_id") int memberId,
             @PathVariable("family_id") int familyId
@@ -241,7 +237,9 @@ public class MemberController {
         Family family = familyService.find(familyId);
         memberService.updateMemberFamily(memberId, family);
 
-        return ResponseEntity.ok(CommonSuccessResponse.successResponse("회원의 가족 정보 수정 성공"));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 가족 변경 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
@@ -251,7 +249,7 @@ public class MemberController {
     })
     @ApiOperation(value = "유저 개인 태그 업데이트")
     @PutMapping("/{id}/tag")
-    public ResponseEntity<?> updateMemberTag(
+    public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateMemberTag(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberTagVO updateMemberTagVO
@@ -260,7 +258,9 @@ public class MemberController {
 
         memberService.updateMemberTag(memberId, updateMemberTagVO.getTags());
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원의 태그 정보 수정 성공", new UpdateMemberResponse(memberId)));
+        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 개인 태그 업데이트 성공", memberInfo, true));
     }
 
     @ApiResponses({
@@ -270,15 +270,15 @@ public class MemberController {
     })
     @ApiOperation(value = "가족들 정보 얻기")
     @GetMapping("/{id}/family")
-    public ResponseEntity<?> getFamilyMembers(
+    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> getFamilyMembers(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        List<FamilyMemberDTO> mfmInfo = memberService.getFamilyMembersInfo(memberId);
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원 정보 가져오기 성공", new FamilyMemberInfoResponse(mfmInfo)));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
@@ -288,7 +288,7 @@ public class MemberController {
     })
     @ApiOperation(value = "가족의 이름 별명으로 바꾸기")
     @PutMapping("/{id}/family/name")
-    public ResponseEntity<?> updateFamilyMemberName(
+    public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateFamilyMemberName(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int memberId,
             @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO
@@ -297,7 +297,9 @@ public class MemberController {
 
         memberService.updateMemberFamilyName(memberId, updateMemberFamilyNameVO.getMemberFamilyName());
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("회원의 가족 정보 수정 성공", new UpdateMemberResponse(memberId)));
+        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 가족 이름 변경 성공", memberInfo, true));
     }
 
     @ExceptionHandler(MalformedJwtException.class)

@@ -48,7 +48,7 @@ public class AnniversaryController {
     })
     @ApiOperation(value = "기념일 생성")
     @PostMapping()
-    public ResponseEntity<?> createAnniversary(
+    public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> createAnniversary(
             @ApiParam(value = "기념일 생성 정보 및 fromDate, toDate", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody AnniversaryVO anniversaryVO
@@ -83,7 +83,7 @@ public class AnniversaryController {
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonSuccessResponse.response("기념일 생성 완료", new AnniversaryResponse(familyId, anniversaryId, dar)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("기념일 생성 완료", new AnniversaryResponse(familyId, anniversaryId, dar), true));
     }
 
     @ApiResponses({
@@ -93,7 +93,7 @@ public class AnniversaryController {
     })
     @ApiOperation(value = "기념일 정보 변경")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAnniversary(
+    public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> updateAnniversary(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int annId,
             @RequestBody AnniversaryVO anniversaryVO
@@ -112,7 +112,7 @@ public class AnniversaryController {
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("기념일 수정 완료", new AnniversaryResponse(familyId, annId, dar)));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("기념일 수정 완료", new AnniversaryResponse(familyId, annId, dar), true));
     }
 
     @ApiResponses({
@@ -121,7 +121,7 @@ public class AnniversaryController {
             @ApiResponse(code = 401, message = "1. Access Token이 만료되었습니다.(ExpiredAccessTokenException)\n2. 만료된 Refresh Token 입니다. 다시 로그인하세요.(ExpiredRefreshTokenException)"),
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAnniversary(
+    public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> deleteAnniversary(
             @ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int annId,
@@ -141,7 +141,7 @@ public class AnniversaryController {
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromToDateVO.getFromDate(), fromToDateVO.getToDate(), family);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("기념일 삭제 완료", new AnniversaryResponse(familyId, annId, dar)));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("기념일 삭제 완료", new AnniversaryResponse(familyId, annId, dar), true));
     }
 
     @ApiResponses({
@@ -150,7 +150,7 @@ public class AnniversaryController {
             @ApiResponse(code = 401, message = "1. Access Token이 만료되었습니다.(ExpiredAccessTokenException)\n2. 만료된 Refresh Token 입니다. 다시 로그인하세요.(ExpiredRefreshTokenException)"),
     })
     @PostMapping("/from-to-date")
-    public ResponseEntity<?> getAnniversaries(
+    public ResponseEntity<CommonSuccessResponse<DateAnniversaryResponse>> getAnniversaries(
             @ApiParam(value = "fromDate~toDate 기념일 정보", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody FromToDateVO fromToDateVO
@@ -166,7 +166,7 @@ public class AnniversaryController {
 
         DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromToDateVO.getFromDate(), fromToDateVO.getToDate(), family);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("해당 날짜의 기념일을 불러왔습니다.", dar));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("해당 날짜의 기념일을 불러왔습니다.", dar, true));
     }
 
     @ExceptionHandler(MalformedJwtException.class)

@@ -9,12 +9,13 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 public class MemberDTO {
     private int memberId;
     private int familyId;
     private String name;
     private int isLunar;
-    private String birthDay;
+    private String birthday;
     private String profileImageUrl;
     private String role;
     private String color;
@@ -24,32 +25,4 @@ public class MemberDTO {
     private List<MemberFamilyNameDTO> familyName;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-
-    @Builder
-    public MemberDTO(
-            int memberId,
-            int familyId,
-            String name,
-            int isLunar,
-            String birthDay,
-            String profileImageUrl,
-            String role, String color,
-            String provider,
-            String providerId,
-            Timestamp createdAt,
-            Timestamp updatedAt
-    ) {
-        this.memberId = memberId;
-        this.familyId = familyId;
-        this.name = name;
-        this.isLunar = isLunar;
-        this.birthDay = birthDay;
-        this.profileImageUrl = profileImageUrl;
-        this.role = role;
-        this.color = color;
-        this.provider = provider;
-        this.providerId = providerId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
 }

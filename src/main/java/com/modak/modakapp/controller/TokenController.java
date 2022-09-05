@@ -34,7 +34,7 @@ public class TokenController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @GetMapping("/reissue")
-    public ResponseEntity<?> reissue(
+    public ResponseEntity<CommonSuccessResponse<ReissueTokenResponse>> reissue(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestHeader(value = REFRESH_TOKEN) String refreshToken
     ) {
@@ -50,7 +50,7 @@ public class TokenController {
 
         servletResponse.setHeader(ACCESS_TOKEN, "Bearer " + newAccessToken);
 
-        return ResponseEntity.ok(CommonSuccessResponse.response("AccessToken 재발급", new ReissueTokenResponse(ACCESS_TOKEN)));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("AccessToken 재발급", new ReissueTokenResponse(ACCESS_TOKEN), true));
     }
 
     @ExceptionHandler(MalformedJwtException.class)
