@@ -33,7 +33,7 @@ public class Media {
     private String filename;
 
     @NotNull
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP(6)")
     private Timestamp send_at;
 
     @Column(columnDefinition = "TIMESTAMP")

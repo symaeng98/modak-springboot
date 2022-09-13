@@ -39,6 +39,6 @@ public class Message {
     private MetaData metaData;
 
     @NotNull
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP(6)")
     private Timestamp send_at;
 }
