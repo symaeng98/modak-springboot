@@ -1,5 +1,6 @@
 package com.modak.modakapp.domain;
 
+import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,8 +22,13 @@ public class Family extends BaseTimeEntity {
     @Column(name = "id")
     private int id;
 
-    @Column(length = 20, nullable = false)
+    @NotNull
+    @Column(length = 20)
     private String name;
+
+    @NotNull
+    @Column(length = 10)
+    private String code;
 
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;

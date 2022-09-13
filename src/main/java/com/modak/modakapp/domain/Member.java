@@ -32,6 +32,10 @@ public class Member extends BaseTimeEntity {
     @JoinColumn(name = "family_id")
     private Family family;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "today_fortune_id")
+    private TodayFortune todayFortune;
+
     @NotNull
     @Column(name = "name", length = 20)
     private String name;
@@ -76,6 +80,10 @@ public class Member extends BaseTimeEntity {
 
     @Column(name = "connection_id", length = 100)
     private String connectionId;
+
+    @NotNull
+    @Column(name = "today_fortune_at")
+    private Date todayFortuneAt;
 
     @Convert(converter = MDTagAttributeConverter.class)
     @Column(name = "tag", columnDefinition = "json")
