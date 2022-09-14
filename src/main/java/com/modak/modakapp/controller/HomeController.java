@@ -1,8 +1,11 @@
 package com.modak.modakapp.controller;
 
+import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.TodayFortune;
+import com.modak.modakapp.domain.TodayTalk;
 import com.modak.modakapp.dto.home.TodayFortuneDTO;
+import com.modak.modakapp.dto.home.TodayTalkDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
@@ -13,6 +16,7 @@ import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodayFortuneService;
 import com.modak.modakapp.service.TodayTalkService;
 import com.modak.modakapp.utils.jwt.TokenService;
+import com.modak.modakapp.vo.todaytalk.CreateTodayTalkVO;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import io.swagger.annotations.ApiOperation;
@@ -71,6 +75,38 @@ public class HomeController {
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("하루 한 문장 불러오기 성공", todayFortuneDto, true));
     }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공적으로 회원의 오늘의 한 마디를 등록했습니다."),
+            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
+    @ApiOperation(value = "회원의 오늘 한 마디 등록")
+    @PostMapping("/today-talk/{member_id}")
+    public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> createTodayTalk(
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+            @PathVariable("member_id") int memberId,
+            @RequestBody CreateTodayTalkVO createTodayTalkVO
+    ) {
+        tokenService.validateAccessTokenExpired(accessToken);
+
+        Member member = memberService.findMemberWithFamily(memberId);
+
+        TodayTalk todayTalk = TodayTalk.builder()
+                .member(member)
+                .family(member.getFamily())
+                .content(createTodayTalkVO.getContent())
+                .date(Date.valueOf(createTodayTalkVO.getDate()))
+                .build();
+
+        todayTalkService.join(todayTalk);
+
+        Family family = member.getFamily();
+        TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(createTodayTalkVO.getDate()), Date.valueOf(createTodayTalkVO.getDate()), family);
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("오늘 한 마디 등록 성공", todayTalkDto, true));
+    }
+
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
