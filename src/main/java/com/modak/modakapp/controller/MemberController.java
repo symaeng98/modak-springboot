@@ -6,8 +6,8 @@ import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
-import com.modak.modakapp.dto.MemberAndFamilyMemberDTO;
-import com.modak.modakapp.dto.MemberDTO;
+import com.modak.modakapp.dto.member.MemberAndFamilyMemberDTO;
+import com.modak.modakapp.dto.member.MemberDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
@@ -66,15 +66,17 @@ public class MemberController {
         }
 
         int familyId;
+        Family family;
         // 처음 가입하는 회원일 때
-        if (signUpMemberVO.getFamilyId() == -1) {
-            Family family = Family.builder().name("행복한 우리 가족").build();
+        if (signUpMemberVO.getIsFirst() == 1) {
+            String invitationCode = familyService.generateInvitationCode();
+            family = Family.builder().name("행복한 우리 가족").code(invitationCode).build();
             familyId = familyService.join(family);
         } else { // 초대받은 회원일 때
-            familyId = signUpMemberVO.getFamilyId();
+            family = familyService.findByCode(signUpMemberVO.getInvitationCode());
+            familyId = family.getId();
         }
 
-        Family family = familyService.find(familyId);
         Date birthday = Date.valueOf(signUpMemberVO.getBirthday());
         String colorForMember = memberService.getColorForMember(familyId);
 
@@ -112,12 +114,12 @@ public class MemberController {
 
         String accessToken = tokenService.getAccessToken(memberId);
         String refreshToken = tokenService.getRefreshToken(memberId);
-        memberService.updateRefreshToken(memberId, refreshToken);
+        memberService.updateRefreshToken(member, refreshToken);
 
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + accessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + refreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("회원 가입 성공", memberAndFamilyMemberDTO, true));
     }
@@ -133,17 +135,17 @@ public class MemberController {
             @RequestHeader(value = "Provider") String provider,
             @RequestHeader(value = "Provider-Id") String providerId
     ) {
-        Member findMember = memberService.findMemberByProviderAndProviderId(Provider.valueOf(provider), providerId);
-        int memberId = findMember.getId();
+        Member member = memberService.findMemberByProviderAndProviderId(Provider.valueOf(provider), providerId);
+        int memberId = member.getId();
 
         String newRefreshToken = tokenService.getRefreshToken(memberId);
         String newAccessToken = tokenService.getAccessToken(memberId);
-        memberService.updateRefreshToken(memberId, newRefreshToken);
+        memberService.updateRefreshToken(member, newRefreshToken);
 
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("소셜 로그인 성공", memberAndFamilyMemberDTO, true));
     }
@@ -168,12 +170,14 @@ public class MemberController {
         String newAccessToken = tokenService.getAccessToken(memberId);
         String newRefreshToken = tokenService.getRefreshToken(memberId);
 
-        memberService.updateRefreshToken(memberId, newRefreshToken);
+        Member member = memberService.findMember(memberId);
+
+        memberService.updateRefreshToken(member, newRefreshToken);
 
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("Access Token, Refresh Token 발급 성공", memberAndFamilyMemberDTO, true));
     }
@@ -192,12 +196,14 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        memberService.updateMember(memberId, updateMemberVO);
+        Member member = memberService.findMember(memberId);
+
+        memberService.updateMember(member, updateMemberVO);
 
         Anniversary anniversary = anniversaryService.findBirthdayByMember(memberId);
         anniversaryService.updateBirthday(anniversary.getId(), updateMemberVO.getBirthday(), updateMemberVO.getIsLunar());
 
-        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
+        MemberDTO memberInfo = memberService.getMemberInfo(member);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 개인 정보 변경 성공", memberInfo, true));
     }
@@ -215,7 +221,9 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
+        Member member = memberService.findMember(memberId);
+
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
     }
@@ -235,9 +243,11 @@ public class MemberController {
         tokenService.validateAccessTokenExpired(accessToken);
 
         Family family = familyService.find(familyId);
-        memberService.updateMemberFamily(memberId, family);
+        Member member = memberService.findMember(memberId);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
+        memberService.updateMemberFamily(member, family);
+
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 가족 변경 성공", memberAndFamilyMemberDTO, true));
     }
@@ -256,9 +266,11 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        memberService.updateMemberTag(memberId, updateMemberTagVO.getTags());
+        Member member = memberService.findMember(memberId);
 
-        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
+        memberService.updateMemberTag(member, updateMemberTagVO.getTags());
+
+        MemberDTO memberInfo = memberService.getMemberInfo(member);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 개인 태그 업데이트 성공", memberInfo, true));
     }
@@ -276,7 +288,8 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(memberId), memberService.getFamilyMembersInfo(memberId));
+        Member member = memberService.findMember(memberId);
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
     }
@@ -295,9 +308,11 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        memberService.updateMemberFamilyName(memberId, updateMemberFamilyNameVO.getMemberFamilyName());
+        Member member = memberService.findMember(memberId);
 
-        MemberDTO memberInfo = memberService.getMemberInfo(memberId);
+        memberService.updateMemberFamilyName(member, updateMemberFamilyNameVO.getMemberFamilyName());
+
+        MemberDTO memberInfo = memberService.getMemberInfo(member);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 가족 이름 변경 성공", memberInfo, true));
     }

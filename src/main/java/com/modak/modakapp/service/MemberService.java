@@ -2,11 +2,12 @@ package com.modak.modakapp.service;
 
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.domain.TodayFortune;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
-import com.modak.modakapp.dto.FamilyMemberDTO;
-import com.modak.modakapp.dto.MemberDTO;
-import com.modak.modakapp.dto.MemberFamilyNameDTO;
+import com.modak.modakapp.dto.member.FamilyMemberDTO;
+import com.modak.modakapp.dto.member.MemberDTO;
+import com.modak.modakapp.dto.member.MemberFamilyNameDTO;
 import com.modak.modakapp.dto.metadata.MDFamily;
 import com.modak.modakapp.dto.metadata.MDTag;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +48,7 @@ public class MemberService {
         return memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
-    public MemberDTO getMemberInfo(int memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-
+    public MemberDTO getMemberInfo(Member member) {
         MemberDTO memberDto = MemberDTO.builder()
                 .memberId(member.getId())
                 .birthday(member.getBirthday().toString())
@@ -79,8 +79,8 @@ public class MemberService {
         return memberDto;
     }
 
-    public List<FamilyMemberDTO> getFamilyMembersInfo(int memberId) {
-        Member member = memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
+    public List<FamilyMemberDTO> getFamilyMembersInfo(Member member) {
+        int memberId = member.getId();
         Family family = member.getFamily();
 
         List<FamilyMemberDTO> result = new ArrayList<>();
@@ -126,27 +126,23 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateMemberTag(int memberId, List<String> tags) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
+    public void updateMemberTag(Member member, List<String> tags) {
         member.changeMemberTag(new MDTag(tags));
     }
 
     @Transactional
-    public void updateMemberFamilyName(int memberId, List<MemberFamilyNameDTO> familyName) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
+    public void updateMemberFamilyName(Member member, List<MemberFamilyNameDTO> familyName) {
         member.changeMemberFamilyName(new MDFamily(familyName));
     }
 
     @Transactional
-    public void updateRefreshToken(int memberId, String refreshToken) {
-        Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        findMember.changeRefreshToken(refreshToken);
+    public void updateRefreshToken(Member member, String refreshToken) {
+        member.changeRefreshToken(refreshToken);
     }
 
     @Transactional
-    public void updateMember(int memberId, UpdateMemberVO updateMemberVO) {
-        Member findMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-        findMember.changeMemberInfo(
+    public void updateMember(Member member, UpdateMemberVO updateMemberVO) {
+        member.changeMemberInfo(
                 updateMemberVO.getName(),
                 Role.valueOf(updateMemberVO.getRole()),
                 updateMemberVO.getColor(),
@@ -156,8 +152,12 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateMemberFamily(int memberId, Family family) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
+    public void updateTodayFortuneAndTodayFortuneAt(Member member, TodayFortune todayFortune) {
+        member.changeTodayFortuneAndTodayFortuneAt(todayFortune, Date.valueOf(LocalDate.now()));
+    }
+
+    @Transactional
+    public void updateMemberFamily(Member member, Family family) {
         member.changeFamily(family);
     }
 

@@ -1,6 +1,6 @@
 package com.modak.modakapp.dto.response.todo;
 
-import com.modak.modakapp.dto.TodoDTO;
+import com.modak.modakapp.dto.todo.TodoDTO;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

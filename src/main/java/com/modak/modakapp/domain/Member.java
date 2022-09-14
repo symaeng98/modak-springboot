@@ -81,7 +81,6 @@ public class Member extends BaseTimeEntity {
     @Column(name = "connection_id", length = 100)
     private String connectionId;
 
-    @NotNull
     @Column(name = "today_fortune_at")
     private Date todayFortuneAt;
 
@@ -125,6 +124,11 @@ public class Member extends BaseTimeEntity {
     public void changeFamily(Family family) {
         this.family = family;
         family.getMembers().add(this);
+    }
+
+    public void changeTodayFortuneAndTodayFortuneAt(TodayFortune todayFortune, Date date) {
+        this.todayFortune = todayFortune;
+        this.todayFortuneAt = date;
     }
 
     public void removeMember(Timestamp deletedAt) {

@@ -1,7 +1,7 @@
 package com.modak.modakapp.dto.response.anniversary;
 
 
-import com.modak.modakapp.dto.AnniversaryDTO;
+import com.modak.modakapp.dto.anniversary.AnniversaryDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

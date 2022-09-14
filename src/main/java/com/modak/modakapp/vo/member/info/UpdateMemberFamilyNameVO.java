@@ -1,6 +1,6 @@
 package com.modak.modakapp.vo.member.info;
 
-import com.modak.modakapp.dto.MemberFamilyNameDTO;
+import com.modak.modakapp.dto.member.MemberFamilyNameDTO;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 

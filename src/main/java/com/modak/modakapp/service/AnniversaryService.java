@@ -3,7 +3,7 @@ package com.modak.modakapp.service;
 import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.enums.Category;
-import com.modak.modakapp.dto.AnniversaryDTO;
+import com.modak.modakapp.dto.anniversary.AnniversaryDTO;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
 import com.modak.modakapp.exception.anniversary.NoSuchAnniversaryException;
 import com.modak.modakapp.repository.AnniversaryRepository;

@@ -1,4 +1,4 @@
-package com.modak.modakapp.dto;
+package com.modak.modakapp.dto.anniversary;
 
 import lombok.Builder;
 import lombok.Getter;

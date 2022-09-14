@@ -11,4 +11,8 @@ public interface FamilyRepository extends JpaRepository<Family, Integer> {
     @Query("select f from Family f" +
             " where f.id = :id and f.deletedAt is null ")
     Optional<Family> findById(@Param("id") int id);
+
+    @Query("select f from Family f" +
+            " where f.code = :code and f.deletedAt is null ")
+    Optional<Family> findByCode(@Param("code") String code);
 }

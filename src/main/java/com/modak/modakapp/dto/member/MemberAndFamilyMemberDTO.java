@@ -1,4 +1,4 @@
-package com.modak.modakapp.dto;
+package com.modak.modakapp.dto.member;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
