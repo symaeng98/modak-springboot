@@ -23,11 +23,11 @@ public class Letter extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_user_id")
-    private Member FromMember;
+    private Member fromMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_user_id")
-    private Member ToMember;
+    private Member toMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")

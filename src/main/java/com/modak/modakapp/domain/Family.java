@@ -49,6 +49,10 @@ public class Family extends BaseTimeEntity {
     @OneToMany(mappedBy = "family")
     private List<Anniversary> anniversaries = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "family")
+    private List<TodayTalk> todayTalkList = new ArrayList<>();
+
     public void removeFamily(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
     }

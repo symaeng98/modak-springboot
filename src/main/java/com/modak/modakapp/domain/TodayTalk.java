@@ -21,7 +21,7 @@ public class TodayTalk extends BaseTimeEntity {
     @Column(name = "id")
     private int id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Member member;
 
