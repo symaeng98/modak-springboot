@@ -1,8 +1,10 @@
 package com.modak.modakapp.service;
 
 import com.modak.modakapp.domain.Family;
+import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.TodayTalk;
 import com.modak.modakapp.dto.home.TodayTalkDTO;
+import com.modak.modakapp.exception.todaytalk.NoSuchTodayTalkException;
 import com.modak.modakapp.repository.TodayTalkRepository;
 import com.modak.modakapp.utils.todo.TodoUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,15 @@ public class TodayTalkService {
         return todayTalk.getId();
     }
 
+    public TodayTalk getTodayTalkByMemberAndDate(Member member, Date date) {
+        return todayTalkRepository.findTodayTalkByMemberAndDate(member, date).orElseThrow(() -> new NoSuchTodayTalkException("조건에 해당하는 가족 한 마디가 존재하지 않습니다."));
+    }
+
+    @Transactional
+    public void updateContent(TodayTalk todayTalk, String content) {
+        todayTalk.changeContent(content);
+    }
+
     public TodayTalkDTO getMembersTodayTalkByDate(Date startDate, Date endDate, Family family) {
         List<TodayTalk> todayTalkList = todayTalkRepository.findTodayTalkByDate(startDate, endDate, family.getId());
 
@@ -48,5 +59,9 @@ public class TodayTalkService {
         return TodayTalkDTO.builder()
                 .result(result)
                 .build();
+    }
+
+    public boolean isTodayTalkExists(Member member, Date date) {
+        return todayTalkRepository.isExists(member, date);
     }
 }

@@ -33,14 +33,13 @@ public class TodoService {
         return todo.getId();
     }
 
-    public Todo findTodoWithMemberAndFamily(int todoId) {
+    public Todo getTodoWithMemberAndFamily(int todoId) {
         return todoRepository.findById(todoId).orElseThrow(() -> new NoSuchTodoException("todo가 존재하지 않습니다."));
     }
 
 
     @Transactional
-    public void updateGroupTodoId(int todoId, int groupTodoId) {
-        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new NoSuchTodoException("todo가 존재하지 않습니다."));
+    public void updateGroupTodoId(Todo todo, int groupTodoId) {
         todo.changeGroupTodoId(groupTodoId);
     }
 
@@ -200,15 +199,12 @@ public class TodoService {
     }
 
     @Transactional
-    public void deleteSingleTodo(int todoId) {
-        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new NoSuchTodoException("todo가 존재하지 않습니다."));
+    public void deleteSingleTodo(Todo todo) {
         todo.removeTodo(Timestamp.valueOf(LocalDateTime.now()));
     }
 
     @Transactional
-    public void deleteRepeatTodoSingle(int todoId, DeleteTodoVO deleteTodoVO) {
-        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new NoSuchTodoException("todo가 존재하지 않습니다."));
-
+    public void deleteRepeatTodoSingle(Todo todo, DeleteTodoVO deleteTodoVO) {
         // 삭제할 날짜
         Date date = Date.valueOf(deleteTodoVO.getDate());
 
@@ -273,9 +269,7 @@ public class TodoService {
     }
 
     @Transactional
-    public void deleteRepeatTodoAfter(int todoId, DeleteTodoVO deleteTodoVO) {
-        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new NoSuchTodoException("todo가 존재하지 않습니다."));
-
+    public void deleteRepeatTodoAfter(Todo todo, DeleteTodoVO deleteTodoVO) {
         Date date = Date.valueOf(deleteTodoVO.getDate());
 
         int groupTodoId = todo.getGroupTodoId();

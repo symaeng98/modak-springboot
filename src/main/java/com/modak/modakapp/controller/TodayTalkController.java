@@ -2,21 +2,19 @@ package com.modak.modakapp.controller;
 
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.domain.TodayFortune;
 import com.modak.modakapp.domain.TodayTalk;
-import com.modak.modakapp.dto.home.TodayFortuneDTO;
 import com.modak.modakapp.dto.home.TodayTalkDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
+import com.modak.modakapp.exception.todaytalk.AlreadyExistsTodayTalkException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
 import com.modak.modakapp.service.MemberService;
-import com.modak.modakapp.service.TodayFortuneService;
 import com.modak.modakapp.service.TodayTalkService;
 import com.modak.modakapp.utils.jwt.TokenService;
-import com.modak.modakapp.vo.todaytalk.CreateTodayTalkVO;
+import com.modak.modakapp.vo.todaytalk.TodayTalkVO;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import io.swagger.annotations.ApiOperation;
@@ -29,52 +27,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/home")
+@RequestMapping("/api/today-talk")
 @Slf4j
-public class HomeController {
+public class TodayTalkController {
     private final MemberService memberService;
-    private final TodayFortuneService todayFortuneService;
     private final TodayTalkService todayTalkService;
     private final TokenService tokenService;
     private final String ACCESS_TOKEN = "Access-Token";
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "성공적으로 회원의 하루 한 문장을 가져왔습니다."),
-            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
-            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-    })
-    @ApiOperation(value = "회원의 하루 한 문장 가져오기")
-    @GetMapping("/today-fortune/{member_id}")
-    public ResponseEntity<CommonSuccessResponse<TodayFortuneDTO>> getTodayFortune(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId
-    ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Member member = memberService.findMember(memberId);
-        TodayFortune todayFortune = member.getTodayFortune();
-        Date todayFortuneAt = member.getTodayFortuneAt();
-
-        // 바꿔야되는 경우
-        if (todayFortune == null || todayFortuneAt.before(Date.valueOf(LocalDate.now()))) {
-            TodayFortune newFortune = todayFortuneService.generateTodayFortune();
-            memberService.updateTodayFortuneAndTodayFortuneAt(member, newFortune);
-            todayFortune = newFortune;
-            todayFortuneAt = Date.valueOf(LocalDate.now());
-        }
-
-        TodayFortuneDTO todayFortuneDto = TodayFortuneDTO.builder()
-                .memberId(memberId)
-                .content(todayFortune.getContent())
-                .date(todayFortuneAt)
-                .build();
-
-        return ResponseEntity.ok(new CommonSuccessResponse<>("하루 한 문장 불러오기 성공", todayFortuneDto, true));
-    }
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 회원의 오늘의 한 마디를 등록했습니다."),
@@ -82,31 +44,80 @@ public class HomeController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "회원의 오늘 한 마디 등록")
-    @PostMapping("/today-talk/{member_id}")
+    @PostMapping("/{member_id}")
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> createTodayTalk(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("member_id") int memberId,
-            @RequestBody CreateTodayTalkVO createTodayTalkVO
+            @RequestBody TodayTalkVO todayTalkVO
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.findMemberWithFamily(memberId);
+        Member member = memberService.getMemberWithFamily(memberId);
+
+        if (todayTalkService.isTodayTalkExists(member, Date.valueOf(todayTalkVO.getDate()))) {
+            throw new AlreadyExistsTodayTalkException("이미 해당 회원의 오늘 한 마디가 존재합니다.");
+        }
 
         TodayTalk todayTalk = TodayTalk.builder()
                 .member(member)
                 .family(member.getFamily())
-                .content(createTodayTalkVO.getContent())
-                .date(Date.valueOf(createTodayTalkVO.getDate()))
+                .content(todayTalkVO.getContent())
+                .date(Date.valueOf(todayTalkVO.getDate()))
                 .build();
 
         todayTalkService.join(todayTalk);
 
         Family family = member.getFamily();
-        TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(createTodayTalkVO.getDate()), Date.valueOf(createTodayTalkVO.getDate()), family);
+        TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(todayTalkVO.getDate()), Date.valueOf(todayTalkVO.getDate()), family);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("오늘 한 마디 등록 성공", todayTalkDto, true));
     }
 
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공적으로 회원의 오늘의 한 마디를 불러왔습니다."),
+            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
+    @ApiOperation(value = "회원의 오늘 한 마디 조회(날짜 범위 입력)")
+    @GetMapping()
+    public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> getTodayTalk(
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+            @RequestParam String fromDate,
+            @RequestParam String toDate
+    ) {
+        tokenService.validateAccessTokenExpired(accessToken);
+
+        int memberId = tokenService.getMemberId(accessToken.substring(7));
+        Family family = memberService.getMemberWithFamily(memberId).getFamily();
+
+        TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(fromDate), Date.valueOf(toDate), family);
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("오늘 한 마디 조회 성공", todayTalkDto, true));
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공적으로 회원의 오늘의 한 마디를 수정했습니다."),
+            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
+    @ApiOperation(value = "회원의 오늘 한 마디 수정")
+    @PutMapping("/{member_id}")
+    public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> updateTodayTalk(
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+            @PathVariable("member_id") int memberId,
+            @RequestBody TodayTalkVO todayTalkVO
+    ) {
+        tokenService.validateAccessTokenExpired(accessToken);
+
+        Member member = memberService.getMemberWithFamily(memberId);
+
+        TodayTalk todayTalk = todayTalkService.getTodayTalkByMemberAndDate(member, Date.valueOf(todayTalkVO.getDate()));
+
+        todayTalkService.updateContent(todayTalk, todayTalkVO.getContent());
+        TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(todayTalkVO.getDate()), Date.valueOf(todayTalkVO.getDate()), member.getFamily());
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("오늘 한 마디 등록 성공", todayTalkDto, true));
+    }
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
@@ -143,6 +154,12 @@ public class HomeController {
     public ResponseEntity<?> handleNoSuchMemberException(NoSuchMemberException e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요", "NoSuchMemberException"));
+    }
+
+    @ExceptionHandler(AlreadyExistsTodayTalkException.class)
+    public ResponseEntity<?> handleAlreadyExistsTodayTalkException(AlreadyExistsTodayTalkException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("이미 오늘의 한 마디가 존재합니다.", "AlreadyExistsTodayTalkException"));
     }
 
     @ExceptionHandler(Exception.class)

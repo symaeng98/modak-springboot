@@ -73,7 +73,7 @@ public class MemberController {
             family = Family.builder().name("행복한 우리 가족").code(invitationCode).build();
             familyId = familyService.join(family);
         } else { // 초대받은 회원일 때
-            family = familyService.findByCode(signUpMemberVO.getInvitationCode());
+            family = familyService.getByCode(signUpMemberVO.getInvitationCode());
             familyId = family.getId();
         }
 
@@ -135,7 +135,7 @@ public class MemberController {
             @RequestHeader(value = "Provider") String provider,
             @RequestHeader(value = "Provider-Id") String providerId
     ) {
-        Member member = memberService.findMemberByProviderAndProviderId(Provider.valueOf(provider), providerId);
+        Member member = memberService.getMemberByProviderAndProviderId(Provider.valueOf(provider), providerId);
         int memberId = member.getId();
 
         String newRefreshToken = tokenService.getRefreshToken(memberId);
@@ -163,14 +163,14 @@ public class MemberController {
     ) {
         String findRefreshToken = tokenService.validateRefreshTokenExpired(refreshToken);
 
-        if (!tokenService.isSameRefreshToken(memberService.findMember(memberId), findRefreshToken)) {
+        if (!tokenService.isSameRefreshToken(memberService.getMember(memberId), findRefreshToken)) {
             throw new NotMatchRefreshTokenException("회원이 가지고 있는 Refresh Token과 요청한 Refresh Token이 다릅니다.");
         }
 
         String newAccessToken = tokenService.getAccessToken(memberId);
         String newRefreshToken = tokenService.getRefreshToken(memberId);
 
-        Member member = memberService.findMember(memberId);
+        Member member = memberService.getMember(memberId);
 
         memberService.updateRefreshToken(member, newRefreshToken);
 
@@ -196,11 +196,11 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.findMember(memberId);
+        Member member = memberService.getMember(memberId);
 
         memberService.updateMember(member, updateMemberVO);
 
-        Anniversary anniversary = anniversaryService.findBirthdayByMember(memberId);
+        Anniversary anniversary = anniversaryService.getBirthdayByMember(memberId);
         anniversaryService.updateBirthday(anniversary.getId(), updateMemberVO.getBirthday(), updateMemberVO.getIsLunar());
 
         MemberDTO memberInfo = memberService.getMemberInfo(member);
@@ -221,7 +221,7 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.findMember(memberId);
+        Member member = memberService.getMember(memberId);
 
         MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
@@ -242,8 +242,8 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Family family = familyService.find(familyId);
-        Member member = memberService.findMember(memberId);
+        Family family = familyService.get(familyId);
+        Member member = memberService.getMember(memberId);
 
         memberService.updateMemberFamily(member, family);
 
@@ -266,7 +266,7 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.findMember(memberId);
+        Member member = memberService.getMember(memberId);
 
         memberService.updateMemberTag(member, updateMemberTagVO.getTags());
 
@@ -288,7 +288,7 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.findMember(memberId);
+        Member member = memberService.getMember(memberId);
         MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
@@ -308,7 +308,7 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.findMember(memberId);
+        Member member = memberService.getMember(memberId);
 
         memberService.updateMemberFamilyName(member, updateMemberFamilyNameVO.getMemberFamilyName());
 

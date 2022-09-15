@@ -36,20 +36,20 @@ public class AnniversaryService {
         return savedAnniversary.getId();
     }
 
-    public Anniversary findAnniversaryById(int id) {
+    public Anniversary getAnniversaryById(int id) {
         return anniversaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchAnniversaryException("기념일이 존재하지 않습니다."));
     }
 
     @Transactional
     public void deleteAnniversary(int id) {
-        Anniversary findAnn = findAnniversaryById(id);
+        Anniversary findAnn = getAnniversaryById(id);
         findAnn.removeAnniversary(Timestamp.valueOf(LocalDateTime.now()));
     }
 
     @Transactional
     public void updateAnniversary(int id, AnniversaryVO anniversaryVO) {
-        Anniversary findAnn = findAnniversaryById(id);
+        Anniversary findAnn = getAnniversaryById(id);
         findAnn.changeAnniversary(
                 anniversaryVO.getTitle(),
                 Date.valueOf(anniversaryVO.getDate()),
@@ -62,19 +62,19 @@ public class AnniversaryService {
 
     @Transactional
     public void updateBirthday(int id, String birthday, int isLunar) {
-        Anniversary anniversary = findAnniversaryById(id);
+        Anniversary anniversary = getAnniversaryById(id);
         anniversary.changeBirthday(
                 Date.valueOf(birthday),
                 isLunar
         );
     }
 
-    public Anniversary findBirthdayByMember(int memberId) {
+    public Anniversary getBirthdayByMember(int memberId) {
         return anniversaryRepository.findAnniversaryByIsBirthday(memberId);
     }
 
 
-    public DateAnniversaryResponse findDateAnniversaryData(String sd, String ed, Family family) {
+    public DateAnniversaryResponse getDateAnniversaryData(String sd, String ed, Family family) {
         List<String> dates = new ArrayList<>();
         LocalDate start = LocalDate.parse(sd);
         LocalDate end = LocalDate.parse(ed);

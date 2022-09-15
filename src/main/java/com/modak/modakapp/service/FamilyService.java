@@ -24,11 +24,11 @@ public class FamilyService {
         return family.getId();
     }
 
-    public Family find(int id) {
+    public Family get(int id) {
         return familyRepository.findById(id).orElseThrow(() -> new NoSuchFamilyException("가족 정보가 없습니다."));
     }
 
-    public Family findByCode(String code) {
+    public Family getByCode(String code) {
         return familyRepository.findByCode(code).orElseThrow(() -> new NoSuchFamilyException("가족 정보가 없습니다."));
     }
 

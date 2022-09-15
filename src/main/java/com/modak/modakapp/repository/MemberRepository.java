@@ -31,5 +31,4 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
             "from Member m " +
             "where m.providerId = :providerId and m.deletedAt is null ")
     boolean isExists(@Param(value = "providerId") String providerId);
-
 }

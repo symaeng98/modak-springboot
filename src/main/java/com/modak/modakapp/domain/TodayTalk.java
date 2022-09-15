@@ -39,4 +39,8 @@ public class TodayTalk extends BaseTimeEntity {
 
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
+
+    public void changeContent(String content) {
+        this.content = content;
+    }
 }

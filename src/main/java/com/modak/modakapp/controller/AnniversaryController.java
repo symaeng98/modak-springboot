@@ -14,7 +14,6 @@ import com.modak.modakapp.service.AnniversaryService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.utils.jwt.TokenService;
 import com.modak.modakapp.vo.anniversary.AnniversaryVO;
-import com.modak.modakapp.vo.todo.FromToDateVO;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import io.swagger.annotations.ApiOperation;
@@ -58,7 +57,7 @@ public class AnniversaryController {
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
-        Member memberWithFamily = memberService.findMemberWithFamily(memberId);
+        Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();
         int familyId = family.getId();
@@ -81,7 +80,7 @@ public class AnniversaryController {
 
         int anniversaryId = anniversaryService.join(anniversary);
 
-        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
+        DateAnniversaryResponse dar = anniversaryService.getDateAnniversaryData(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("기념일 생성 완료", new AnniversaryResponse(familyId, anniversaryId, dar), true));
     }
@@ -103,14 +102,14 @@ public class AnniversaryController {
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
-        Member memberWithFamily = memberService.findMemberWithFamily(memberId);
+        Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();
         int familyId = family.getId();
 
         anniversaryService.updateAnniversary(annId, anniversaryVO);
 
-        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
+        DateAnniversaryResponse dar = anniversaryService.getDateAnniversaryData(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("기념일 수정 완료", new AnniversaryResponse(familyId, annId, dar), true));
     }
@@ -125,21 +124,22 @@ public class AnniversaryController {
             @ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int annId,
-            @RequestBody FromToDateVO fromToDateVO
+            @RequestParam String fromDate,
+            @RequestParam String toDate
     ) {
         // Access Token 검증
         String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
-        Member memberWithFamily = memberService.findMemberWithFamily(memberId);
+        Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();
         int familyId = family.getId();
 
         anniversaryService.deleteAnniversary(annId);
 
-        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromToDateVO.getFromDate(), fromToDateVO.getToDate(), family);
+        DateAnniversaryResponse dar = anniversaryService.getDateAnniversaryData(fromDate, toDate, family);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("기념일 삭제 완료", new AnniversaryResponse(familyId, annId, dar), true));
     }
@@ -149,22 +149,23 @@ public class AnniversaryController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "1. Access Token이 만료되었습니다.(ExpiredAccessTokenException)\n2. 만료된 Refresh Token 입니다. 다시 로그인하세요.(ExpiredRefreshTokenException)"),
     })
-    @PostMapping("/from-to-date")
+    @GetMapping("/from-to-date")
     public ResponseEntity<CommonSuccessResponse<DateAnniversaryResponse>> getAnniversaries(
             @ApiParam(value = "fromDate~toDate 기념일 정보", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @RequestBody FromToDateVO fromToDateVO
+            @RequestParam String fromDate,
+            @RequestParam String toDate
     ) {
         // Access Token 검증
         String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
 
         // 회원 id 가져와서 회원 찾기
         int memberId = tokenService.getMemberId(subAccessToken);
-        Member memberWithFamily = memberService.findMemberWithFamily(memberId);
+        Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();
 
-        DateAnniversaryResponse dar = anniversaryService.findDateAnniversaryData(fromToDateVO.getFromDate(), fromToDateVO.getToDate(), family);
+        DateAnniversaryResponse dar = anniversaryService.getDateAnniversaryData(fromDate, toDate, family);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("해당 날짜의 기념일을 불러왔습니다.", dar, true));
     }

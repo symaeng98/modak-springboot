@@ -11,6 +11,8 @@ import java.sql.Date;
 @Builder
 public class TodayFortuneDTO {
     private int memberId;
+
     private String content;
+
     private Date date;
 }

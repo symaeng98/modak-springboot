@@ -31,7 +31,7 @@ public class TodoDoneService {
 //        return todoDone;
 //    }
 
-    public int findNumOfTodoDone(int familyId) {
+    public int getNumOfTodoDone(int familyId) {
         Long doneNum = todoDoneRepository.findNumOfDoneByFamilyId(familyId);
         return doneNum.intValue();
     }

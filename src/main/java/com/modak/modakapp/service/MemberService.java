@@ -36,15 +36,15 @@ public class MemberService {
         return member.getId();
     }
 
-    public Member findMember(int memberId) {
+    public Member getMember(int memberId) {
         return memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
-    public Member findMemberByProviderAndProviderId(Provider provider, String providerId) {
+    public Member getMemberByProviderAndProviderId(Provider provider, String providerId) {
         return memberRepository.findByProviderAndProviderId(provider, providerId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
-    public Member findMemberWithFamily(int memberId) {
+    public Member getMemberWithFamily(int memberId) {
         return memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
@@ -107,7 +107,7 @@ public class MemberService {
         return result;
     }
 
-    public List<String> findColors(int familyId) {
+    public List<String> getColors(int familyId) {
         return memberRepository.findColorsByFamilyId(familyId);
     }
 

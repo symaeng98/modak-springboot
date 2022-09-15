@@ -42,7 +42,7 @@ public class TokenController {
         int memberId = tokenService.getMemberId(subRefreshToken);
 
         // refresh가 DB에 있는 값과 같은지 확인
-        if (!tokenService.isSameRefreshToken(memberService.findMember(memberId), subRefreshToken)) {
+        if (!tokenService.isSameRefreshToken(memberService.getMember(memberId), subRefreshToken)) {
             throw new NotMatchRefreshTokenException("회원이 가지고 있는 Refresh Token과 요청한 Refresh Token이 다릅니다.");
         }
 
