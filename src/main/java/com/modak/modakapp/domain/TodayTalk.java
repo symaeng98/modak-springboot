@@ -43,4 +43,8 @@ public class TodayTalk extends BaseTimeEntity {
     public void changeContent(String content) {
         this.content = content;
     }
+
+    public void removeTodayTalk(Timestamp deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 }

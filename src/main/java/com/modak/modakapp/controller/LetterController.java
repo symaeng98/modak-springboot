@@ -1,11 +1,8 @@
 package com.modak.modakapp.controller;
 
-import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Letter;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.dto.home.TodayTalkDTO;
 import com.modak.modakapp.dto.letter.FromLettersDTO;
-import com.modak.modakapp.dto.letter.LetterDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
@@ -29,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,7 +67,7 @@ public class LetterController {
 
         FromLettersDTO fromLettersDto = letterService.getSendLetterListsByFromMember(fromMember);
 
-        return ResponseEntity.ok(new CommonSuccessResponse<>("오늘 한 마디 등록 성공", fromLettersDto, true));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("편지 등록 성공", fromLettersDto, true));
     }
 
     @ExceptionHandler(MalformedJwtException.class)

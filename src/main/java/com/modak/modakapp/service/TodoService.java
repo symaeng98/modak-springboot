@@ -3,9 +3,11 @@ package com.modak.modakapp.service;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
+import com.modak.modakapp.domain.TodoDone;
 import com.modak.modakapp.dto.response.todo.WeekResponse;
 import com.modak.modakapp.dto.todo.TodoDTO;
 import com.modak.modakapp.exception.todo.NoSuchTodoException;
+import com.modak.modakapp.repository.TodoDoneRepository;
 import com.modak.modakapp.repository.TodoRepository;
 import com.modak.modakapp.utils.todo.TodoUtil;
 import com.modak.modakapp.vo.todo.DeleteTodoVO;
@@ -18,6 +20,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,6 +28,7 @@ import java.util.*;
 public class TodoService {
 
     private final TodoRepository todoRepository;
+    private final TodoDoneRepository todoDoneRepository;
     private final TodoUtil todoUtil;
 
     @Transactional
@@ -82,6 +86,7 @@ public class TodoService {
         // 수정할 날의 할 일 생성
         Todo newSingleTodo = Todo.builder()
                 .member(member)
+                .family(family)
                 .title(title)
                 .memo(memo)
                 .timeTag(timeTag)
@@ -97,7 +102,6 @@ public class TodoService {
                 .isFriday(todo.getIsFriday())
                 .isSaturday(todo.getIsSaturday())
                 .build();
-        newSingleTodo.changeFamily(family);
         todoRepository.save(newSingleTodo);
 
         if (todoEndDate.equals(date)) {
@@ -129,6 +133,7 @@ public class TodoService {
 
         Todo newBeforeTodo = Todo.builder()
                 .member(todo.getMember())
+                .family(family)
                 .title(todo.getTitle())
                 .memo(todo.getMemo())
                 .timeTag(todo.getTimeTag())
@@ -144,7 +149,6 @@ public class TodoService {
                 .isFriday(todo.getIsFriday())
                 .isSaturday(todo.getIsSaturday())
                 .build();
-        newBeforeTodo.changeFamily(todo.getFamily());
         todoRepository.save(newBeforeTodo);
     }
 
@@ -344,7 +348,7 @@ public class TodoService {
                     String color = member.getColor();
                     colorList.add(color);
 
-                    int isDone = todoUtil.getIsDone(t, Date.valueOf(date));
+                    int isDone = getIsDone(t, Date.valueOf(date));
                     TodoDTO todoDto = TodoDTO.builder()
                             .todoId(t.getId())
                             .title(t.getTitle())
@@ -370,5 +374,18 @@ public class TodoService {
         TreeMap<String, List<String>> colorListByDateSorted = new TreeMap<>(colorListByDate);
         TreeMap<String, List<TodoDTO>> todoListByDateSorted = new TreeMap<>(todoListByDate);
         return WeekResponse.builder().color(colorListByDateSorted).items(todoListByDateSorted).build();
+    }
+
+    public int getIsDone(Todo todo, Date date) {
+        List<TodoDone> todoDoneList = todoDoneRepository.findByTodo(todo);
+        if (todoDoneList.size() == 0) {
+            return 0;
+        }
+        List<TodoDone> todoDoneFilterList = todoDoneList.stream().filter(t -> t.getDate().equals(date)).collect(Collectors.toList());
+        if (todoDoneFilterList.size() == 0) {
+            return 0;
+        }
+        TodoDone todoDone = todoDoneFilterList.get(0);
+        return todoDone.getIsDone();
     }
 }

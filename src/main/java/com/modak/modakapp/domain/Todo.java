@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -38,10 +36,6 @@ public class Todo extends BaseTimeEntity {
 
     @Column(name = "memo")
     private String memo;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "todo")
-    private List<TodoDone> todoDone = new ArrayList<>();
 
     @Column(name = "start_date", nullable = false)
     private Date startDate;
@@ -110,11 +104,6 @@ public class Todo extends BaseTimeEntity {
         this.groupTodoId = groupTodoId;
     }
 
-    public void changeFamily(Family family) {
-        this.family = family;
-        family.getTodos().add(this);
-    }
-
     public void changeEndDate(Date endDate) {
         this.endDate = endDate;
     }
@@ -125,9 +114,5 @@ public class Todo extends BaseTimeEntity {
 
     public void removeTodo(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
-        // todo 삭제할 때 자동으로 todoDone 삭제
-        this.todoDone.forEach(td -> {
-            td.removeTodoDone(deletedAt);
-        });
     }
 }

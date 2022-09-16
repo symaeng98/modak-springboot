@@ -3,7 +3,7 @@ package com.modak.modakapp.service;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.TodayTalk;
-import com.modak.modakapp.dto.home.TodayTalkDTO;
+import com.modak.modakapp.dto.todaytalk.TodayTalkDTO;
 import com.modak.modakapp.exception.todaytalk.NoSuchTodayTalkException;
 import com.modak.modakapp.repository.TodayTalkRepository;
 import com.modak.modakapp.utils.todo.TodoUtil;
@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +61,11 @@ public class TodayTalkService {
         return TodayTalkDTO.builder()
                 .result(result)
                 .build();
+    }
+
+    @Transactional
+    public void deleteTodayTalk(TodayTalk todayTalk) {
+        todayTalk.removeTodayTalk(Timestamp.valueOf(LocalDateTime.now()));
     }
 
     public boolean isTodayTalkExists(Member member, Date date) {

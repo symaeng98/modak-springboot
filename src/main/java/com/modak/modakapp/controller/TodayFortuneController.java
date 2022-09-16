@@ -2,9 +2,9 @@ package com.modak.modakapp.controller;
 
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.TodayFortune;
-import com.modak.modakapp.dto.home.TodayFortuneDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
+import com.modak.modakapp.dto.todayfortune.TodayFortuneDTO;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;

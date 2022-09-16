@@ -53,11 +53,6 @@ public class TodoDone extends BaseTimeEntity {
         this.isDone = isDone;
     }
 
-    public void changeTodo(Todo todo) {
-        this.todo = todo;
-        todo.getTodoDone().add(this);
-    }
-
     public void removeTodoDone(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
     }

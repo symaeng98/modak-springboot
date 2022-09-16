@@ -81,6 +81,7 @@ public class TodoController {
 
         Todo todo = Todo.builder()
                 .member(memberWithFamily)
+                .family(family)
                 .title(createTodoVO.getTitle())
                 .memo(createTodoVO.getMemo())
                 .timeTag(createTodoVO.getTimeTag())
@@ -95,7 +96,6 @@ public class TodoController {
                 .isFriday(repeat.get(5))
                 .isSaturday(repeat.get(6))
                 .build();
-        todo.changeFamily(family);
 
         int todoId = todoService.join(todo);
         todoService.updateGroupTodoId(todo, todoId);
@@ -350,12 +350,15 @@ public class TodoController {
         // 이후 모두 삭제면
         if (deleteTodoVO.getIsAfterDelete() == 1) {
             todoService.deleteRepeatTodoAfter(todo, deleteTodoVO);
+            todoDoneService.deleteTodoDone(todo);
         } else { // 단일 이벤트 삭제면
             // 단일 삭제면
             if (todo.getStartDate().equals(todo.getEndDate())) {
                 todoService.deleteSingleTodo(todo);
+                todoDoneService.deleteTodoDone(todo);
             } else { // 반복에서 단일 삭제면
                 todoService.deleteRepeatTodoSingle(todo, deleteTodoVO);
+                todoDoneService.deleteTodoDone(todo);
             }
         }
 

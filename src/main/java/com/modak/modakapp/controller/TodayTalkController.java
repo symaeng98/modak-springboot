@@ -3,9 +3,9 @@ package com.modak.modakapp.controller;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.TodayTalk;
-import com.modak.modakapp.dto.home.TodayTalkDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
+import com.modak.modakapp.dto.todaytalk.TodayTalkDTO;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
 import com.modak.modakapp.exception.todaytalk.AlreadyExistsTodayTalkException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
@@ -117,6 +117,31 @@ public class TodayTalkController {
         TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(todayTalkVO.getDate()), Date.valueOf(todayTalkVO.getDate()), member.getFamily());
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("오늘 한 마디 등록 성공", todayTalkDto, true));
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공적으로 회원의 오늘의 한 마디를 삭제했습니다."),
+            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
+    @ApiOperation(value = "회원의 오늘 한 마디 삭제")
+    @DeleteMapping("/{member_id}")
+    public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> deleteTodayTalk(
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+            @PathVariable("member_id") int memberId,
+            @RequestParam String date
+    ) {
+        tokenService.validateAccessTokenExpired(accessToken);
+
+        Member member = memberService.getMemberWithFamily(memberId);
+
+        TodayTalk todayTalk = todayTalkService.getTodayTalkByMemberAndDate(member, Date.valueOf(date));
+        System.out.println(todayTalk.getId());
+
+        todayTalkService.deleteTodayTalk(todayTalk);
+        TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(date), Date.valueOf(date), member.getFamily());
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("오늘 한 마디 삭제 성공", todayTalkDto, true));
     }
 
     @ExceptionHandler(MalformedJwtException.class)

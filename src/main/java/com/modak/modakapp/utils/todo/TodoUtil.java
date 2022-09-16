@@ -1,7 +1,6 @@
 package com.modak.modakapp.utils.todo;
 
 import com.modak.modakapp.domain.Todo;
-import com.modak.modakapp.domain.TodoDone;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,25 +11,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Component
 public class TodoUtil {
-    public int getIsDone(Todo todo, Date date) {
-        List<TodoDone> todoDoneList = todo.getTodoDone();
-        if (todoDoneList.size() == 0) {
-            return 0;
-        }
-        List<TodoDone> todoDoneFilterList = todoDoneList.stream().filter(t -> t.getDate().equals(date)).collect(Collectors.toList());
-        if (todoDoneFilterList.size() == 0) {
-            return 0;
-        }
-        TodoDone todoDone = todoDoneFilterList.get(0);
-        return todoDone.getIsDone();
-    }
-
     public String getRepeatTag(List<Integer> repeat) {
         String[] day = {"일", "월", "화", "수", "목", "금", "토"};
 

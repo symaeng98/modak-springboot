@@ -90,6 +90,4 @@ public class Anniversary {
         this.endDate = birthday;
         this.isLunar = isLunar;
     }
-
-
 }

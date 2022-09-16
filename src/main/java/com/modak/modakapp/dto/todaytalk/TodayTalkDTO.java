@@ -1,4 +1,4 @@
-package com.modak.modakapp.dto.home;
+package com.modak.modakapp.dto.todaytalk;
 
 import lombok.Builder;
 import lombok.Getter;
