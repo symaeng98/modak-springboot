@@ -6,8 +6,8 @@ import com.modak.modakapp.domain.Todo;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.todo.CreateTodoResponse;
+import com.modak.modakapp.dto.response.todo.TodoResponse;
 import com.modak.modakapp.dto.response.todo.UpdateSingleTodoResponse;
-import com.modak.modakapp.dto.response.todo.WeekResponse;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodoDoneService;
@@ -100,7 +100,7 @@ public class TodoController {
         int todoId = todoService.join(todo);
         todoService.updateGroupTodoId(todo, todoId);
 
-        WeekResponse weekColorsAndItemsByDateRange = todoService.findWeekColorsAndItemsAndGaugeByDateRange(createTodoVO.getFromDate(), createTodoVO.getToDate(), family);
+        TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(createTodoVO.getFromDate(), createTodoVO.getToDate(), family);
         weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("투두 생성 완료", new CreateTodoResponse(todoId, weekColorsAndItemsByDateRange), true));
@@ -112,7 +112,7 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<CommonSuccessResponse<WeekResponse>> updateTodo(
+    public ResponseEntity<CommonSuccessResponse<TodoResponse>> updateTodo(
             @ApiParam(value = "todo 수정 정보", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int todoId,
@@ -139,7 +139,7 @@ public class TodoController {
             }
         }
 
-        WeekResponse weekColorsAndItemsByDateRange = todoService.findWeekColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
+        TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
         weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("수정 성공", weekColorsAndItemsByDateRange, true));
@@ -279,7 +279,7 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @GetMapping("/from-to-date")
-    public ResponseEntity<CommonSuccessResponse<WeekResponse>> getTodosByFromToDate(
+    public ResponseEntity<CommonSuccessResponse<TodoResponse>> getTodosByFromToDate(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestParam String fromDate,
             @RequestParam String toDate
@@ -292,7 +292,7 @@ public class TodoController {
 
         Family family = memberWithFamily.getFamily();
 
-        WeekResponse weekColorsAndItemsByDateRange = todoService.findWeekColorsAndItemsAndGaugeByDateRange(fromDate, toDate, family);
+        TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(fromDate, toDate, family);
         weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("일주일치 todo 정보 불러오기 성공", weekColorsAndItemsByDateRange, true));
@@ -319,7 +319,7 @@ public class TodoController {
 
         todoDoneService.updateIsDone(todo, date, isDone);
 
-        WeekResponse weekColorsAndItemsByDateRange = todoService.findWeekColorsAndItemsAndGaugeByDateRange(doneTodoVO.getFromDate(), doneTodoVO.getToDate(), family);
+        TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(doneTodoVO.getFromDate(), doneTodoVO.getToDate(), family);
         weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("완료/취소 처리 성공", new UpdateSingleTodoResponse(todoId, weekColorsAndItemsByDateRange), true));
@@ -333,7 +333,7 @@ public class TodoController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<CommonSuccessResponse<WeekResponse>> deleteTodo(
+    public ResponseEntity<CommonSuccessResponse<TodoResponse>> deleteTodo(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("id") int todoId,
             @RequestBody DeleteTodoVO deleteTodoVO
@@ -362,7 +362,7 @@ public class TodoController {
             }
         }
 
-        WeekResponse weekColorsAndItemsByDateRange = todoService.findWeekColorsAndItemsAndGaugeByDateRange(deleteTodoVO.getFromDate(), deleteTodoVO.getToDate(), family);
+        TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(deleteTodoVO.getFromDate(), deleteTodoVO.getToDate(), family);
         weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("삭제 성공", weekColorsAndItemsByDateRange, true));

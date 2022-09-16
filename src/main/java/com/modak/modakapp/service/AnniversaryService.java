@@ -74,7 +74,7 @@ public class AnniversaryService {
     }
 
 
-    public DateAnniversaryResponse getDateAnniversaryData(String sd, String ed, Family family) {
+    public DateAnniversaryResponse getAnniversariesByDate(String sd, String ed, Family family) {
         List<String> dates = new ArrayList<>();
         LocalDate start = LocalDate.parse(sd);
         LocalDate end = LocalDate.parse(ed);

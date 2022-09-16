@@ -10,13 +10,13 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class WeekResponse {
+public class TodoResponse {
     private Map<String, List<String>> color;
     private Map<String, List<TodoDTO>> items;
     private int gauge;
 
     @Builder
-    public WeekResponse(
+    public TodoResponse(
             Map<String, List<String>> color,
             Map<String, List<TodoDTO>> items,
             int gauge

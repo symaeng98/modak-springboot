@@ -45,6 +45,10 @@ public class Letter extends BaseTimeEntity {
     @Column(name = "envelope", length = 30)
     private String envelope;
 
+    @NotNull
+    @Column(name = "is_new", columnDefinition = "TINYINT", length = 1)
+    private int isNew;
+
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
 }

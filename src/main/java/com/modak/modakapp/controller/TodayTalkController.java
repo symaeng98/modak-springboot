@@ -79,15 +79,15 @@ public class TodayTalkController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "회원의 오늘 한 마디 조회(날짜 범위 입력)")
-    @GetMapping()
+    @GetMapping("/{member_id}")
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> getTodayTalk(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+            @PathVariable("member_id") int memberId,
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        int memberId = tokenService.getMemberId(accessToken.substring(7));
         Family family = memberService.getMemberWithFamily(memberId).getFamily();
 
         TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(fromDate), Date.valueOf(toDate), family);

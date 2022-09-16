@@ -80,7 +80,7 @@ public class AnniversaryController {
 
         int anniversaryId = anniversaryService.join(anniversary);
 
-        DateAnniversaryResponse dar = anniversaryService.getDateAnniversaryData(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
+        DateAnniversaryResponse dar = anniversaryService.getAnniversariesByDate(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("기념일 생성 완료", new AnniversaryResponse(familyId, anniversaryId, dar), true));
     }
@@ -109,7 +109,7 @@ public class AnniversaryController {
 
         anniversaryService.updateAnniversary(annId, anniversaryVO);
 
-        DateAnniversaryResponse dar = anniversaryService.getDateAnniversaryData(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
+        DateAnniversaryResponse dar = anniversaryService.getAnniversariesByDate(anniversaryVO.getFromDate(), anniversaryVO.getToDate(), family);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("기념일 수정 완료", new AnniversaryResponse(familyId, annId, dar), true));
     }
@@ -139,7 +139,7 @@ public class AnniversaryController {
 
         anniversaryService.deleteAnniversary(annId);
 
-        DateAnniversaryResponse dar = anniversaryService.getDateAnniversaryData(fromDate, toDate, family);
+        DateAnniversaryResponse dar = anniversaryService.getAnniversariesByDate(fromDate, toDate, family);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("기념일 삭제 완료", new AnniversaryResponse(familyId, annId, dar), true));
     }
@@ -165,7 +165,7 @@ public class AnniversaryController {
 
         Family family = memberWithFamily.getFamily();
 
-        DateAnniversaryResponse dar = anniversaryService.getDateAnniversaryData(fromDate, toDate, family);
+        DateAnniversaryResponse dar = anniversaryService.getAnniversariesByDate(fromDate, toDate, family);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("해당 날짜의 기념일을 불러왔습니다.", dar, true));
     }

@@ -10,9 +10,24 @@ import java.util.List;
 
 public interface LetterRepository extends JpaRepository<Letter, Integer> {
     @Query("select l from Letter l" +
-            " where l.fromMember = :fromMember" +
+            " where l.fromMember = :member" +
             " and l.deletedAt is null ")
-    List<Letter> findLettersByFromMember(
-            @Param("fromMember") Member fromMember
+    List<Letter> findSentLettersByMember(
+            @Param("member") Member member
+    );
+
+    @Query("select l from Letter l" +
+            " where l.toMember = :member" +
+            " and l.deletedAt is null ")
+    List<Letter> findReceivedLettersByMember(
+            @Param("member") Member member
+    );
+
+    @Query("select l from Letter l" +
+            " where l.toMember = :member" +
+            " and l.isNew = 1" +
+            " and l.deletedAt is null ")
+    List<Letter> findReceivedNewLettersByMember(
+            @Param("member") Member member
     );
 }

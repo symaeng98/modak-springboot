@@ -9,6 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class FromLettersDTO {
-    private List<LetterDTO> sendLetterList;
+public class ReceivedLettersDTO {
+    private List<LetterDTO> receivedLetterList;
 }

@@ -177,9 +177,9 @@ public class MemberController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDto = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
-        return ResponseEntity.ok(new CommonSuccessResponse<>("Access Token, Refresh Token 발급 성공", memberAndFamilyMemberDTO, true));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("Access Token, Refresh Token 발급 성공", memberAndFamilyMemberDto, true));
     }
 
     @ApiResponses({

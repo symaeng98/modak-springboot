@@ -17,4 +17,6 @@ public class LetterDTO {
     private String date;
 
     private String envelope;
+
+    private int isNew;
 }

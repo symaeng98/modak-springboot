@@ -4,7 +4,7 @@ import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
 import com.modak.modakapp.domain.TodoDone;
-import com.modak.modakapp.dto.response.todo.WeekResponse;
+import com.modak.modakapp.dto.response.todo.TodoResponse;
 import com.modak.modakapp.dto.todo.TodoDTO;
 import com.modak.modakapp.exception.todo.NoSuchTodoException;
 import com.modak.modakapp.repository.TodoDoneRepository;
@@ -321,7 +321,7 @@ public class TodoService {
 
     // 색깔, to-do 한 번에 가져오기
     // 추후 수정...
-    public WeekResponse findWeekColorsAndItemsAndGaugeByDateRange(String fromDate, String toDate, Family family) {
+    public TodoResponse findColorsAndItemsAndGaugeByDateRange(String fromDate, String toDate, Family family) {
         // 시작일 ~ 종료일 String List 로 변환
         List<String> dates = todoUtil.getFromToDateList(fromDate, toDate);
 
@@ -373,7 +373,7 @@ public class TodoService {
 
         TreeMap<String, List<String>> colorListByDateSorted = new TreeMap<>(colorListByDate);
         TreeMap<String, List<TodoDTO>> todoListByDateSorted = new TreeMap<>(todoListByDate);
-        return WeekResponse.builder().color(colorListByDateSorted).items(todoListByDateSorted).build();
+        return TodoResponse.builder().color(colorListByDateSorted).items(todoListByDateSorted).build();
     }
 
     public int getIsDone(Todo todo, Date date) {
