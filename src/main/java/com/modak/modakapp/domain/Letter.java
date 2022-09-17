@@ -51,4 +51,8 @@ public class Letter extends BaseTimeEntity {
 
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
+
+    public void changeIsNew(int isNew) {
+        this.isNew = isNew;
+    }
 }

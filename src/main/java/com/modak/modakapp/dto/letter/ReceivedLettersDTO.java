@@ -10,5 +10,6 @@ import java.util.List;
 @Setter
 @Builder
 public class ReceivedLettersDTO {
+    private int count;
     private List<LetterDTO> receivedLetterList;
 }

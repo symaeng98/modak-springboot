@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class LetterDTO {
+    private int letterId;
+
     private int fromMemberId;
 
     private int toMemberId;

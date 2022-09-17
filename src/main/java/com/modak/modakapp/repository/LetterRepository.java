@@ -7,8 +7,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LetterRepository extends JpaRepository<Letter, Integer> {
+    @Query("select l from Letter l" +
+            " where l.id = :id" +
+            " and l.deletedAt is null ")
+    Optional<Letter> findLetterById(
+            @Param("id") int id
+    );
+
     @Query("select l from Letter l" +
             " where l.fromMember = :member" +
             " and l.deletedAt is null ")

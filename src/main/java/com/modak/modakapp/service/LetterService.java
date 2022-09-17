@@ -5,6 +5,7 @@ import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.dto.letter.LetterDTO;
 import com.modak.modakapp.dto.letter.ReceivedLettersDTO;
 import com.modak.modakapp.dto.letter.SentLettersDTO;
+import com.modak.modakapp.exception.letter.NoSuchLetterException;
 import com.modak.modakapp.repository.LetterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,10 @@ public class LetterService {
         return letter.getId();
     }
 
+    public Letter findById(int letterId) {
+        return letterRepository.findLetterById(letterId).orElseThrow(() -> new NoSuchLetterException("해당 편지가 없습니다."));
+    }
+
     public SentLettersDTO getSentLettersByMember(Member fromMember) {
         List<Letter> letterLists = letterRepository.findSentLettersByMember(fromMember);
 
@@ -32,6 +37,7 @@ public class LetterService {
 
         letterLists.forEach(l -> {
             LetterDTO letterDto = LetterDTO.builder()
+                    .letterId(l.getId())
                     .fromMemberId(l.getFromMember().getId())
                     .toMemberId(l.getToMember().getId())
                     .date(l.getDate().toString())
@@ -42,7 +48,7 @@ public class LetterService {
             sendLetters.add(letterDto);
         });
 
-        return SentLettersDTO.builder().sentLetterList(sendLetters).build();
+        return SentLettersDTO.builder().count(letterLists.size()).sentLetterList(sendLetters).build();
     }
 
     public ReceivedLettersDTO getReceivedLettersByMember(Member member) {
@@ -52,6 +58,7 @@ public class LetterService {
 
         letterLists.forEach(l -> {
             LetterDTO letterDto = LetterDTO.builder()
+                    .letterId(l.getId())
                     .fromMemberId(l.getFromMember().getId())
                     .toMemberId(l.getToMember().getId())
                     .date(l.getDate().toString())
@@ -62,7 +69,7 @@ public class LetterService {
             receivedLetters.add(letterDto);
         });
 
-        return ReceivedLettersDTO.builder().receivedLetterList(receivedLetters).build();
+        return ReceivedLettersDTO.builder().count(letterLists.size()).receivedLetterList(receivedLetters).build();
     }
 
     public ReceivedLettersDTO getReceivedNewLettersByMember(Member member) {
@@ -72,6 +79,7 @@ public class LetterService {
 
         letterLists.forEach(l -> {
             LetterDTO letterDto = LetterDTO.builder()
+                    .letterId(l.getId())
                     .fromMemberId(l.getFromMember().getId())
                     .toMemberId(l.getToMember().getId())
                     .date(l.getDate().toString())
@@ -82,6 +90,11 @@ public class LetterService {
             receivedNewLetters.add(letterDto);
         });
 
-        return ReceivedLettersDTO.builder().receivedLetterList(receivedNewLetters).build();
+        return ReceivedLettersDTO.builder().count(letterLists.size()).receivedLetterList(receivedNewLetters).build();
+    }
+
+    @Transactional
+    public void updateLetterRead(Letter letter) {
+        letter.changeIsNew(0);
     }
 }

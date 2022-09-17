@@ -72,6 +72,30 @@ public class LetterController {
     }
 
     @ApiResponses({
+            @ApiResponse(code = 200, message = "읽지 않은 편지를 읽음 처리 하였습니다."),
+            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
+    @ApiOperation(value = "읽지 않은 편지 읽음 처리")
+    @PutMapping("/{member_id}/{letter_id}")
+    public ResponseEntity<CommonSuccessResponse<ReceivedLettersDTO>> updateIsNew(
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+            @PathVariable("member_id") int memberId,
+            @PathVariable("letter_id") int letterId
+    ) {
+        tokenService.validateAccessTokenExpired(accessToken);
+
+        Member member = memberService.getMemberWithFamily(memberId);
+        Letter letter = letterService.findById(letterId);
+
+        letterService.updateLetterRead(letter);
+
+        ReceivedLettersDTO receivedLettersDTO = letterService.getReceivedLettersByMember(member);
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("읽음 처리 성공", receivedLettersDTO, true));
+    }
+
+    @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 보낸 편지 목록을 가져왔습니다."),
             @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
