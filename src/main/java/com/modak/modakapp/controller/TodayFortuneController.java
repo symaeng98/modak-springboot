@@ -11,7 +11,6 @@ import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodayFortuneService;
-import com.modak.modakapp.service.TodayTalkService;
 import com.modak.modakapp.utils.jwt.TokenService;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -34,7 +33,6 @@ import java.time.LocalDate;
 public class TodayFortuneController {
     private final MemberService memberService;
     private final TodayFortuneService todayFortuneService;
-    private final TodayTalkService todayTalkService;
     private final TokenService tokenService;
     private final String ACCESS_TOKEN = "Access-Token";
 

@@ -2,8 +2,8 @@ package com.modak.modakapp.controller;
 
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.domain.TodayFortune;
 import com.modak.modakapp.dto.home.HomeDTO;
-import com.modak.modakapp.dto.letter.ReceivedLettersDTO;
 import com.modak.modakapp.dto.member.MemberAndFamilyMemberDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
@@ -27,7 +27,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.sql.Date;
 
 @RestController
@@ -36,16 +35,12 @@ import java.sql.Date;
 @Slf4j
 public class HomeController {
     private final MemberService memberService;
-    private final FamilyService familyService;
     private final TodoService todoService;
-    private final TodayTalkService todayTalkService;
-    private final LetterService letterService;
-    private final AnniversaryService anniversaryService;
     private final TokenService tokenService;
-    private final HttpServletResponse servletResponse;
-    private final String TOKEN_HEADER = "Bearer ";
+    private final TodayTalkService todayTalkService;
+    private final AnniversaryService anniversaryService;
+    private final TodayFortuneService todayFortuneService;
     private final String ACCESS_TOKEN = "Access-Token";
-    private final String REFRESH_TOKEN = "Refresh-Token";
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 홈 정보 불러오기를 완료했습니다."),
@@ -56,9 +51,11 @@ public class HomeController {
     @GetMapping("/{member_id}")
     public ResponseEntity<CommonSuccessResponse<HomeDTO>> getHomeInformation(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @RequestParam String date,
-            @PathVariable("member_id") int memberId
+            @PathVariable("member_id") int memberId,
+            @RequestParam String date
     ) {
+        tokenService.validateAccessTokenExpired(accessToken);
+
         Member member = memberService.getMemberWithFamily(memberId);
         Family family = member.getFamily();
 
@@ -71,18 +68,18 @@ public class HomeController {
         // 오늘 가족 한 마디
         TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(date), Date.valueOf(date), family);
 
-        // 새롭게 받은 편지 목록
-        ReceivedLettersDTO receivedNewLettersDto = letterService.getReceivedNewLettersByMember(member);
-
         // 기념일
         DateAnniversaryResponse dateAnniversaryData = anniversaryService.getAnniversariesByDate(date, date, family);
+
+        // 하루 한 문장
+        TodayFortune homeTodayFortune = todayFortuneService.getHomeTodayFortune(member);
 
         HomeDTO homeDto = HomeDTO.builder()
                 .memberAndFamilyMembers(memberAndFamilyDto)
                 .todayTodos(colorsAndItemsAndGaugeByDateRange)
                 .todayTalks(todayTalkDto)
-                .receivedNewLetters(receivedNewLettersDto)
                 .anniversaries(dateAnniversaryData)
+                .todayFortune(homeTodayFortune)
                 .build();
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("홈 화면 정보 및 기본 정보 불러오기 성공", homeDto, true));

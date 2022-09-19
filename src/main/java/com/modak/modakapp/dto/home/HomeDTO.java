@@ -1,6 +1,6 @@
 package com.modak.modakapp.dto.home;
 
-import com.modak.modakapp.dto.letter.ReceivedLettersDTO;
+import com.modak.modakapp.domain.TodayFortune;
 import com.modak.modakapp.dto.member.MemberAndFamilyMemberDTO;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
 import com.modak.modakapp.dto.response.todo.TodoResponse;
@@ -19,7 +19,7 @@ public class HomeDTO {
 
     private TodayTalkDTO todayTalks;
 
-    private ReceivedLettersDTO receivedNewLetters;
-
     private DateAnniversaryResponse anniversaries;
+
+    private TodayFortune todayFortune;
 }
