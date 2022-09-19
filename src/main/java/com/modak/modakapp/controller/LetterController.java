@@ -70,7 +70,7 @@ public class LetterController {
     }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "성공적으로 보낸 편지 목록을 가져왔습니다."),
+            @ApiResponse(code = 200, message = "성공적으로 편지 목록을 가져왔습니다."),
             @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
@@ -86,7 +86,7 @@ public class LetterController {
 
         SentLettersDTO sentLettersDto = letterService.getLettersByMember(member);
 
-        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 보낸 편지 목록 불러오기 성공", sentLettersDto, true));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 편지 목록 불러오기 성공", sentLettersDto, true));
     }
 
     @ExceptionHandler(MalformedJwtException.class)

@@ -126,5 +126,4 @@ public class HomeController {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
     }
-
 }
