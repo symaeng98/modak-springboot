@@ -19,6 +19,7 @@ import com.modak.modakapp.service.AnniversaryService;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.utils.jwt.TokenService;
+import com.modak.modakapp.vo.member.InvitationVO;
 import com.modak.modakapp.vo.member.SignUpMemberVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberFamilyNameVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberTagVO;
@@ -65,17 +66,9 @@ public class MemberController {
             throw new MemberAlreadyExistsException();
         }
 
-        int familyId;
-        Family family;
-        // 처음 가입하는 회원일 때
-        if (signUpMemberVO.getIsFirst() == 1) {
-            String invitationCode = familyService.generateInvitationCode();
-            family = Family.builder().name("행복한 우리 가족").code(invitationCode).build();
-            familyId = familyService.join(family);
-        } else { // 초대받은 회원일 때
-            family = familyService.getByCode(signUpMemberVO.getInvitationCode());
-            familyId = family.getId();
-        }
+        String invitationCode = familyService.generateInvitationCode();
+        Family family = Family.builder().name("행복한 우리 가족").code(invitationCode).build();
+        int familyId = familyService.join(family);
 
         Date birthday = Date.valueOf(signUpMemberVO.getBirthday());
         String colorForMember = memberService.getColorForMember(familyId);
@@ -122,6 +115,30 @@ public class MemberController {
         MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("회원 가입 성공", memberAndFamilyMemberDTO, true));
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "성공적으로 초대를 완료했습니다."),
+            @ApiResponse(code = 404, message = "회원 정보가 없습니다. 회원 가입 페이지로 이동하세요.(NoSuchMemberException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+    })
+    @ApiOperation(value = "회원 초대하기")
+    @PutMapping("/{member_id}/invitation")
+    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> invite(
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+            @PathVariable("member_id") int memberId,
+            @RequestBody InvitationVO invitationVO
+    ) {
+        tokenService.validateAccessTokenExpired(accessToken);
+
+        Family family = familyService.getByCode(invitationVO.getInvitationCode());
+        Member member = memberService.getMember(memberId);
+
+        memberService.updateMemberFamily(member, family);
+
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 초대 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
