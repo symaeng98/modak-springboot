@@ -2,7 +2,6 @@ package com.modak.modakapp.controller;
 
 import com.modak.modakapp.domain.Letter;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.dto.letter.ReceivedLettersDTO;
 import com.modak.modakapp.dto.letter.SentLettersDTO;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
@@ -60,39 +59,14 @@ public class LetterController {
                 .content(letterVO.getContent())
                 .date(Date.valueOf(letterVO.getDate()))
                 .envelope("default")
-                .isNew(1)
                 .family(fromMember.getFamily())
                 .build();
 
         letterService.join(letter);
 
-        SentLettersDTO sentLettersDto = letterService.getSentLettersByMember(fromMember);
+        SentLettersDTO sentLettersDto = letterService.getLettersByMember(fromMember);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("편지 등록 성공", sentLettersDto, true));
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "읽지 않은 편지를 읽음 처리 하였습니다."),
-            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
-            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-    })
-    @ApiOperation(value = "읽지 않은 편지 읽음 처리")
-    @PutMapping("/{member_id}/{letter_id}")
-    public ResponseEntity<CommonSuccessResponse<ReceivedLettersDTO>> updateIsNew(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId,
-            @PathVariable("letter_id") int letterId
-    ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Member member = memberService.getMemberWithFamily(memberId);
-        Letter letter = letterService.findById(letterId);
-
-        letterService.updateLetterRead(letter);
-
-        ReceivedLettersDTO receivedLettersDTO = letterService.getReceivedLettersByMember(member);
-
-        return ResponseEntity.ok(new CommonSuccessResponse<>("읽음 처리 성공", receivedLettersDTO, true));
     }
 
     @ApiResponses({
@@ -100,8 +74,8 @@ public class LetterController {
             @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @ApiOperation(value = "보낸 편지 목록 조회")
-    @GetMapping("/{member_id}/sent")
+    @ApiOperation(value = "편지 목록 조회")
+    @GetMapping("/{member_id}")
     public ResponseEntity<CommonSuccessResponse<SentLettersDTO>> getSentLetter(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("member_id") int memberId
@@ -110,49 +84,9 @@ public class LetterController {
 
         Member member = memberService.getMemberWithFamily(memberId);
 
-        SentLettersDTO sentLettersDto = letterService.getSentLettersByMember(member);
+        SentLettersDTO sentLettersDto = letterService.getLettersByMember(member);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 보낸 편지 목록 불러오기 성공", sentLettersDto, true));
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "성공적으로 받은 편지 목록을 가져왔습니다."),
-            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
-            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-    })
-    @ApiOperation(value = "받은 편지 목록 조회")
-    @GetMapping("/{member_id}/received")
-    public ResponseEntity<CommonSuccessResponse<ReceivedLettersDTO>> getReceivedLetter(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId
-    ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Member member = memberService.getMember(memberId);
-
-        ReceivedLettersDTO receivedLettersDto = letterService.getReceivedLettersByMember(member);
-
-        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 받은 편지 목록 불러오기 성공", receivedLettersDto, true));
-    }
-
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "성공적으로 새롭게 받은 편지 목록을 가져왔습니다."),
-            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
-            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-    })
-    @ApiOperation(value = "새롭게 받은 편지 목록 조회")
-    @GetMapping("/{member_id}/received/new")
-    public ResponseEntity<CommonSuccessResponse<ReceivedLettersDTO>> getNewReceivedLetter(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId
-    ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Member member = memberService.getMember(memberId);
-
-        ReceivedLettersDTO receivedNewLettersDto = letterService.getReceivedNewLettersByMember(member);
-
-        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 새롭게 받은 편지 목록 불러오기 성공", receivedNewLettersDto, true));
     }
 
     @ExceptionHandler(MalformedJwtException.class)
