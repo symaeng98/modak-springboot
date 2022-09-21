@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class MemberAndFamilyMemberDTO {
+    String familyCode;
     MemberDTO memberResult;
     List<FamilyMemberDTO> familyMembersResult;
 }

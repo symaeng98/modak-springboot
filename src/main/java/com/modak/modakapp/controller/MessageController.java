@@ -2,19 +2,15 @@ package com.modak.modakapp.controller;
 
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.domain.TodayFortune;
-import com.modak.modakapp.dto.home.HomeDTO;
-import com.modak.modakapp.dto.member.MemberAndFamilyMemberDTO;
+import com.modak.modakapp.dto.message.MessageResult;
 import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
-import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
-import com.modak.modakapp.dto.response.todo.TodoResponse;
-import com.modak.modakapp.dto.todaytalk.TodayTalkDTO;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
-import com.modak.modakapp.service.*;
+import com.modak.modakapp.service.MemberService;
+import com.modak.modakapp.service.MessageService;
 import com.modak.modakapp.utils.jwt.TokenService;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -23,66 +19,44 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
-
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/home")
+@RequestMapping("/api/message")
 @Slf4j
-public class HomeController {
+public class MessageController {
     private final MemberService memberService;
-    private final TodoService todoService;
     private final TokenService tokenService;
-    private final TodayTalkService todayTalkService;
-    private final AnniversaryService anniversaryService;
-    private final TodayFortuneService todayFortuneService;
+    private final MessageService messageService;
     private final String ACCESS_TOKEN = "Access-Token";
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "성공적으로 홈 정보 불러오기를 완료했습니다."),
-            @ApiResponse(code = 404, message = "회원 정보가 없습니다. 회원 가입 페이지로 이동하세요.(NoSuchMemberException)"),
+            @ApiResponse(code = 200, message = "성공적으로 채팅 목록을 불러왔습니다."),
+            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @ApiOperation(value = "홈 화면에서 주는 정보")
-    @GetMapping("/{member_id}")
-    public ResponseEntity<CommonSuccessResponse<HomeDTO>> getHomeInformation(
+    @ApiOperation(value = "채팅 목록 불러오기")
+    @GetMapping()
+    public ResponseEntity<CommonSuccessResponse<MessageResult>> getMessages(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId,
-            @RequestParam String date
+            @RequestParam int page
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.getMemberWithFamilyAndTodayFortune(memberId);
-        Family family = member.getFamily();
+        int memberId = tokenService.getMemberId(accessToken.substring(7));
 
-        // 회원 정보
-        MemberAndFamilyMemberDTO memberAndFamilyDto = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        Member memberWithFamily = memberService.getMemberWithFamily(memberId);
+        Family family = memberWithFamily.getFamily();
 
-        // 할 일 정보
-        TodoResponse colorsAndItemsAndGaugeByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(date, date, family);
+        PageRequest pageRequest = PageRequest.of(page, 6, Sort.by(Sort.Direction.DESC, "id"));
+        MessageResult messageResult = messageService.getMessagesByFamily(family, pageRequest);
 
-        // 오늘 가족 한 마디
-        TodayTalkDTO todayTalkDto = todayTalkService.getMembersTodayTalkByDate(Date.valueOf(date), Date.valueOf(date), family);
-
-        // 기념일
-        DateAnniversaryResponse dateAnniversaryData = anniversaryService.getAnniversariesByDate(date, date, family);
-
-        // 하루 한 문장
-        TodayFortune homeTodayFortune = todayFortuneService.getHomeTodayFortune(member);
-
-        HomeDTO homeDto = HomeDTO.builder()
-                .memberAndFamilyMembers(memberAndFamilyDto)
-                .todayTodos(colorsAndItemsAndGaugeByDateRange)
-                .todayTalks(todayTalkDto)
-                .anniversaries(dateAnniversaryData)
-                .todayFortune(homeTodayFortune)
-                .build();
-
-        return ResponseEntity.ok(new CommonSuccessResponse<>("홈 화면 정보 및 기본 정보 불러오기 성공", homeDto, true));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("채팅 목록 불러오기 성공", messageResult, true));
     }
 
     @ExceptionHandler(MalformedJwtException.class)
@@ -96,6 +70,7 @@ public class HomeController {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
     }
+
 
     @ExceptionHandler(ExpiredAccessTokenException.class)
     public ResponseEntity<?> handleExpiredAccessTokenException(ExpiredAccessTokenException e) {

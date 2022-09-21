@@ -15,4 +15,11 @@ public interface FamilyRepository extends JpaRepository<Family, Integer> {
     @Query("select f from Family f" +
             " where f.code = :code and f.deletedAt is null ")
     Optional<Family> findByCode(@Param("code") String code);
+
+    @Query("select count (f) > 0 from Family f" +
+            " where f.code = :code" +
+            " and f.deletedAt is null")
+    boolean isExists(
+            @Param("code") String code
+    );
 }

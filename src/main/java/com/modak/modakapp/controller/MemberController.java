@@ -68,10 +68,9 @@ public class MemberController {
 
         String invitationCode = familyService.generateInvitationCode();
         Family family = Family.builder().name("행복한 우리 가족").code(invitationCode).build();
-        int familyId = familyService.join(family);
 
         Date birthday = Date.valueOf(signUpMemberVO.getBirthday());
-        String colorForMember = memberService.getColorForMember(familyId);
+        String colorForMember = memberService.getColorForMember(family);
 
         // 회원 등록
         Member member = Member.builder()
@@ -112,7 +111,7 @@ public class MemberController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + accessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + refreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("회원 가입 성공", memberAndFamilyMemberDTO, true));
     }
@@ -134,9 +133,11 @@ public class MemberController {
         Family family = familyService.getByCode(invitationVO.getInvitationCode());
         Member member = memberService.getMember(memberId);
 
-        memberService.updateMemberFamily(member, family);
+        String colorForMember = memberService.getColorForMember(family);
+        memberService.updateMemberFamily(member, family, colorForMember);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 초대 성공", memberAndFamilyMemberDTO, true));
     }
@@ -153,6 +154,7 @@ public class MemberController {
             @RequestHeader(value = "Provider-Id") String providerId
     ) {
         Member member = memberService.getMemberByProviderAndProviderId(Provider.valueOf(provider), providerId);
+        Family family = member.getFamily();
         int memberId = member.getId();
 
         String newRefreshToken = tokenService.getRefreshToken(memberId);
@@ -162,7 +164,7 @@ public class MemberController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("소셜 로그인 성공", memberAndFamilyMemberDTO, true));
     }
@@ -187,14 +189,15 @@ public class MemberController {
         String newAccessToken = tokenService.getAccessToken(memberId);
         String newRefreshToken = tokenService.getRefreshToken(memberId);
 
-        Member member = memberService.getMember(memberId);
+        Member member = memberService.getMemberWithFamily(memberId);
+        Family family = member.getFamily();
 
         memberService.updateRefreshToken(member, newRefreshToken);
 
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDto = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDto = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("Access Token, Refresh Token 발급 성공", memberAndFamilyMemberDto, true));
     }
@@ -238,36 +241,37 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.getMember(memberId);
+        Member member = memberService.getMemberWithFamily(memberId);
+        Family family = member.getFamily();
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
     }
 
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "회원의 가족 정보 수정에 성공했습니다."),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-            @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
-    })
-    @ApiOperation(value = "가족 ID 넘어가기")
-    @PutMapping("/{member_id}/family/{family_id}")
-    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> updateMemberFamilyID(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId,
-            @PathVariable("family_id") int familyId
-    ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Family family = familyService.get(familyId);
-        Member member = memberService.getMember(memberId);
-
-        memberService.updateMemberFamily(member, family);
-
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
-
-        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 가족 변경 성공", memberAndFamilyMemberDTO, true));
-    }
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "회원의 가족 정보 수정에 성공했습니다."),
+//            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+//            @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
+//    })
+//    @ApiOperation(value = "가족 ID 넘어가기")
+//    @PutMapping("/{member_id}/family/{family_id}")
+//    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> updateMemberFamilyID(
+//            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+//            @PathVariable("member_id") int memberId,
+//            @PathVariable("family_id") int familyId
+//    ) {
+//        tokenService.validateAccessTokenExpired(accessToken);
+//
+//        Family family = familyService.getById(familyId);
+//        Member member = memberService.getMember(memberId);
+//
+//        memberService.updateMemberFamily(member, family);
+//
+//        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+//
+//        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 가족 변경 성공", memberAndFamilyMemberDTO, true));
+//    }
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "회원의 태그 정보 수정에 성공했습니다."),
@@ -305,8 +309,10 @@ public class MemberController {
     ) {
         tokenService.validateAccessTokenExpired(accessToken);
 
-        Member member = memberService.getMember(memberId);
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        Member member = memberService.getMemberWithFamily(memberId);
+        Family family = member.getFamily();
+
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
     }

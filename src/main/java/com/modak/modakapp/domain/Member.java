@@ -107,6 +107,10 @@ public class Member extends BaseTimeEntity {
         this.refreshToken = refreshToken;
     }
 
+    public void changeColor(String color) {
+        this.color = color;
+    }
+
     public void changeMemberInfo(
             String name,
             Role role,

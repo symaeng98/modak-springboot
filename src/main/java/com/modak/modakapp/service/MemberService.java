@@ -48,6 +48,10 @@ public class MemberService {
         return memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
+    public Member getMemberWithFamilyAndTodayFortune(int memberId) {
+        return memberRepository.findMemberWithFamilyAndTodayFortuneById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
+    }
+
     public MemberDTO getMemberInfo(Member member) {
         MemberDTO memberDto = MemberDTO.builder()
                 .memberId(member.getId())
@@ -107,15 +111,15 @@ public class MemberService {
         return result;
     }
 
-    public List<String> getColors(int familyId) {
-        return memberRepository.findColorsByFamilyId(familyId);
+    public List<String> getColors(Family family) {
+        return memberRepository.findColorsByFamilyId(family);
     }
 
-    public String getColorForMember(int familyId) {
+    public String getColorForMember(Family family) {
         String[] colorList = {"FFFFAF3D", "FFE8388A", "FF4955FF", "FF38E8A0", "FFFFFE40", "FFFFEA38",
                 "FFE86A33", "FFCF44FF", "FF339EE8", "FF3BFF41", "FFFFD13D", "FFE84C38",
                 "FF9149FF", "FF38DBE8", "FF8EFF40"};
-        List<String> colors = memberRepository.findColorsByFamilyId(familyId);
+        List<String> colors = memberRepository.findColorsByFamilyId(family);
 
         for (String c : colorList) {
             if (!colors.contains(c)) {
@@ -157,8 +161,9 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateMemberFamily(Member member, Family family) {
+    public void updateMemberFamily(Member member, Family family, String color) {
         member.changeFamily(family);
+        member.changeColor(color);
     }
 
     @Transactional
