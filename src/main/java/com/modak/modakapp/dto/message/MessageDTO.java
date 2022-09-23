@@ -1,6 +1,5 @@
 package com.modak.modakapp.dto.message;
 
-import com.modak.modakapp.dto.metadata.MetaData;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,5 +14,5 @@ public class MessageDTO {
     private int memberId;
     private String content;
     private Timestamp sendAt;
-    private MetaData metaData;
+    private MetaDataDTO metaData;
 }

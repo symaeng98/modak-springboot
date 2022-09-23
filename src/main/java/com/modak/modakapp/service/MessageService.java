@@ -3,10 +3,7 @@ package com.modak.modakapp.service;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Message;
-import com.modak.modakapp.dto.message.ConnectionDTO;
-import com.modak.modakapp.dto.message.ConnectionResult;
-import com.modak.modakapp.dto.message.MessageDTO;
-import com.modak.modakapp.dto.message.MessageResult;
+import com.modak.modakapp.dto.message.*;
 import com.modak.modakapp.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,10 +34,13 @@ public class MessageService {
                     .messageId(m.getId())
                     .memberId(m.getMember().getId())
                     .content(m.getContent())
-                    .metaData(m.getMetaData())
                     .sendAt(m.getSendAt())
                     .build();
-
+            if (m.getMetaData() == null) {
+                messageDTO.setMetaData(null);
+            } else {
+                messageDTO.setMetaData(MetaDataDTO.builder().type_code(m.getMetaData().getType_code()).build());
+            }
             messageDTOList.add(messageDTO);
         });
 
