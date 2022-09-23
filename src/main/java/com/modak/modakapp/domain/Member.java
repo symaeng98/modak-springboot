@@ -127,7 +127,6 @@ public class Member extends BaseTimeEntity {
 
     public void changeFamily(Family family) {
         this.family = family;
-        family.getMembers().add(this);
     }
 
     public void changeTodayFortuneAndTodayFortuneAt(TodayFortune todayFortune, Date date) {

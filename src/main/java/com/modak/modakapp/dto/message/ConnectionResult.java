@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class MessageResult {
-    private int lastId;
-    private List<MessageDTO> result;
+public class ConnectionResult {
+    private List<ConnectionDTO> result;
 }

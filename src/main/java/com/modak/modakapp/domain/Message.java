@@ -40,5 +40,5 @@ public class Message {
 
     @NotNull
     @Column(columnDefinition = "TIMESTAMP(6)")
-    private Timestamp send_at;
+    private Timestamp sendAt;
 }

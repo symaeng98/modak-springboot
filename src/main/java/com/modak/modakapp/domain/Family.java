@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -32,10 +30,6 @@ public class Family extends BaseTimeEntity {
 
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp deletedAt;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "family")
-    private List<Member> members = new ArrayList<>();
 
     public void removeFamily(Timestamp deletedAt) {
         this.deletedAt = deletedAt;

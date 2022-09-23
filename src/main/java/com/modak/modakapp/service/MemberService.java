@@ -52,6 +52,10 @@ public class MemberService {
         return memberRepository.findMemberWithFamilyAndTodayFortuneById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
+    public List<Member> getMembersByFamily(Family family) {
+        return memberRepository.findMembersByFamily(family);
+    }
+
     public MemberDTO getMemberInfo(Member member) {
         MemberDTO memberDto = MemberDTO.builder()
                 .memberId(member.getId())
@@ -88,7 +92,7 @@ public class MemberService {
         Family family = member.getFamily();
 
         List<FamilyMemberDTO> result = new ArrayList<>();
-        List<Member> members = family.getMembers();
+        List<Member> members = memberRepository.findMembersByFamily(family);
 
         for (Member m : members) {
             if (m.getId() == memberId) {

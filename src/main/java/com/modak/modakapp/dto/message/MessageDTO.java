@@ -11,8 +11,9 @@ import java.sql.Timestamp;
 @Setter
 @Builder
 public class MessageDTO {
-    private int user_id;
+    private int messageId;
+    private int memberId;
     private String content;
-    private Timestamp send_at;
-    private MetaData metadata;
+    private Timestamp sendAt;
+    private MetaData metaData;
 }

@@ -31,6 +31,12 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
             " where m.id = :id and m.deletedAt is null ")
     Optional<Member> findMemberWithFamilyAndTodayFortuneById(@Param("id") int id);
 
+    @Query("select m" +
+            " from Member m" +
+            " where m.family = :family" +
+            " and m.deletedAt is null ")
+    List<Member> findMembersByFamily(@Param("family") Family family);
+
     @Query("select m.color from Member m" +
             " where m.family = :family and m.deletedAt is null")
     List<String> findColorsByFamilyId(@Param("family") Family family);

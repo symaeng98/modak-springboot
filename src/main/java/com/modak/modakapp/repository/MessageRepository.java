@@ -2,10 +2,40 @@ package com.modak.modakapp.repository;
 
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Message;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
-public interface MessageRepository extends JpaRepository<Message, Integer> {
-    Page<Message> findByFamily(Family family, Pageable pageable);
+import javax.persistence.EntityManager;
+import java.util.List;
+
+@Repository
+@RequiredArgsConstructor
+public class MessageRepository {
+    private final EntityManager em;
+
+    public List<Message> findMessageByCount(Family family, int count) {
+        return em.createQuery(
+                        "select m from Message m" +
+                                " join fetch m.member" +
+                                " where m.family = :family" +
+                                " order by m.id DESC ", Message.class
+                )
+                .setParameter("family", family)
+                .setMaxResults(count)
+                .getResultList();
+    }
+
+    public List<Message> findMessageByCountAndLastId(Family family, int count, int lastId) {
+        return em.createQuery(
+                        "select m from Message m" +
+                                " join fetch m.member" +
+                                " where m.family = :family" +
+                                " and m.id < :lastId" +
+                                " order by m.id DESC ", Message.class
+                )
+                .setParameter("family", family)
+                .setParameter("lastId", lastId)
+                .setMaxResults(count)
+                .getResultList();
+    }
 }

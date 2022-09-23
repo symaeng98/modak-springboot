@@ -74,6 +74,7 @@ public class MemberController {
 
         // 회원 등록
         Member member = Member.builder()
+                .family(family)
                 .name(signUpMemberVO.getName())
                 .isLunar(signUpMemberVO.getIsLunar())
                 .birthday(birthday)
@@ -85,7 +86,6 @@ public class MemberController {
                 .refreshToken("default refresh")
                 .fcmToken("default fcm")
                 .build();
-        member.changeFamily(family);
 
         int memberId = memberService.join(member);
 
@@ -121,7 +121,7 @@ public class MemberController {
             @ApiResponse(code = 404, message = "회원 정보가 없습니다. 회원 가입 페이지로 이동하세요.(NoSuchMemberException)"),
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @ApiOperation(value = "회원 초대하기")
+    @ApiOperation(value = "회원 초대 받기")
     @PutMapping("/{member_id}/invitation")
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> invite(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
@@ -139,7 +139,7 @@ public class MemberController {
 
         MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
 
-        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 초대 성공", memberAndFamilyMemberDTO, true));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 초대 받기 성공", memberAndFamilyMemberDTO, true));
     }
 
     @ApiResponses({
