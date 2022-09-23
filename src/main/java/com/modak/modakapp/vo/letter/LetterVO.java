@@ -9,4 +9,6 @@ public class LetterVO {
     private String content;
 
     private String date;
+
+    private String envelope;
 }
