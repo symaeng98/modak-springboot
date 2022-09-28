@@ -244,30 +244,6 @@ public class MemberController {
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
     }
 
-//    @ApiResponses({
-//            @ApiResponse(code = 200, message = "회원의 가족 정보 수정에 성공했습니다."),
-//            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-//            @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
-//    })
-//    @ApiOperation(value = "가족 ID 넘어가기")
-//    @PutMapping("/{member_id}/family/{family_id}")
-//    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> updateMemberFamilyID(
-//            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-//            @PathVariable("member_id") int memberId,
-//            @PathVariable("family_id") int familyId
-//    ) {
-//        tokenService.validateAccessTokenExpired(accessToken);
-//
-//        Family family = familyService.getById(familyId);
-//        Member member = memberService.getMember(memberId);
-//
-//        memberService.updateMemberFamily(member, family);
-//
-//        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
-//
-//        return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 가족 변경 성공", memberAndFamilyMemberDTO, true));
-//    }
-
     @ApiResponses({
             @ApiResponse(code = 200, message = "회원의 태그 정보 수정에 성공했습니다."),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
