@@ -62,6 +62,7 @@ public class MemberController {
 
         String invitationCode = familyService.generateInvitationCode();
         Family family = Family.builder().name("행복한 우리 가족").code(invitationCode).build();
+        familyService.join(family);
 
         Date birthday = Date.valueOf(signUpMemberVO.getBirthday());
         String colorForMember = memberService.getColorForMember(family);
