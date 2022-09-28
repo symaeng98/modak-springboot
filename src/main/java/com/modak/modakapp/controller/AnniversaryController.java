@@ -4,25 +4,19 @@ import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Category;
-import com.modak.modakapp.dto.response.CommonFailResponse;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.AnniversaryResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
-import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
-import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.service.AnniversaryService;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.utils.jwt.TokenService;
 import com.modak.modakapp.vo.anniversary.AnniversaryVO;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -168,40 +162,5 @@ public class AnniversaryController {
         DateAnniversaryResponse dar = anniversaryService.getAnniversariesByDate(fromDate, toDate, family);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("해당 날짜의 기념일을 불러왔습니다.", dar, true));
-    }
-
-    @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
-    }
-
-    @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<?> handleSignatureException(SignatureException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
-    }
-
-    @ExceptionHandler(ExpiredAccessTokenException.class)
-    public ResponseEntity<?> handleExpiredAccessTokenException(ExpiredAccessTokenException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Access Token 입니다.", "ExpiredAccessTokenException"));
-    }
-
-    @ExceptionHandler(ExpiredRefreshTokenException.class)
-    public ResponseEntity<?> handleExpiredRefreshTokenException(ExpiredRefreshTokenException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Refresh Token 입니다. 다시 로그인하세요", "ExpiredRefreshTokenException"));
-    }
-
-    @ExceptionHandler(EmptyResultDataAccessException.class)
-    public ResponseEntity<?> handleEmptyResultDataAccessException(EmptyResultDataAccessException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요", "EmptyResultDataAccessException"));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(e.getMessage(), e.toString()));
     }
 }

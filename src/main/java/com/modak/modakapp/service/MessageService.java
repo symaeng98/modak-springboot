@@ -29,27 +29,28 @@ public class MessageService {
 
         List<MessageDTO> messageDTOList = new ArrayList<>();
 
-        messageList.forEach(m -> {
+        for (int i = messageList.size() - 1; i >= 0; i--) {
+            Message message = messageList.get(i);
             MessageDTO messageDTO = MessageDTO.builder()
-                    .messageId(m.getId())
-                    .memberId(m.getMember().getId())
-                    .content(m.getContent())
-                    .sendAt(m.getSendAt())
+                    .messageId(message.getId())
+                    .memberId(message.getMember().getId())
+                    .content(message.getContent())
+                    .sendAt(message.getSendAt())
                     .build();
-            if (m.getMetaData() == null) {
+            if (message.getMetaData() == null) {
                 messageDTO.setMetaData(null);
             } else {
-                messageDTO.setMetaData(MetaDataDTO.builder().type_code(m.getMetaData().getType_code()).build());
+                messageDTO.setMetaData(MetaDataDTO.builder().type_code(message.getMetaData().getType_code()).build());
             }
             messageDTOList.add(messageDTO);
-        });
+        }
 
         int newLastId;
 
         if (messageList.size() == 0) {
             newLastId = -1;
         } else {
-            newLastId = messageDTOList.get(messageDTOList.size() - 1).getMessageId();
+            newLastId = messageDTOList.get(0).getMessageId();
         }
 
         return MessageResult.builder()

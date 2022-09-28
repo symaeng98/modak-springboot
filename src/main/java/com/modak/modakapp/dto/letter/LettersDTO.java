@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class SentLettersDTO {
+public class LettersDTO {
     private int count;
-    private List<LetterDTO> sentLetterList;
+    private List<LetterDTO> letterList;
 }

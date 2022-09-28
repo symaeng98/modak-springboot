@@ -3,7 +3,7 @@ package com.modak.modakapp.service;
 import com.modak.modakapp.domain.Letter;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.dto.letter.LetterDTO;
-import com.modak.modakapp.dto.letter.SentLettersDTO;
+import com.modak.modakapp.dto.letter.LettersDTO;
 import com.modak.modakapp.exception.letter.NoSuchLetterException;
 import com.modak.modakapp.repository.LetterRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class LetterService {
         return letterRepository.findLetterById(letterId).orElseThrow(() -> new NoSuchLetterException("해당 편지가 없습니다."));
     }
 
-    public SentLettersDTO getLettersByMember(Member fromMember) {
+    public LettersDTO getLettersByMember(Member fromMember) {
         List<Letter> letterLists = letterRepository.findLettersByMember(fromMember);
 
         List<LetterDTO> letters = new ArrayList<>();
@@ -47,6 +47,6 @@ public class LetterService {
             letters.add(letterDto);
         });
 
-        return SentLettersDTO.builder().count(letterLists.size()).sentLetterList(letters).build();
+        return LettersDTO.builder().count(letterLists.size()).letterList(letters).build();
     }
 }
