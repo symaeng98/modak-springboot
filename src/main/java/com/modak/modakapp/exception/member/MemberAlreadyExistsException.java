@@ -1,6 +1,7 @@
 package com.modak.modakapp.exception.member;
 
-public class MemberAlreadyExistsException extends RuntimeException{
-    public MemberAlreadyExistsException() {
+public class MemberAlreadyExistsException extends RuntimeException {
+    public MemberAlreadyExistsException(String message) {
+        super(message);
     }
 }

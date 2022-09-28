@@ -2,8 +2,13 @@ package com.modak.modakapp.exception;
 
 
 import com.modak.modakapp.dto.response.CommonFailResponse;
+import com.modak.modakapp.exception.anniversary.NoSuchAnniversaryException;
+import com.modak.modakapp.exception.family.NoSuchFamilyException;
+import com.modak.modakapp.exception.letter.NoSuchLetterException;
+import com.modak.modakapp.exception.member.MemberAlreadyExistsException;
 import com.modak.modakapp.exception.member.NoSuchMemberException;
 import com.modak.modakapp.exception.todaytalk.AlreadyExistsTodayTalkException;
+import com.modak.modakapp.exception.todo.NoSuchTodoException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
@@ -58,6 +63,36 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleNoSuchMemberException(NoSuchMemberException e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("회원 정보가 없습니다. 회원가입 페이지로 이동하세요", "NoSuchMemberException"));
+    }
+
+    @ExceptionHandler(NoSuchFamilyException.class)
+    public ResponseEntity<?> handleNoSuchFamilyException(NoSuchFamilyException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("가족 정보가 없습니다.", "NoSuchFamilyException"));
+    }
+
+    @ExceptionHandler(NoSuchLetterException.class)
+    public ResponseEntity<?> handleNoSuchLetterException(NoSuchLetterException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("해당 편지 정보가 없습니다.", "NoSuchLetterException"));
+    }
+
+    @ExceptionHandler(NoSuchTodoException.class)
+    public ResponseEntity<?> handleNoSuchTodoException(NoSuchTodoException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("할 일 정보가 없습니다.", "NoSuchTodoException"));
+    }
+
+    @ExceptionHandler(NoSuchAnniversaryException.class)
+    public ResponseEntity<?> handleNoSuchAnniversaryException(NoSuchAnniversaryException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonFailResponse.response("기념일 정보가 없습니다.", "NoSuchAnniversaryException"));
+    }
+
+    @ExceptionHandler(MemberAlreadyExistsException.class)
+    public ResponseEntity<?> handleMemberAlreadyExistsException(MemberAlreadyExistsException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("이미 가입된 회원입니다.", "MemberAlreadyExistsException"));
     }
 
     @ExceptionHandler(AlreadyExistsTodayTalkException.class)

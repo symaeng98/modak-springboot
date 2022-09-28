@@ -57,7 +57,7 @@ public class MemberController {
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> createMember(@RequestBody SignUpMemberVO signUpMemberVO) {
         if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
-            throw new MemberAlreadyExistsException();
+            throw new MemberAlreadyExistsException("이미 존재하는 회원입니다.");
         }
 
         String invitationCode = familyService.generateInvitationCode();
