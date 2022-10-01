@@ -85,10 +85,10 @@ public class AnniversaryController {
             @ApiResponse(code = 401, message = "1. Access Token이 만료되었습니다.(ExpiredAccessTokenException)\n2. 만료된 Refresh Token 입니다. 다시 로그인하세요.(ExpiredRefreshTokenException)"),
     })
     @ApiOperation(value = "기념일 정보 변경")
-    @PutMapping("/{id}")
+    @PutMapping("/{anniversary_id}")
     public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> updateAnniversary(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int annId,
+            @PathVariable("anniversary_id") int annId,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
         // Access Token 검증
@@ -113,11 +113,12 @@ public class AnniversaryController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "1. Access Token이 만료되었습니다.(ExpiredAccessTokenException)\n2. 만료된 Refresh Token 입니다. 다시 로그인하세요.(ExpiredRefreshTokenException)"),
     })
-    @DeleteMapping("/{id}")
+    @ApiOperation(value = "기념일 삭제")
+    @DeleteMapping("/{anniversary_id}")
     public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> deleteAnniversary(
             @ApiParam(value = "기념일 삭제 id 및 fromDate, toDate", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int annId,
+            @PathVariable("anniversary_id") int annId,
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {
@@ -143,7 +144,8 @@ public class AnniversaryController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "1. Access Token이 만료되었습니다.(ExpiredAccessTokenException)\n2. 만료된 Refresh Token 입니다. 다시 로그인하세요.(ExpiredRefreshTokenException)"),
     })
-    @GetMapping("/from-to-date")
+    @ApiOperation(value = "날짜 범위로 기념일 불러오기")
+    @GetMapping()
     public ResponseEntity<CommonSuccessResponse<DateAnniversaryResponse>> getAnniversaries(
             @ApiParam(value = "fromDate~toDate 기념일 정보", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,

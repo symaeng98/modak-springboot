@@ -14,6 +14,8 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,9 +42,8 @@ public class MessageController {
             @RequestParam int count,
             @RequestParam int lastId
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        int memberId = tokenService.getMemberId(accessToken.substring(7));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
         Family family = memberWithFamily.getFamily();

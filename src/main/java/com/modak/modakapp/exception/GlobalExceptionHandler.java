@@ -12,9 +12,6 @@ import com.modak.modakapp.exception.todo.NoSuchTodoException;
 import com.modak.modakapp.exception.token.ExpiredAccessTokenException;
 import com.modak.modakapp.exception.token.ExpiredRefreshTokenException;
 import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,23 +20,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
-    }
-
-    @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<?> handleSignatureException(SignatureException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
-    }
-
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Token 입니다.", "ExpiredJwtException"));
-    }
+//    @ExceptionHandler(MalformedJwtException.class)
+//    public ResponseEntity<?> handleMalformedJwtException(MalformedJwtException e) {
+//        e.printStackTrace();
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "MalformedJwtException"));
+//    }
+//
+//    @ExceptionHandler(SignatureException.class)
+//    public ResponseEntity<?> handleSignatureException(SignatureException e) {
+//        e.printStackTrace();
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("JWT 포맷이 올바른지 확인하세요", "SignatureException"));
+//    }
+//
+//    @ExceptionHandler(ExpiredJwtException.class)
+//    public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException e) {
+//        e.printStackTrace();
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonFailResponse.response("만료된 Token 입니다.", "ExpiredJwtException"));
+//    }
 
     @ExceptionHandler(ExpiredAccessTokenException.class)
     public ResponseEntity<?> handleExpiredAccessTokenException(ExpiredAccessTokenException e) {

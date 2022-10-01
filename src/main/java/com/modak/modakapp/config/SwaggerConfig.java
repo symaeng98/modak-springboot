@@ -13,6 +13,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
+
+    private static final String API_NAME = "Modak API";
+    private static final String API_VERSION = "1.0";
+    private static final String API_DESCRIPTION = "Modak API Test for Swagger Documentation";
+
     @Bean
     public Docket swaggerApi() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -24,10 +29,10 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfoBuilder().title("Modak")
-                .description("Modak API Test for Swagger Documentation")
-                .termsOfServiceUrl("https://aodtns.tistory.com")
+        return new ApiInfoBuilder().title(API_NAME)
+                .description(API_DESCRIPTION)
                 .license("Modak")
-                .licenseUrl("https://aodtns.tistory.com").version("1.0").build();
+                .version(API_VERSION)
+                .build();
     }
 }

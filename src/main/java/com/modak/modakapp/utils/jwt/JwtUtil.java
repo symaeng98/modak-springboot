@@ -4,15 +4,22 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Component
 public class JwtUtil {
 
@@ -21,6 +28,7 @@ public class JwtUtil {
 
     public final static long REFRESH_TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 * 24 * 2;
     public final static long TOKEN_VALIDATION_SECOND = 1000L * 60 * 60 * 2;
+    private final UserDetailsService userDetailsService;
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
@@ -55,6 +63,16 @@ public class JwtUtil {
 //        return true;
 //    }
 
+    // Request의 Header에서 token 파싱
+    public String resolveToken(HttpServletRequest req) {
+        return req.getHeader("Access-Token").substring(7);
+    }
+
+    // Jwt 토큰으로 인증 정보 조회
+    public Authentication getAuthentication(String token) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(String.valueOf(this.getMemberId(token)));
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
 
     // 토큰이 만료되었는지 확인
     public Boolean isTokenExpired(String token) {

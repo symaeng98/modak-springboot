@@ -48,10 +48,6 @@ public class MemberService {
         return memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
-    public Member getMemberWithFamilyAndTodayFortune(int memberId) {
-        return memberRepository.findMemberWithFamilyAndTodayFortuneById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
-    }
-
     public List<Member> getMembersByFamily(Family family) {
         return memberRepository.findMembersByFamily(family);
     }
@@ -132,7 +128,7 @@ public class MemberService {
         }
         return colorList[colors.size() % colorList.length]; // 가족 구성원이 없거나, 모든 색깔을 가족이 다 가지고 있을 때는 계속 반복
     }
-    
+
     @Transactional
     public void updateMemberTag(Member member, List<String> tags) {
         member.changeMemberTag(new MDTag(tags));
