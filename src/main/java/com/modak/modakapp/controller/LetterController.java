@@ -14,13 +14,15 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/letter")
+@RequestMapping("/api/v2/letter")
 @Slf4j
 public class LetterController {
     private final MemberService memberService;
@@ -34,13 +36,13 @@ public class LetterController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "편지 등록")
-    @PostMapping("/{member_id}")
+    @PostMapping()
     public ResponseEntity<CommonSuccessResponse<LettersDTO>> createLetter(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId,
             @RequestBody LetterVO letterVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member fromMember = memberService.getMemberWithFamily(memberId);
         Member toMember = memberService.getMember(letterVO.getToMemberId());
@@ -67,12 +69,12 @@ public class LetterController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "편지 목록 조회")
-    @GetMapping("/{member_id}")
+    @GetMapping()
     public ResponseEntity<CommonSuccessResponse<LettersDTO>> getSentLetter(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member member = memberService.getMemberWithFamily(memberId);
 

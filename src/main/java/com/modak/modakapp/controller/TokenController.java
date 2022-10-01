@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/token")
+@RequestMapping("api/v2/token")
 public class TokenController {
     private final TokenService tokenService;
     private final MemberService memberService;

@@ -20,6 +20,8 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -97,18 +99,18 @@ public class MemberController {
 //    }
 
     @ApiResponses({
-            @ApiResponse(code = 200, message = "성공적으로 초대를 완료했습니다."),
+            @ApiResponse(code = 200, message = "성공적으로 초대 받았습니다."),
             @ApiResponse(code = 404, message = "회원 정보가 없습니다. 회원 가입 페이지로 이동하세요.(NoSuchMemberException)"),
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @ApiOperation(value = "회원 초대 받기")
-    @PutMapping("/{id}/invitation")
+    @ApiOperation(value = "초대코드로 해당 가족에 포함하기")
+    @PutMapping("/invitations")
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> invite(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int memberId,
             @RequestBody InvitationVO invitationVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Family family = familyService.getByCode(invitationVO.getInvitationCode());
         Member member = memberService.getMember(memberId);
@@ -189,13 +191,13 @@ public class MemberController {
             @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
     })
     @ApiOperation(value = "유저 개인 정보 변경")
-    @PutMapping("/{id}")
+    @PutMapping()
     public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateMember(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int memberId,
             @RequestBody UpdateMemberVO updateMemberVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member member = memberService.getMember(memberId);
 
@@ -214,13 +216,13 @@ public class MemberController {
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
             @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
     })
-    @ApiOperation(value = "유저 개인 정보 얻기")
-    @GetMapping("/{id}")
+    @ApiOperation(value = "유저 및 가족 정보 얻기")
+    @GetMapping()
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> getMember(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int memberId
+            @RequestHeader(value = ACCESS_TOKEN) String accessToken
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member member = memberService.getMemberWithFamily(memberId);
         Family family = member.getFamily();
@@ -236,13 +238,13 @@ public class MemberController {
             @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
     })
     @ApiOperation(value = "유저 개인 태그 업데이트")
-    @PutMapping("/{id}/tag")
+    @PutMapping("/tags")
     public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateMemberTag(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int memberId,
             @RequestBody UpdateMemberTagVO updateMemberTagVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member member = memberService.getMember(memberId);
 
@@ -253,26 +255,26 @@ public class MemberController {
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 개인 태그 업데이트 성공", memberInfo, true));
     }
 
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "회원의 가족들의 정보 가져오기를 성공했습니다.."),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
-            @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
-    })
-    @ApiOperation(value = "가족들 정보 얻기")
-    @GetMapping("/{id}/family")
-    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> getFamilyMembers(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int memberId
-    ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        Member member = memberService.getMemberWithFamily(memberId);
-        Family family = member.getFamily();
-
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
-
-        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
-    }
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "회원의 가족들의 정보 가져오기를 성공했습니다.."),
+//            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+//            @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
+//    })
+//    @ApiOperation(value = "가족들 정보 얻기")
+//    @GetMapping("/{id}/family")
+//    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> getFamilyMembers(
+//            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+//            @PathVariable("id") int memberId
+//    ) {
+//        tokenService.validateAccessTokenExpired(accessToken);
+//
+//        Member member = memberService.getMemberWithFamily(memberId);
+//        Family family = member.getFamily();
+//
+//        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+//
+//        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
+//    }
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "회원의 가족 이름 정보 수정에 성공했습니다."),
@@ -280,13 +282,13 @@ public class MemberController {
             @ApiResponse(code = 401, message = "만료된 Access Token 입니다.(ExpiredAccessTokenException)"),
     })
     @ApiOperation(value = "가족의 이름 별명으로 바꾸기")
-    @PutMapping("/{id}/family/name")
+    @PutMapping("/family/names")
     public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateFamilyMemberName(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int memberId,
             @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member member = memberService.getMember(memberId);
 

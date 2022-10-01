@@ -19,13 +19,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/anniversary")
+@RequestMapping("/api/v2/anniversary")
 @Slf4j
 public class AnniversaryController {
     private final TokenService tokenService;
@@ -46,11 +48,9 @@ public class AnniversaryController {
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
-        // Access Token 검증
-        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
-        // 회원 id 가져와서 회원 찾기
-        int memberId = tokenService.getMemberId(subAccessToken);
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();
@@ -91,11 +91,9 @@ public class AnniversaryController {
             @PathVariable("anniversary_id") int annId,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
-        // Access Token 검증
-        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
-        // 회원 id 가져와서 회원 찾기
-        int memberId = tokenService.getMemberId(subAccessToken);
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();
@@ -122,11 +120,9 @@ public class AnniversaryController {
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {
-        // Access Token 검증
-        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
-        // 회원 id 가져와서 회원 찾기
-        int memberId = tokenService.getMemberId(subAccessToken);
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();
@@ -152,11 +148,9 @@ public class AnniversaryController {
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {
-        // Access Token 검증
-        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
-        // 회원 id 가져와서 회원 찾기
-        int memberId = tokenService.getMemberId(subAccessToken);
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();

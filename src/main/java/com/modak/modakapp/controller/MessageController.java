@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/message")
+@RequestMapping("/api/v2/message")
 @Slf4j
 public class MessageController {
     private final MemberService memberService;
@@ -36,7 +36,7 @@ public class MessageController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "채팅 목록 불러오기")
-    @GetMapping("/chat")
+    @GetMapping("/chats")
     public ResponseEntity<CommonSuccessResponse<MessageResult>> getMessages(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestParam int count,
@@ -59,13 +59,12 @@ public class MessageController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "연결 정보 불러오기")
-    @GetMapping("/connection")
+    @GetMapping("/connections")
     public ResponseEntity<CommonSuccessResponse<ConnectionResult>> geConnectionInfo(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
-        int memberId = tokenService.getMemberId(accessToken.substring(7));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
         Family family = memberWithFamily.getFamily();

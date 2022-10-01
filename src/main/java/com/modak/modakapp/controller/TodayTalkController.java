@@ -16,13 +16,15 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/today-talk")
+@RequestMapping("/api/v2/today-talk")
 @Slf4j
 public class TodayTalkController {
     private final MemberService memberService;
@@ -36,13 +38,13 @@ public class TodayTalkController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "회원의 오늘 한 마디 등록")
-    @PostMapping("/{member_id}")
+    @PostMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> createTodayTalk(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId,
             @RequestBody TodayTalkVO todayTalkVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member member = memberService.getMemberWithFamily(memberId);
 
@@ -71,14 +73,14 @@ public class TodayTalkController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "회원의 오늘 한 마디 조회(날짜 범위 입력)")
-    @GetMapping("/{member_id}")
+    @GetMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> getTodayTalk(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId,
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Family family = memberService.getMemberWithFamily(memberId).getFamily();
 
@@ -93,13 +95,13 @@ public class TodayTalkController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "회원의 오늘 한 마디 수정")
-    @PutMapping("/{member_id}")
+    @PutMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> updateTodayTalk(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId,
             @RequestBody TodayTalkVO todayTalkVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member member = memberService.getMemberWithFamily(memberId);
 
@@ -117,13 +119,13 @@ public class TodayTalkController {
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
     @ApiOperation(value = "회원의 오늘 한 마디 삭제")
-    @DeleteMapping("/{member_id}")
+    @DeleteMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> deleteTodayTalk(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("member_id") int memberId,
             @RequestParam String date
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
         Member member = memberService.getMemberWithFamily(memberId);
 

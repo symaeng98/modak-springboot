@@ -119,7 +119,6 @@ public class AuthController {
             @RequestHeader(value = "Provider") String provider,
             @RequestHeader(value = "Provider-Id") String providerId
     ) {
-        System.out.println(LocalDateTime.now());
         Member member = memberService.getMemberByProviderAndProviderId(Provider.valueOf(provider), providerId);
 
         Family family = member.getFamily();

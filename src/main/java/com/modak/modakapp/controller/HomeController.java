@@ -24,7 +24,7 @@ import java.sql.Date;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/home")
+@RequestMapping("/api/v2/home")
 @Slf4j
 public class HomeController {
     private final MemberService memberService;

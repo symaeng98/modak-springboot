@@ -23,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
@@ -30,7 +32,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/todo")
+@RequestMapping("/api/v2/todo")
 @Slf4j
 public class TodoController {
     private final TodoService todoService;
@@ -51,8 +53,6 @@ public class TodoController {
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody CreateTodoVO createTodoVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
         // 담당자 가져오기
         int memberId = createTodoVO.getMemberId();
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
@@ -105,15 +105,13 @@ public class TodoController {
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @PutMapping("/{id}")
+    @PutMapping("/{todo_id}")
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> updateTodo(
             @ApiParam(value = "todo 수정 정보", required = true)
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int todoId,
+            @PathVariable("todo_id") int todoId,
             @RequestBody UpdateTodoVO updateTodoVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
         // 담당자
         Member memberWithFamily = memberService.getMemberWithFamily(updateTodoVO.getMemberId());
         Family family = memberWithFamily.getFamily();
@@ -144,16 +142,15 @@ public class TodoController {
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @GetMapping("/from-to-date")
+    @GetMapping()
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> getTodosByFromToDate(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {
-        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
-        // 회원 id 가져와서 회원 찾기
-        int memberId = tokenService.getMemberId(subAccessToken);
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
 
         Family family = memberWithFamily.getFamily();
@@ -170,16 +167,15 @@ public class TodoController {
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @PutMapping("/done/{id}")
+    @PutMapping("/done/{todo_id}")
     public ResponseEntity<CommonSuccessResponse<UpdateSingleTodoResponse>> done(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int todoId,
+            @PathVariable("todo_id") int todoId,
             @RequestBody DoneTodoVO doneTodoVO
     ) {
-        tokenService.validateAccessTokenExpired(accessToken);
-
         Todo todo = todoService.getTodoWithMemberAndFamily(todoId);
         Date date = Date.valueOf(doneTodoVO.getDate());
+
         Family family = todo.getFamily();
         int isDone = doneTodoVO.getIsDone();
 
@@ -198,16 +194,15 @@ public class TodoController {
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{todo_id}")
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> deleteTodo(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-            @PathVariable("id") int todoId,
+            @PathVariable("todo_id") int todoId,
             @RequestBody DeleteTodoVO deleteTodoVO
     ) {
-        String subAccessToken = tokenService.validateAccessTokenExpired(accessToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
 
-        // 회원 id 가져와서 회원과 가족 찾기
-        int memberId = tokenService.getMemberId(subAccessToken);
         Member memberWithFamily = memberService.getMemberWithFamily(memberId);
         Family family = memberWithFamily.getFamily();
 

@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // jwt token으로 생성하므로 세션은 필요 없으므로 생성 안함.
                 .and()
                 .authorizeRequests() // 다음 리퀘스트에 대한 사용권한 체크
-                .antMatchers("/api/v2/auth/**", "/swagger-ui.html").permitAll()
+                .antMatchers("/api/v2/auth/**", "/api/v2/token/**", "/swagger-ui.html").permitAll()
                 .anyRequest().hasRole("USER")
                 .and()
                 .exceptionHandling()
@@ -54,8 +54,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-resources/**",
                 "/configuration/security",
                 "/swagger-ui.html",
+                "/swagger/**",
                 "/webjars/**",
-                "/api/v2/auth/**");
+                "/api/v2/auth/**",
+                "/api/v2/token/**"
+        );
     }
 
     @Override
