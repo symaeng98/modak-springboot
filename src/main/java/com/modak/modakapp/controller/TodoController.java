@@ -167,7 +167,7 @@ public class TodoController {
             @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
             @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
     })
-    @PutMapping("/done/{todo_id}")
+    @PutMapping("/{todo_id}/done")
     public ResponseEntity<CommonSuccessResponse<UpdateSingleTodoResponse>> done(
             @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("todo_id") int todoId,
