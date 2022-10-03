@@ -37,6 +37,7 @@ public class AnniversaryController {
     @ApiResponses({
             @ApiResponse(code = 201, message = "기념일 생성을 성공하였습니다."),
             @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요.")
     })
     @ApiOperation(value = "기념일 생성")
     @PostMapping()
@@ -66,6 +67,7 @@ public class AnniversaryController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "기념일 정보 변경에 성공하였습니다."),
             @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요.")
     })
     @ApiOperation(value = "기념일 정보 변경")
     @PutMapping("/{anniversary_id}")
@@ -93,6 +95,7 @@ public class AnniversaryController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "기념일 삭제에 성공하였습니다."),
             @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요.")
     })
     @ApiOperation(value = "기념일 삭제")
     @DeleteMapping("/{anniversary_id}")
@@ -121,6 +124,7 @@ public class AnniversaryController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "기념일 불러오기에 성공하였습니다."),
             @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요.")
     })
     @ApiOperation(value = "기념일 불러오기")
     @GetMapping()
