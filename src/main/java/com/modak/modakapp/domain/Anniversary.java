@@ -66,6 +66,14 @@ public class Anniversary {
         this.deletedAt = deletedAt;
     }
 
+    public void changeMemberAndFamily(
+            Member member,
+            Family family
+    ){
+        this.member = member;
+        this.family = family;
+    }
+
     public void changeAnniversary(
             String title,
             Date startDate,
