@@ -47,11 +47,13 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(code = 201, message = "성공적으로 회원 가입을 마쳤습니다."),
             @ApiResponse(code = 409, message = "이미 가입된 회원입니다.(MemberAlreadyExistsException)"),
-            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @ApiOperation(value = "회원 가입")
     @PostMapping()
-    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> createMember(@RequestBody SignUpMemberVO signUpMemberVO) {
+    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> createMember(
+            @RequestBody SignUpMemberVO signUpMemberVO
+    ) {
         if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
             throw new MemberAlreadyExistsException("이미 존재하는 회원입니다.");
         }
@@ -89,7 +91,7 @@ public class AuthController {
                 .isYear(1)
                 .title(member.getName() + " 생일")
                 .isBirthday(1)
-                .isLunar(signUpMemberVO.getIsLunar())
+                .isLunar(member.getIsLunar())
                 .startDate(birthday)
                 .endDate(birthday)
                 .build();
@@ -111,7 +113,7 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 로그인을 완료했습니다."),
             @ApiResponse(code = 404, message = "회원 정보가 없습니다. 회원 가입 페이지로 이동하세요.(NoSuchMemberException)"),
-            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @ApiOperation(value = "소셜 로그인 버튼 클릭시 호출")
     @GetMapping("/login/social")
@@ -138,8 +140,8 @@ public class AuthController {
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "토큰 재발급을 성공했습니다."),
-            @ApiResponse(code = 401, message = "1. 만료된 Access Token 입니다.(ExpiredAccessTokenException)\n2. Refresh Token 정보가 데이터베이스의 정보와 다릅니다.(NotMatchRefreshTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "Refresh Token 정보가 데이터베이스의 정보와 다릅니다.(NotMatchRefreshTokenException)"),
+            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException)\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요."),
     })
     @ApiOperation(value = "토큰 로그인")
     @GetMapping("/login/token")
