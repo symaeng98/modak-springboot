@@ -106,7 +106,6 @@ public class MemberController {
     @ApiOperation(value = "초대코드로 해당 가족에 포함하기")
     @PutMapping("/invitations")
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> invite(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody InvitationVO invitationVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -193,7 +192,6 @@ public class MemberController {
     @ApiOperation(value = "유저 개인 정보 변경")
     @PutMapping()
     public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateMember(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody UpdateMemberVO updateMemberVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -219,7 +217,7 @@ public class MemberController {
     @ApiOperation(value = "유저 및 가족 정보 얻기")
     @GetMapping()
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> getMember(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken
+
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());
@@ -240,7 +238,6 @@ public class MemberController {
     @ApiOperation(value = "유저 개인 태그 업데이트")
     @PutMapping("/tags")
     public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateMemberTag(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody UpdateMemberTagVO updateMemberTagVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -263,7 +260,7 @@ public class MemberController {
 //    @ApiOperation(value = "가족들 정보 얻기")
 //    @GetMapping("/{id}/family")
 //    public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> getFamilyMembers(
-//            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+//            ,
 //            @PathVariable("id") int memberId
 //    ) {
 //        tokenService.validateAccessTokenExpired(accessToken);
@@ -284,7 +281,6 @@ public class MemberController {
     @ApiOperation(value = "가족의 이름 별명으로 바꾸기")
     @PutMapping("/family/names")
     public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateFamilyMemberName(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody UpdateMemberFamilyNameVO updateMemberFamilyNameVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

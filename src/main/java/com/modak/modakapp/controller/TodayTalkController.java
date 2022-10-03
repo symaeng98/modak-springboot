@@ -40,7 +40,6 @@ public class TodayTalkController {
     @ApiOperation(value = "회원의 오늘 한 마디 등록")
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> createTodayTalk(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody TodayTalkVO todayTalkVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -75,7 +74,6 @@ public class TodayTalkController {
     @ApiOperation(value = "회원의 오늘 한 마디 조회(날짜 범위 입력)")
     @GetMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> getTodayTalk(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {
@@ -97,7 +95,6 @@ public class TodayTalkController {
     @ApiOperation(value = "회원의 오늘 한 마디 수정")
     @PutMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> updateTodayTalk(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody TodayTalkVO todayTalkVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -121,7 +118,6 @@ public class TodayTalkController {
     @ApiOperation(value = "회원의 오늘 한 마디 삭제")
     @DeleteMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> deleteTodayTalk(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestParam String date
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

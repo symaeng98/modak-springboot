@@ -115,7 +115,7 @@ public class AuthController {
             @ApiResponse(code = 404, message = "회원 정보가 없습니다. 회원 가입 페이지로 이동하세요.(NoSuchMemberException)"),
             @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
-    @ApiOperation(value = "소셜 로그인 버튼 클릭시 호출")
+    @ApiOperation(value = "소셜 로그인")
     @GetMapping("/login/social")
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> socialLogin(
             @RequestHeader(value = "Provider") String provider,

@@ -26,9 +26,7 @@ import java.sql.Date;
 @Slf4j
 public class LetterController {
     private final MemberService memberService;
-    private final TokenService tokenService;
     private final LetterService letterService;
-    private final String ACCESS_TOKEN = "Access-Token";
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 편지를 등록했습니다."),
@@ -38,7 +36,6 @@ public class LetterController {
     @ApiOperation(value = "편지 등록")
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<LettersDTO>> createLetter(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody LetterVO letterVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -71,7 +68,7 @@ public class LetterController {
     @ApiOperation(value = "편지 목록 조회")
     @GetMapping()
     public ResponseEntity<CommonSuccessResponse<LettersDTO>> getSentLetter(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken
+
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());

@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,7 +40,7 @@ public class TodayFortuneController {
     @ApiOperation(value = "회원의 하루 한 문장 가져오기")
     @GetMapping()
     public ResponseEntity<CommonSuccessResponse<TodayFortuneDTO>> getTodayFortune(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken
+
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());

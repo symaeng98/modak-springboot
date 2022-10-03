@@ -3,7 +3,6 @@ package com.modak.modakapp.controller;
 import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.AnniversaryResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
@@ -22,8 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/anniversary")
@@ -31,7 +28,6 @@ import java.sql.Date;
 public class AnniversaryController {
     private final AnniversaryService anniversaryService;
     private final MemberService memberService;
-    private final String ACCESS_TOKEN = "Access-Token";
 
     // 공통되는 응답 코멘트 부분 변수로 묶기 - 추후 (ACCESS_TOKEN_EXCEPTION_MESSAGE)
     @ApiResponses({
@@ -43,7 +39,6 @@ public class AnniversaryController {
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> createAnniversary(
             @ApiParam(value = "기념일 생성 정보 및 fromDate, toDate", required = true)
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -73,7 +68,6 @@ public class AnniversaryController {
     @PutMapping("/{anniversary_id}")
     public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> updateAnniversary(
             @ApiParam(value = "변경할 기념일 정보 및 fromDate, toDate", required = true)
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("anniversary_id") int annId,
             @RequestBody AnniversaryVO anniversaryVO
     ) {
@@ -101,7 +95,6 @@ public class AnniversaryController {
     @DeleteMapping("/{anniversary_id}")
     public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> deleteAnniversary(
             @ApiParam(value = "삭제할 기념일 id 및 fromDate, toDate", required = true)
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("anniversary_id") int annId,
             @RequestParam String fromDate,
             @RequestParam String toDate
@@ -130,7 +123,6 @@ public class AnniversaryController {
     @GetMapping()
     public ResponseEntity<CommonSuccessResponse<DateAnniversaryResponse>> getAnniversaries(
             @ApiParam(value = "fromDate, toDate", required = true)
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {

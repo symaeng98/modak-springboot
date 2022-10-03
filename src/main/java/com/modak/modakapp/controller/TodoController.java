@@ -50,7 +50,6 @@ public class TodoController {
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<CreateTodoResponse>> createTodo(
             @ApiParam(value = "todo 생성 정보 및 fromDate, toDate", required = true)
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestBody CreateTodoVO createTodoVO
     ) {
         // 담당자 가져오기
@@ -108,7 +107,6 @@ public class TodoController {
     @PutMapping("/{todo_id}")
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> updateTodo(
             @ApiParam(value = "todo 수정 정보", required = true)
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("todo_id") int todoId,
             @RequestBody UpdateTodoVO updateTodoVO
     ) {
@@ -144,7 +142,6 @@ public class TodoController {
     })
     @GetMapping()
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> getTodosByFromToDate(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestParam String fromDate,
             @RequestParam String toDate
     ) {
@@ -169,7 +166,6 @@ public class TodoController {
     })
     @PutMapping("/{todo_id}/done")
     public ResponseEntity<CommonSuccessResponse<UpdateSingleTodoResponse>> done(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("todo_id") int todoId,
             @RequestBody DoneTodoVO doneTodoVO
     ) {
@@ -196,7 +192,6 @@ public class TodoController {
     })
     @DeleteMapping("/{todo_id}")
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> deleteTodo(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @PathVariable("todo_id") int todoId,
             @RequestBody DeleteTodoVO deleteTodoVO
     ) {

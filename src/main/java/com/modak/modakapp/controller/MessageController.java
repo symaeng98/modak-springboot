@@ -16,7 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -38,7 +41,6 @@ public class MessageController {
     @ApiOperation(value = "채팅 목록 불러오기")
     @GetMapping("/chats")
     public ResponseEntity<CommonSuccessResponse<MessageResult>> getMessages(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken,
             @RequestParam int count,
             @RequestParam int lastId
     ) {
@@ -61,7 +63,7 @@ public class MessageController {
     @ApiOperation(value = "연결 정보 불러오기")
     @GetMapping("/connections")
     public ResponseEntity<CommonSuccessResponse<ConnectionResult>> geConnectionInfo(
-            @RequestHeader(value = ACCESS_TOKEN) String accessToken
+
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());
