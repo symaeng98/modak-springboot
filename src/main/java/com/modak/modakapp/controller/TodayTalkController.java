@@ -112,8 +112,8 @@ public class TodayTalkController {
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 회원의 오늘의 한 마디를 삭제했습니다."),
-            @ApiResponse(code = 404, message = "회원 정보가 없습니다. (NoSuchMemberException)"),
-            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @ApiOperation(value = "회원의 오늘 한 마디 삭제")
     @DeleteMapping()

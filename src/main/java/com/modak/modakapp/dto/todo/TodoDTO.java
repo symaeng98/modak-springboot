@@ -1,9 +1,11 @@
 package com.modak.modakapp.dto.todo;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@ApiModel(value = "한 개의 할 일에 대한 정보")
 public class TodoDTO {
     private final int todoId;
     private final String title;

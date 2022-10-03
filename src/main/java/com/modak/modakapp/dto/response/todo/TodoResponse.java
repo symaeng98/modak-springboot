@@ -1,6 +1,7 @@
 package com.modak.modakapp.dto.response.todo;
 
 import com.modak.modakapp.dto.todo.TodoDTO;
+import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@ApiModel(value = "날짜 별 색깔, 할 일 정보")
 public class TodoResponse {
     private Map<String, List<String>> color;
     private Map<String, List<TodoDTO>> items;

@@ -44,8 +44,8 @@ public class TodoController {
 
     @ApiResponses({
             @ApiResponse(code = 201, message = "할 일 등록에 성공하였습니다."),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<CreateTodoResponse>> createTodo(
@@ -101,8 +101,8 @@ public class TodoController {
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "todo 수정에 성공하였습니다."),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @PutMapping("/{todo_id}")
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> updateTodo(
@@ -137,8 +137,8 @@ public class TodoController {
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "요청한 정보를 성공적으로 불러왔습니다."),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @GetMapping()
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> getTodosByFromToDate(
@@ -161,8 +161,8 @@ public class TodoController {
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "완료/취소 처리에 성공했습니다"),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @PutMapping("/{todo_id}/done")
     public ResponseEntity<CommonSuccessResponse<UpdateSingleTodoResponse>> done(
@@ -187,8 +187,8 @@ public class TodoController {
     // repeat tag 유무에 따라 single, repeat 판단
     @ApiResponses({
             @ApiResponse(code = 200, message = "단일/반복 todo 단일 삭제를 성공했습니다."),
-            @ApiResponse(code = 401, message = "Access Token이 만료되었습니다.(ExpiredAccessTokenException)"),
-            @ApiResponse(code = 400, message = "1. JWT 포맷이 올바른지 확인하세요.(MalformedJwtException).\n2. JWT 포맷이 올바른지 확인하세요.(SignatureException)\n3. 에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @DeleteMapping("/{todo_id}")
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> deleteTodo(

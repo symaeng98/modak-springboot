@@ -29,7 +29,7 @@ public class TokenController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "Access Token을 재발급 하였습니다."),
             @ApiResponse(code = 401, message = "RefreshToken이 만료되었습니다. 다시 로그인 하세요.(ExpiredRefreshTokenException)"),
-            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요. 어떤 에러가 떴는지 저도 잘 모릅니다.."),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
     })
     @GetMapping("/reissue")
     public ResponseEntity<CommonSuccessResponse<ReissueTokenResponse>> reissue(
