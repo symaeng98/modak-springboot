@@ -1,0 +1,44 @@
+spring:
+  #  datasource:
+  #    url: jdbc:mysql://localhost:3306/modak?tinyInt1isBit=false
+  #    username: MODAK_ADMIN
+  #    password: 1234
+  #  jpa:
+  #    hibernate:
+  #      ddl-auto: validate
+  #    show_sql: true
+
+  #  datasource:
+  #    url: jdbc:mysql://15.164.86.236:3306/modak?tinyInt1isBit=false
+  #    username: modak-user
+  #    password: 1234
+  #  jpa:
+  #    hibernate:
+  #      ddl-auto: validate
+  #    show_sql: true
+
+  datasource:
+    url: jdbc:mysql://db.modak-talk.com:3306/modak?tinyInt1isBit=false
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PW}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show_sql: true
+#
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+
+jwt:
+  secret: ${JWT_SECRETS}
+
+sentry:
+  dsn: ${SENTRY_DSN}
+  # Set traces-sample-rate to 1.0 to capture 100% of transactions for performance monitoring.
+  # We recommend adjusting this value in production.
+  traces-sample-rate: 1.0
+  exception-resolver-order: -2147483647 # exception handler의 예외도 sentry로 전송됨
