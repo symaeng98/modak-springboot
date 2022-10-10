@@ -23,7 +23,7 @@ public class SwaggerConfig {
 
     private static final String API_NAME = "Modak API";
     private static final String API_VERSION = "1.0";
-    private static final String API_DESCRIPTION = "Modak API Test for Swagger Documentation";
+    private static final String API_DESCRIPTION = "Modak API Test1 for Swagger Documentation";
 
     @Bean
     public Docket swaggerApi() {

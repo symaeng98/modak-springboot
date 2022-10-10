@@ -1,0 +1,51 @@
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+build:
+  image: openjdk:11
+  stage: build
+  script:
+    - ./gradlew clean
+    - ./gradlew build
+  artifacts:
+    paths:
+      - build/libs/*.jar
+    expire_in: 10 min
+
+test:
+  image: openjdk:11
+  stage: test
+  script:
+    - ./gradlew test
+
+package:
+  image: docker:latest
+  stage: package
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
+  script:
+    - docker build -t $DOCKER_IMAGE_URL --platform linux/amd64 .
+    - docker push $DOCKER_IMAGE_URL
+  after_script:
+    - docker logout
+
+deploy-ec2:
+  stage: deploy
+  tags:
+    - deploy
+  before_script:
+    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
+  script:
+    - docker stop $DOCKER_IMAGE_URL
+    - docker run -d -p 8080:8080 $DOCKER_IMAGE_URL
+  after_script:
+    - docker logout
+  when:
+    on_success
+  only:
+    - master
