@@ -8,15 +8,6 @@ spring:
   #      ddl-auto: validate
   #    show_sql: true
 
-  #  datasource:
-  #    url: jdbc:mysql://15.164.86.236:3306/modak?tinyInt1isBit=false
-  #    username: modak-user
-  #    password: 1234
-  #  jpa:
-  #    hibernate:
-  #      ddl-auto: validate
-  #    show_sql: true
-
   datasource:
     url: jdbc:mysql://db.modak-talk.com:3306/modak?tinyInt1isBit=false
     username: ${MYSQL_USERNAME}

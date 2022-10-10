@@ -27,10 +27,10 @@ package:
   services:
     - docker:dind
   before_script:
-    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PW
+    - docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PW}
   script:
-    - docker build -t $DOCKER_IMAGE_URL --platform linux/amd64 .
-    - docker push $DOCKER_IMAGE_URL
+    - docker build -t ${DOCKER_IMAGE_URL} --platform linux/amd64 .
+    - docker push ${DOCKER_IMAGE_URL}
   after_script:
     - docker logout
 
