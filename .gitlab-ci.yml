@@ -8,7 +8,6 @@ build:
   image: openjdk:11
   stage: build
   script:
-    - echo "$MYSQL_ID"
     - ./gradlew clean
     - ./gradlew build
   artifacts:
