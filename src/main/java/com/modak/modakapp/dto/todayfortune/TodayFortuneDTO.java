@@ -12,9 +12,13 @@ import java.sql.Date;
 @Builder
 @ApiModel(value = "하루 한 문장 응답 정보")
 public class TodayFortuneDTO {
+    private int id;
+
     private int memberId;
 
     private String content;
+
+    private String type;
 
     private Date date;
 }

@@ -2,6 +2,7 @@ package com.modak.modakapp.service;
 
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.TodayFortune;
+import com.modak.modakapp.dto.todayfortune.TodayFortuneDTO;
 import com.modak.modakapp.repository.TodayFortuneRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,19 @@ public class TodayFortuneService {
         return todayFortuneRepository.getTodayFortuneRandom();
     }
 
-    public TodayFortune getHomeTodayFortune(Member member) {
+    public TodayFortuneDTO getHomeTodayFortune(Member member) {
         TodayFortune todayFortune = member.getTodayFortune();
         Date todayFortuneAt = member.getTodayFortuneAt();
         if (todayFortune == null || todayFortuneAt.before(Date.valueOf(LocalDate.now()))) {
             return null;
         } else {
-            return todayFortune;
+            return TodayFortuneDTO.builder()
+                    .memberId(member.getId())
+                    .id(todayFortune.getId())
+                    .content(todayFortune.getContent())
+                    .date(todayFortuneAt)
+                    .type(todayFortune.getType())
+                    .build();
         }
     }
 }

@@ -60,8 +60,10 @@ public class TodayFortuneController {
 
         TodayFortuneDTO todayFortuneDto = TodayFortuneDTO.builder()
                 .memberId(memberId)
+                .id(todayFortune.getId())
                 .content(todayFortune.getContent())
                 .date(todayFortuneAt)
+                .type(todayFortune.getType())
                 .build();
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("하루 한 문장 불러오기 성공", todayFortuneDto, true));

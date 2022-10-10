@@ -2,12 +2,12 @@ package com.modak.modakapp.controller;
 
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
-import com.modak.modakapp.domain.TodayFortune;
 import com.modak.modakapp.dto.home.HomeDTO;
 import com.modak.modakapp.dto.member.MemberAndFamilyMemberDTO;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
 import com.modak.modakapp.dto.response.todo.TodoResponse;
+import com.modak.modakapp.dto.todayfortune.TodayFortuneDTO;
 import com.modak.modakapp.dto.todaytalk.TodayTalkDTO;
 import com.modak.modakapp.service.*;
 import io.swagger.annotations.ApiOperation;
@@ -67,7 +67,7 @@ public class HomeController {
         DateAnniversaryResponse dateAnniversaryData = anniversaryService.getAnniversariesByDate(date, date, family);
 
         // 하루 한 문장
-        TodayFortune homeTodayFortune = todayFortuneService.getHomeTodayFortune(member);
+        TodayFortuneDTO homeTodayFortune = todayFortuneService.getHomeTodayFortune(member);
 
         HomeDTO homeDto = HomeDTO.builder()
                 .memberAndFamilyMembers(memberAndFamilyDto)
