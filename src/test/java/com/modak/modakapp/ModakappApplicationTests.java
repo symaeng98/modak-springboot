@@ -8,6 +8,7 @@ class ModakappApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }

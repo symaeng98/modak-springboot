@@ -1,6 +1,6 @@
 stages:
   - build
-  - test
+#  - test
   - package
   - deploy
 
@@ -15,11 +15,11 @@ build:
       - build/libs/*.jar
     expire_in: 10 min
 
-test:
-  image: openjdk:11
-  stage: test
-  script:
-    - ./gradlew test
+#test:
+#  image: openjdk:11
+#  stage: test
+#  script:
+#    - ./gradlew test
 
 package:
   image: docker:latest
