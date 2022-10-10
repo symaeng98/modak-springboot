@@ -11,4 +11,7 @@ import lombok.Setter;
 @ApiModel(value = "메타 데이터")
 public class MetaDataDTO {
     private String type_code;
+    private String key;
+    private String url;
+    private String count;
 }

@@ -29,8 +29,12 @@ public class Media {
     private Family family;
 
     @NotNull
-    @Column(name = "filename", length = 100)
-    private String filename;
+    @Column(name = "key", length = 100)
+    private String key;
+
+    @NotNull
+    @Column(name = "\"order\"")
+    private int order;
 
     @NotNull
     @Column(columnDefinition = "TIMESTAMP(6)")

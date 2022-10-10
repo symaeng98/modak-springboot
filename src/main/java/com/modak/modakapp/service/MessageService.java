@@ -4,6 +4,7 @@ import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Message;
 import com.modak.modakapp.dto.message.*;
+import com.modak.modakapp.dto.metadata.MetaData;
 import com.modak.modakapp.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,14 @@ public class MessageService {
             if (message.getMetaData() == null) {
                 messageDTO.setMetaData(null);
             } else {
-                messageDTO.setMetaData(MetaDataDTO.builder().type_code(message.getMetaData().getType_code()).build());
+                MetaData metaData = message.getMetaData();
+                messageDTO.setMetaData(
+                        MetaDataDTO.builder()
+                                .type_code(metaData.getType_code())
+                                .key(metaData.getKey())
+                                .url(metaData.getUrl())
+                                .count(metaData.getCount())
+                                .build());
             }
             messageDTOList.add(messageDTO);
         }
