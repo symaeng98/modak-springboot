@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - package
-#  - deploy
+  - deploy
 
 build:
   image: openjdk:11
@@ -27,7 +27,7 @@ package:
   services:
     - docker:dind
   before_script:
-    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PW
+    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
   script:
     - docker build -t $DOCKER_HUB_USER/modak-springboot-app .
     - docker push $DOCKER_HUB_USER/modak-springboot-app
@@ -40,7 +40,7 @@ package:
 #  tags:
 #    - deploy
 #  before_script:
-#    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PW
+#    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
 #  script:
 #    - docker stop $DOCKER_HUB_USER/modak-springboot-app
 #    - docker run -d -p 8080:8080 $DOCKER_IMAGE_URL
