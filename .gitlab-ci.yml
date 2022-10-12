@@ -27,21 +27,22 @@ package:
   services:
     - docker:dind
   before_script:
-    - docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PW}
+    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PW
   script:
-    - docker build -t ${DOCKER_IMAGE_URL} --platform linux/amd64 .
-    - docker push ${DOCKER_IMAGE_URL}
+    - docker build -t $DOCKER_HUB_USER/modak-springboot-app --platform linux/amd64 .
+    - docker push $DOCKER_HUB_USER/modak-springboot-app
   after_script:
     - docker logout
+    - echo "EZPZ"
 
 deploy-ec2:
   stage: deploy
   tags:
     - deploy
   before_script:
-    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
+    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PW
   script:
-    - docker stop $DOCKER_IMAGE_URL
+    - docker stop $DOCKER_HUB_USER/modak-springboot-app
     - docker run -d -p 8080:8080 $DOCKER_IMAGE_URL
   after_script:
     - docker logout
