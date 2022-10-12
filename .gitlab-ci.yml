@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - package
-  - deploy
+#  - deploy
 
 build:
   image: openjdk:11
@@ -29,24 +29,24 @@ package:
   before_script:
     - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PW
   script:
-    - docker build -t $DOCKER_HUB_USER/modak-springboot-app --platform linux/amd64 .
+    - docker build -t $DOCKER_HUB_USER/modak-springboot-app .
     - docker push $DOCKER_HUB_USER/modak-springboot-app
   after_script:
     - docker logout
     - echo "EZPZ"
 
-deploy-ec2:
-  stage: deploy
-  tags:
-    - deploy
-  before_script:
-    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PW
-  script:
-    - docker stop $DOCKER_HUB_USER/modak-springboot-app
-    - docker run -d -p 8080:8080 $DOCKER_IMAGE_URL
-  after_script:
-    - docker logout
-  when:
-    on_success
-  only:
-    - master
+#deploy-ec2:
+#  stage: deploy
+#  tags:
+#    - deploy
+#  before_script:
+#    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PW
+#  script:
+#    - docker stop $DOCKER_HUB_USER/modak-springboot-app
+#    - docker run -d -p 8080:8080 $DOCKER_IMAGE_URL
+#  after_script:
+#    - docker logout
+#  when:
+#    on_success
+#  only:
+#    - master
