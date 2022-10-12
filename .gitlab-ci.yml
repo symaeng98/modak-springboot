@@ -4,9 +4,6 @@ stages:
   - package
   - deploy
 
-variables:
-  DOCKER_HOST: tcp://docker:2375
-
 build:
   image: openjdk:11
   stage: build
@@ -28,7 +25,15 @@ package:
   image: docker:latest
   stage: package
   services:
-    - docker:dind
+    - name: docker:dind
+      alias: dockerdaemon
+  variables:
+    # Tell docker CLI how to talk to Docker daemon.
+    DOCKER_HOST: tcp://dockerdaemon:2375/
+    # Use the overlayfs driver for improved performance.
+    DOCKER_DRIVER: overlay2
+    # Disable TLS since we're running inside local network.
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
   script:
