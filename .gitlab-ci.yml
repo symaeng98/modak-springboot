@@ -4,6 +4,9 @@ stages:
   - package
   - deploy
 
+variables:
+  DOCKER_HOST: tcp://docker:2375
+
 build:
   image: openjdk:11
   stage: build
