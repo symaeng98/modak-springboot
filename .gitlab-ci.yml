@@ -37,7 +37,7 @@ package:
   before_script:
     - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
   script:
-    - docker build -t $DOCKER_HUB_USER/modak-springboot-app .
+    - docker build -t $DOCKER_HUB_USER/modak-springboot-app --platform linux/amd64 .
     - docker push $DOCKER_HUB_USER/modak-springboot-app
   after_script:
     - docker logout
