@@ -19,9 +19,12 @@ import io.sentry.Sentry;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.Objects;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -114,6 +117,11 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         Sentry.captureException(e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("헤더에 필수로 들어가야 하는 값이 없습니다.", "MissingRequestHeaderException"));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response(Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage(), "MethodArgumentNotValidException"));
     }
 
     @ExceptionHandler(Exception.class)
