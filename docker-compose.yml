@@ -1,14 +1,16 @@
-version: "3"
+version: '3'
 services:
-  web:
-    image: nginx
+  spring-app:
+    container_name: spring-app
+    image: ${DOCKER_IMAGE_URL}
+    env_file:
+      - .env
     ports:
-      - 80:80
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
+      - "8080:8080"
+  nginx:
+    container_name: nginx
+    image: "nginx:test"
+    ports:
+      - "80:80"
     depends_on:
-      - spring
-  spring:
-    build: .
-    ports:
-      - 8080:8080
+      - spring-app
