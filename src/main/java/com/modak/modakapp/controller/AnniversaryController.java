@@ -21,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/anniversary")
@@ -39,7 +41,7 @@ public class AnniversaryController {
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> createAnniversary(
             @ApiParam(value = "기념일 생성 정보 및 fromDate, toDate", required = true)
-            @RequestBody AnniversaryVO anniversaryVO
+            @RequestBody @Valid AnniversaryVO anniversaryVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());
@@ -69,7 +71,7 @@ public class AnniversaryController {
     public ResponseEntity<CommonSuccessResponse<AnniversaryResponse>> updateAnniversary(
             @ApiParam(value = "변경할 기념일 정보 및 fromDate, toDate", required = true)
             @PathVariable("anniversary_id") int annId,
-            @RequestBody AnniversaryVO anniversaryVO
+            @RequestBody @Valid AnniversaryVO anniversaryVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());

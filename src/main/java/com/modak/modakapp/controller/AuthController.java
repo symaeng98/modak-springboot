@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -52,7 +53,7 @@ public class AuthController {
     @ApiOperation(value = "회원 가입")
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> createMember(
-            @RequestBody SignUpMemberVO signUpMemberVO
+            @RequestBody @Valid SignUpMemberVO signUpMemberVO
     ) {
         if (memberService.isMemberExists(signUpMemberVO.getProviderId())) {
             throw new MemberAlreadyExistsException("이미 존재하는 회원입니다.");

@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.sql.Date;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class TodoController {
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<CreateTodoResponse>> createTodo(
             @ApiParam(value = "todo 생성 정보 및 fromDate, toDate", required = true)
-            @RequestBody CreateTodoVO createTodoVO
+            @RequestBody @Valid CreateTodoVO createTodoVO
     ) {
         // 담당자 가져오기
         int memberId = createTodoVO.getMemberId();
@@ -108,7 +109,7 @@ public class TodoController {
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> updateTodo(
             @ApiParam(value = "todo 수정 정보", required = true)
             @PathVariable("todo_id") int todoId,
-            @RequestBody UpdateTodoVO updateTodoVO
+            @RequestBody @Valid UpdateTodoVO updateTodoVO
     ) {
         // 담당자
         Member memberWithFamily = memberService.getMemberWithFamily(updateTodoVO.getMemberId());
@@ -167,7 +168,7 @@ public class TodoController {
     @PutMapping("/{todo_id}/done")
     public ResponseEntity<CommonSuccessResponse<UpdateSingleTodoResponse>> done(
             @PathVariable("todo_id") int todoId,
-            @RequestBody DoneTodoVO doneTodoVO
+            @RequestBody @Valid DoneTodoVO doneTodoVO
     ) {
         Todo todo = todoService.getTodoWithMemberAndFamily(todoId);
         Date date = Date.valueOf(doneTodoVO.getDate());
@@ -193,7 +194,7 @@ public class TodoController {
     @DeleteMapping("/{todo_id}")
     public ResponseEntity<CommonSuccessResponse<TodoResponse>> deleteTodo(
             @PathVariable("todo_id") int todoId,
-            @RequestBody DeleteTodoVO deleteTodoVO
+            @RequestBody @Valid DeleteTodoVO deleteTodoVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());

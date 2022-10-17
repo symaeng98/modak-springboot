@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.sql.Date;
 
 @RestController
@@ -40,7 +41,7 @@ public class TodayTalkController {
     @ApiOperation(value = "회원의 오늘 한 마디 등록")
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> createTodayTalk(
-            @RequestBody TodayTalkVO todayTalkVO
+            @RequestBody @Valid TodayTalkVO todayTalkVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());
@@ -95,7 +96,7 @@ public class TodayTalkController {
     @ApiOperation(value = "회원의 오늘 한 마디 수정")
     @PutMapping()
     public ResponseEntity<CommonSuccessResponse<TodayTalkDTO>> updateTodayTalk(
-            @RequestBody TodayTalkVO todayTalkVO
+            @RequestBody @Valid TodayTalkVO todayTalkVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());

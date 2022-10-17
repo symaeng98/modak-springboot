@@ -23,6 +23,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/member")
@@ -40,7 +42,7 @@ public class MemberController {
     @ApiOperation(value = "초대코드로 해당 가족에 포함하기")
     @PutMapping("/invitations")
     public ResponseEntity<CommonSuccessResponse<MemberAndFamilyMemberDTO>> invite(
-            @RequestBody InvitationVO invitationVO
+            @RequestBody @Valid InvitationVO invitationVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());
@@ -65,7 +67,7 @@ public class MemberController {
     @ApiOperation(value = "유저 개인 정보 변경")
     @PutMapping()
     public ResponseEntity<CommonSuccessResponse<MemberDTO>> updateMember(
-            @RequestBody UpdateMemberVO updateMemberVO
+            @RequestBody @Valid UpdateMemberVO updateMemberVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());

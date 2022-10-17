@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.sql.Date;
 
 @RestController
@@ -35,7 +36,7 @@ public class LetterController {
     @ApiOperation(value = "편지 등록")
     @PostMapping()
     public ResponseEntity<CommonSuccessResponse<LettersDTO>> createLetter(
-            @RequestBody LetterVO letterVO
+            @RequestBody @Valid LetterVO letterVO
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());
