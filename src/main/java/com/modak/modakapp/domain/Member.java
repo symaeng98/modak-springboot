@@ -7,7 +7,7 @@ import com.modak.modakapp.dto.metadata.MDFamily;
 import com.modak.modakapp.dto.metadata.MDTag;
 import com.modak.modakapp.utils.converter.MDFamilyAttributeConverter;
 import com.modak.modakapp.utils.converter.MDTagAttributeConverter;
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

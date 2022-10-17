@@ -2,7 +2,7 @@ package com.modak.modakapp.domain;
 
 import com.modak.modakapp.dto.metadata.MetaData;
 import com.modak.modakapp.utils.converter.MetaDataAttributeConverter;
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
