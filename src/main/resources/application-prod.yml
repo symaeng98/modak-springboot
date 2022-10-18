@@ -2,8 +2,9 @@ spring:
   config:
     activate:
       on-profile: prod
+
   datasource:
-    url: jdbc:mysql://db.modak-talk.com:3306/modak?tinyInt1isBit=false
+    url: ${DB_URL}
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PW}
     driver-class-name: com.mysql.cj.jdbc.Driver
