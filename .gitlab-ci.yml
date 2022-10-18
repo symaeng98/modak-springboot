@@ -9,7 +9,7 @@ build:
   stage: build
   script:
     - ./gradlew clean
-    - ./gradlew build
+    - ./gradlew build -Pprofile=prod
   artifacts:
     paths:
       - build/libs/*.jar
