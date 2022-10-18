@@ -69,6 +69,6 @@ public class TodayTalkService {
     }
 
     public boolean isTodayTalkExists(Member member, Date date) {
-        return todayTalkRepository.isExists(member, date);
+        return todayTalkRepository.isExists(member, member.getFamily(), date);
     }
 }

@@ -1,5 +1,6 @@
 package com.modak.modakapp.repository;
 
+import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.TodayTalk;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,10 +34,12 @@ public interface TodayTalkRepository extends JpaRepository<TodayTalk, Integer> {
 
     @Query("select count (tt) > 0 from TodayTalk tt" +
             " where tt.member = :member" +
+            " and tt.family = :family" +
             " and tt.date = :date" +
             " and tt.deletedAt is null")
     boolean isExists(
             @Param("member") Member member,
+            @Param("family") Family family,
             @Param("date") Date date
     );
 }
