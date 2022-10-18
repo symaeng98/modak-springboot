@@ -12,6 +12,5 @@ import lombok.Setter;
 public class MetaDataDTO {
     private String type_code;
     private String key;
-    private String url;
     private String count;
 }

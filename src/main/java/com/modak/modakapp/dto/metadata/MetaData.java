@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 public class MetaData {
     private String type_code;
     private String key;
-    private String url;
     private String count;
 }

@@ -46,7 +46,6 @@ public class MessageService {
                         MetaDataDTO.builder()
                                 .type_code(metaData.getType_code())
                                 .key(metaData.getKey())
-                                .url(metaData.getUrl())
                                 .count(metaData.getCount())
                                 .build());
             }
