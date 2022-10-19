@@ -61,8 +61,8 @@ deploy-ec2:
   #  before_script:
   #    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
   script:
+    - cd /home/ec2-user/
     - ls
-    - ls -a
     - docker-compose down
     - docker-compose pull
     - docker-compose --env-file=.env up -d
