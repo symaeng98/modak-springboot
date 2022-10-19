@@ -42,7 +42,7 @@ package:
   after_script:
     - docker logout
     - echo "EZPZ"
-
+#
 #deploy-ec2:
 #  stage: deploy
 #  tags:
