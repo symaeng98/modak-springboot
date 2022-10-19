@@ -14,5 +14,6 @@ public class ModakappApplication {
         System.out.println("배포 테스트입니다2");
         System.out.println("배포 테스트입니다3");
         System.out.println("배포 테스트입니다4");
+        System.out.println("배포 테스트입니다5");
     }
 }
