@@ -41,20 +41,20 @@ package:
     - docker push $DOCKER_HUB_USER/modak-springboot-app
   after_script:
     - docker logout
-    - echo "EZPZ"
 #
-#deploy-ec2:
-#  stage: deploy
-#  tags:
-#    - deploy
-#  before_script:
-#    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
-#  script:
-#    - docker stop $DOCKER_HUB_USER/modak-springboot-app
-#    - docker run -d -p 8080:8080 $DOCKER_IMAGE_URL
-#  after_script:
-#    - docker logout
-#  when:
-#    on_success
-#  only:
-#    - master
+deploy-ec2:
+  stage: deploy
+  tags:
+    - deploy
+  before_script:
+    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
+  script:
+    - docker-compose down
+    - docker-compose pull
+    - docker-compose --env-file=.env up -d
+  after_script:
+    - docker logout
+  when:
+    on_success
+  only:
+    - master
