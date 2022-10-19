@@ -47,7 +47,7 @@ deploy-ec2:
   tags:
     - deploy
   image:
-    name: docker:stable
+    name: docker:latest
   services:
     - name: docker:dind
       alias: dockerdaemon
