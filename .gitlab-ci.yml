@@ -77,32 +77,23 @@ stages:
 
 test:
   tags:
-    - deploy-ec2
+    - deploy
   stage: test
-  services:
-    - name: docker:dind
-      alias: dockerdaemon
-  variables:
-    # Tell docker CLI how to talk to Docker daemon.
-    DOCKER_HOST: tcp://dockerdaemon:2375/
-    # Use the overlayfs driver for improved performance.
-    DOCKER_DRIVER: overlay2
-    # Disable TLS since we're running inside local network.
-    DOCKER_TLS_CERTDIR: ""
+#  services:
+#    - name: docker:dind
+#      alias: dockerdaemon
+#  variables:
+#    # Tell docker CLI how to talk to Docker daemon.
+#    DOCKER_HOST: tcp://dockerdaemon:2375/
+#    # Use the overlayfs driver for improved performance.
+#    DOCKER_DRIVER: overlay2
+#    # Disable TLS since we're running inside local network.
+#    DOCKER_TLS_CERTDIR: ""
   #  before_script:
   #    - docker login -u $CI_REGISTRY_USER --password-stdin < $CI_REGISTRY_PASSWORD
   script:
-    - cd ..
     - ls
-    - cd ..
-    - ls
-    - cd ..
-    - ls
-    - cd ..
-    - ls
-    - cd home
-    - ls
-    - docker ps
+    - whoami
 #    - docker-compose down
 #    - docker-compose pull
 #    - docker-compose --env-file=.env up -d
