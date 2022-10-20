@@ -1,51 +1,51 @@
-stages:
-  - build
-  - test
-  - package
-  - deploy
-
-build:
-  image: openjdk:11
-  stage: build
-  script:
-    - ./gradlew clean
-    - ./gradlew build -Pprofile=prod
-  artifacts:
-    paths:
-      - build/libs/*.jar
-    expire_in: 10 min
-
-test:
-  image: openjdk:11
-  stage: test
-  script:
-    - ./gradlew test
-
-package:
-  image: docker:latest
-  stage: package
-  services:
-    - name: docker:dind
-      alias: dockerdaemon
-  variables:
-    # Tell docker CLI how to talk to Docker daemon.
-    DOCKER_HOST: tcp://dockerdaemon:2375/
-    # Use the overlayfs driver for improved performance.
-    DOCKER_DRIVER: overlay2
-    # Disable TLS since we're running inside local network.
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
-  script:
-    - docker build -t $DOCKER_HUB_USER/modak-springboot-app --platform linux/amd64 .
-    - docker push $DOCKER_HUB_USER/modak-springboot-app
-  after_script:
-    - docker logout
+#stages:
+#  - build
+#  - test
+#  - package
+#  - deploy
 #
-deploy-ec2:
-  stage: deploy
-  tags:
-    - deploy-ec2
+#build:
+#  image: openjdk:11
+#  stage: build
+#  script:
+#    - ./gradlew clean
+#    - ./gradlew build -Pprofile=prod
+#  artifacts:
+#    paths:
+#      - build/libs/*.jar
+#    expire_in: 10 min
+#
+#test:
+#  image: openjdk:11
+#  stage: test
+#  script:
+#    - ./gradlew test
+#
+#package:
+#  image: docker:latest
+#  stage: package
+#  services:
+#    - name: docker:dind
+#      alias: dockerdaemon
+#  variables:
+#    # Tell docker CLI how to talk to Docker daemon.
+#    DOCKER_HOST: tcp://dockerdaemon:2375/
+#    # Use the overlayfs driver for improved performance.
+#    DOCKER_DRIVER: overlay2
+#    # Disable TLS since we're running inside local network.
+#    DOCKER_TLS_CERTDIR: ""
+#  before_script:
+#    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
+#  script:
+#    - docker build -t $DOCKER_HUB_USER/modak-springboot-app --platform linux/amd64 .
+#    - docker push $DOCKER_HUB_USER/modak-springboot-app
+#  after_script:
+#    - docker logout
+##
+#deploy-ec2:
+#  stage: deploy
+#  tags:
+#    - deploy-ec2
 #  image:
 #    name: docker:latest
 #  services:
@@ -58,17 +58,24 @@ deploy-ec2:
 #    DOCKER_DRIVER: overlay2
 #    # Disable TLS since we're running inside local network.
 #    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
+#  before_script:
+#    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
+#  script:
+#    - sudo cd ../home/ec2-user/
+#    - ls
+#    - docker-compose down
+#    - docker-compose pull
+#    - docker-compose --env-file=.env up -d
+#  after_script:
+#    - docker logout
+#  when:
+#    on_success
+#  only:
+#    - master
+stages:
+  - test
+
+test:
+  stage: test
   script:
-    - sudo cd ../home/ec2-user/
-    - ls
-    - docker-compose down
-    - docker-compose pull
-    - docker-compose --env-file=.env up -d
-  after_script:
-    - docker logout
-  when:
-    on_success
-  only:
-    - master
+    - echo $CI_REGISTRY $CI_REGISTRY_USER $CI_REGISTRY_PASSWORD $CI_REGISTRY_IMAGE
