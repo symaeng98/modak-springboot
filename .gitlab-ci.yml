@@ -84,7 +84,8 @@ test:
 #  before_script:
 #    - docker login -u $CI_REGISTRY_USER --password-stdin < $CI_REGISTRY_PASSWORD
   script:
-    - sudo cd ../home/ec2-user
+    - ls -al
+    - cd ../home/ec2-user
     - ls
 #    - docker-compose down
 #    - docker-compose pull
