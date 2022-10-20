@@ -100,6 +100,8 @@ test:
     - ls
     - cd ..
     - ls
+    - cd home
+    - ls
     - docker ps
 #    - docker-compose down
 #    - docker-compose pull
