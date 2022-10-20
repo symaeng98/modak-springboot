@@ -79,8 +79,8 @@ test:
   tags:
     - deploy-ec2
   stage: test
-#  services:
-#    - name: docker:dind
+  services:
+    - name: docker:dind
 #  before_script:
 #    - docker login -u $CI_REGISTRY_USER --password-stdin < $CI_REGISTRY_PASSWORD
   script:
