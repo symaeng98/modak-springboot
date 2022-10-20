@@ -76,8 +76,6 @@ stages:
   - test
 
 test:
-  tags:
-    - deploy
   stage: test
   #  services:
   #    - name: docker:dind
@@ -92,9 +90,12 @@ test:
   #  before_script:
   #    - docker login -u $CI_REGISTRY_USER --password-stdin < $CI_REGISTRY_PASSWORD
   script:
-    - cd ..home/ec2-user
+    - cd ..
+    - cd ..
+    - cd ..
+    - cd ..
+    - cd ..
     - ls
-    - whoami
 #    - docker-compose down
 #    - docker-compose pull
 #    - docker-compose --env-file=.env up -d
