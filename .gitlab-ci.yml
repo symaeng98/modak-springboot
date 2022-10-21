@@ -1,47 +1,47 @@
-#stages:
-#  - build
-#  - test
-#  - package
-#  - deploy
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+build:
+  image: openjdk:11
+  stage: build
+  script:
+    - ./gradlew clean
+    - ./gradlew build -Pprofile=prod
+  artifacts:
+    paths:
+      - build/libs/*.jar
+    expire_in: 10 min
+
+test:
+  image: openjdk:11
+  stage: test
+  script:
+    - ./gradlew test
+
+package:
+  image: docker:latest
+  stage: package
+  services:
+    - name: docker:dind
+      alias: dockerdaemon
+  variables:
+    # Tell docker CLI how to talk to Docker daemon.
+    DOCKER_HOST: tcp://dockerdaemon:2375/
+    # Use the overlayfs driver for improved performance.
+    DOCKER_DRIVER: overlay2
+    # Disable TLS since we're running inside local network.
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
+  script:
+    - docker build -t $DOCKER_HUB_USER/modak-springboot-app --platform linux/amd64 .
+    - docker push $DOCKER_HUB_USER/modak-springboot-app
+  after_script:
+    - docker logout
 #
-#build:
-#  image: openjdk:11
-#  stage: build
-#  script:
-#    - ./gradlew clean
-#    - ./gradlew build -Pprofile=prod
-#  artifacts:
-#    paths:
-#      - build/libs/*.jar
-#    expire_in: 10 min
-#
-#test:
-#  image: openjdk:11
-#  stage: test
-#  script:
-#    - ./gradlew test
-#
-#package:
-#  image: docker:latest
-#  stage: package
-#  services:
-#    - name: docker:dind
-#      alias: dockerdaemon
-#  variables:
-#    # Tell docker CLI how to talk to Docker daemon.
-#    DOCKER_HOST: tcp://dockerdaemon:2375/
-#    # Use the overlayfs driver for improved performance.
-#    DOCKER_DRIVER: overlay2
-#    # Disable TLS since we're running inside local network.
-#    DOCKER_TLS_CERTDIR: ""
-#  before_script:
-#    - docker login -u $DOCKER_HUB_USER --password-stdin < $DOCKER_HUB_PW
-#  script:
-#    - docker build -t $DOCKER_HUB_USER/modak-springboot-app --platform linux/amd64 .
-#    - docker push $DOCKER_HUB_USER/modak-springboot-app
-#  after_script:
-#    - docker logout
-##
 #deploy-ec2:
 #  stage: deploy
 #  tags:
@@ -72,30 +72,31 @@
 #    on_success
 #  only:
 #    - master
-stages:
-  - test
-
-test:
-  stage: test
-  #  services:
-  #    - name: docker:dind
-  #      alias: dockerdaemon
-  #  variables:
-  #    # Tell docker CLI how to talk to Docker daemon.
-  #    DOCKER_HOST: tcp://dockerdaemon:2375/
-  #    # Use the overlayfs driver for improved performance.
-  #    DOCKER_DRIVER: overlay2
-  #    # Disable TLS since we're running inside local network.
-  #    DOCKER_TLS_CERTDIR: ""
-  #  before_script:
-  #    - docker login -u $CI_REGISTRY_USER --password-stdin < $CI_REGISTRY_PASSWORD
-  script:
-    - cd ..
-    - cd ..
-    - cd ..
-    - cd ..
-    - cd ..
-    - ls
-#    - docker-compose down
-#    - docker-compose pull
-#    - docker-compose --env-file=.env up -d
+#stages:
+#  - test
+#
+#test:
+#  stage: test
+#  #  services:
+#  #    - name: docker:dind
+#  #      alias: dockerdaemon
+#  #  variables:
+#  #    # Tell docker CLI how to talk to Docker daemon.
+#  #    DOCKER_HOST: tcp://dockerdaemon:2375/
+#  #    # Use the overlayfs driver for improved performance.
+#  #    DOCKER_DRIVER: overlay2
+#  #    # Disable TLS since we're running inside local network.
+#  #    DOCKER_TLS_CERTDIR: ""
+#  #  before_script:
+#  #    - docker login -u $CI_REGISTRY_USER --password-stdin < $CI_REGISTRY_PASSWORD
+#  before_script:
+#    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+#    - eval $(ssh-agent -s)
+#    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+#    - mkdir -p ~/.ssh
+#    - chmod 700 ~/.ssh
+#  script:
+#
+##    - docker-compose down
+##    - docker-compose pull
+##    - docker-compose --env-file=.env up -d

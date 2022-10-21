@@ -47,6 +47,14 @@ public class MessageService {
                                 .type_code(metaData.getType_code())
                                 .key(metaData.getKey())
                                 .count(metaData.getCount())
+                                .title(metaData.getTitle())
+                                .addTodo(metaData.getAddTodo())
+                                .participatedUser(metaData.getParticipatedUser())
+                                .selectedUser(metaData.getSelectedUser())
+                                .feeling(metaData.getFeeling())
+                                .step(metaData.getStep())
+                                .quizType(metaData.getQuizType())
+                                .hint(metaData.getHint())
                                 .build());
             }
             messageDTOList.add(messageDTO);
