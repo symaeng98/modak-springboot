@@ -30,7 +30,8 @@ public class MessageService {
 
         List<MessageDTO> messageDTOList = new ArrayList<>();
 
-        for (Message message : messageList) {
+        for (int i = messageList.size() - 1; i >= 0; i--) {
+            Message message = messageList.get(i);
             MessageDTO messageDTO = MessageDTO.builder()
                     .messageId(message.getId())
                     .memberId(message.getMember().getId())
