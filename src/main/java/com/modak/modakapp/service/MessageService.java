@@ -30,8 +30,7 @@ public class MessageService {
 
         List<MessageDTO> messageDTOList = new ArrayList<>();
 
-        for (int i = messageList.size() - 1; i >= 0; i--) {
-            Message message = messageList.get(i);
+        for (Message message : messageList) {
             MessageDTO messageDTO = MessageDTO.builder()
                     .messageId(message.getId())
                     .memberId(message.getMember().getId())
@@ -49,7 +48,7 @@ public class MessageService {
                                 .count(metaData.getCount())
                                 .title(metaData.getTitle())
                                 .addTodo(metaData.getAddTodo())
-                                .participatedUser(metaData.getParticipatedUser())
+                                .participatedUsers(metaData.getParticipatedUsers())
                                 .selectedUser(metaData.getSelectedUser())
                                 .feeling(metaData.getFeeling())
                                 .step(metaData.getStep())
