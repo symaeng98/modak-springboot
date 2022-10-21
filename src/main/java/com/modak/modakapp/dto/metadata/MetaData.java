@@ -18,7 +18,7 @@ public class MetaData {
     // 룰렛
     private String title;
     private Boolean addTodo;
-    private List<MemberMessageDTO> participatedUser;
+    private List<MemberMessageDTO> participatedUsers;
     private MemberMessageDTO selectedUser;
 
     // 감정
