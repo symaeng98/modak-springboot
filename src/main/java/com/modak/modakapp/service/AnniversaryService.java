@@ -70,7 +70,7 @@ public class AnniversaryService {
     }
 
     public Anniversary getBirthdayByMember(int memberId) {
-        return anniversaryRepository.findAnniversaryByIsBirthday(memberId);
+        return anniversaryRepository.findByIsBirthdayAndMemberId(1, memberId).orElseThrow(() -> new NoSuchAnniversaryException("기념일이 존재하지 않습니다."));
     }
 
 

@@ -40,7 +40,7 @@ public class TodoDoneService {
 
     @Transactional
     public void updateIsDone(Todo todo, Date date, int isDone) {
-        List<TodoDone> todoDones = todoDoneRepository.findByTodo(todo);
+        List<TodoDone> todoDones = todoDoneRepository.findAllByTodo(todo);
         if (todoDones.size() == 0) { // 완료된 적 없음
             Member member = todo.getMember();
             Family family = todo.getFamily();
@@ -74,7 +74,7 @@ public class TodoDoneService {
 
     @Transactional
     public void deleteTodoDone(Todo todo) {
-        List<TodoDone> todoDoneList = todoDoneRepository.findByTodo(todo);
+        List<TodoDone> todoDoneList = todoDoneRepository.findAllByTodo(todo);
         todoDoneList.forEach(td -> {
             td.removeTodoDone(Timestamp.valueOf(LocalDateTime.now()));
         });

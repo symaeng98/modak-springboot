@@ -13,35 +13,30 @@ public interface TodoRepository extends JpaRepository<Todo, Integer> {
     @Query("select t from Todo t" +
             " join fetch t.family" +
             " join fetch t.member" +
-            " where t.id = :id" +
-            " and t.deletedAt is null")
+            " where t.id = :id")
     Optional<Todo> findById(@Param("id") int id);
 
-    @Query("select t from Todo t" +
-            " where t.groupTodoId =:groupId" +
-            " and t.deletedAt is null")
-    List<Todo> findAllByGroupId(@Param("groupId") int groupId);
+    //    @Query("select t from Todo t" +
+//        " where t.groupTodoId =:groupTodoId")
+    List<Todo> findAllByGroupTodoId(int groupTodoId);
 
-    @Query("select t from Todo t" +
-            " where t.family.id =:familyId" +
-            " and t.deletedAt is null")
-    List<Todo> findAllByFamilyId(@Param("familyId") int familyId);
+    //    @Query("select t from Todo t" +
+//            " where t.family.id =:familyId")
+    List<Todo> findAllByFamilyId(int familyId);
 
-    @Query("select t from Todo t" +
-            " where t.endDate >= :date" +
-            " and t.groupTodoId = :groupTodoId" +
-            " and t.deletedAt is null ")
-    List<Todo> findAllByGroupIdAndDate(
-            @Param("date") Date date,
-            @Param("groupTodoId") int groupTodoId
+    //    @Query("select t from Todo t" +
+//        " where t.endDate >= :date" +
+//        " and t.groupTodoId = :groupTodoId")
+    List<Todo> findAllByGroupTodoIdAndEndDateGreaterThanEqual(
+            int groupTodoId,
+            Date date
     );
 
     // gg
     @Query("select t from Todo t" +
             " where ((:fromDate <= t.startDate and t.startDate <= :toDate)" +
             " or (t.startDate < :fromDate and :fromDate <= t.endDate))" +
-            " and t.family.id = :familyId" +
-            " and t.deletedAt is null")
+            " and t.family.id = :familyId")
     List<Todo> findAllByFromDateAndToDate(
             @Param("fromDate") Date fromDate,
             @Param("toDate") Date toDate,

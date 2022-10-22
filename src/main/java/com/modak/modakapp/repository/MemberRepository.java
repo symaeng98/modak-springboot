@@ -11,38 +11,37 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Integer> {
-    @Query("select m from Member m" +
-            " where m.id = :id and m.deletedAt is null ")
-    Optional<Member> findById(@Param("id") int id);
+    //    @Query("select m from Member m" +
+//            " where m.id = :id")
+    Optional<Member> findById(int id);
 
     @Query("select m from Member m join fetch m.family" +
             " where m.providerId = :providerId" +
-            " and m.provider = :provider and m.deletedAt is null ")
+            " and m.provider = :provider")
     Optional<Member> findByProviderAndProviderId(@Param("provider") Provider provider, @Param("providerId") String providerId);
 
     @Query("select m" +
             " from Member m join fetch m.family" +
-            " where m.id = :id and m.deletedAt is null ")
+            " where m.id = :id")
     Optional<Member> findMemberWithFamilyById(@Param("id") int id);
 
     @Query("select m" +
             " from Member m join fetch m.family" +
             " join fetch m.todayFortune" +
-            " where m.id = :id and m.deletedAt is null ")
+            " where m.id = :id")
     Optional<Member> findMemberWithFamilyAndTodayFortuneById(@Param("id") int id);
 
-    @Query("select m" +
-            " from Member m" +
-            " where m.family = :family" +
-            " and m.deletedAt is null ")
-    List<Member> findMembersByFamily(@Param("family") Family family);
+    //    @Query("select m" +
+//            " from Member m" +
+//            " where m.family = :family")
+    List<Member> findAllByFamily(Family family);
 
     @Query("select m.color from Member m" +
-            " where m.family = :family and m.deletedAt is null")
+            " where m.family = :family")
     List<String> findColorsByFamilyId(@Param("family") Family family);
 
     @Query("select count (m) > 0 " +
             "from Member m " +
-            "where m.providerId = :providerId and m.deletedAt is null ")
+            "where m.providerId = :providerId")
     boolean isExists(@Param(value = "providerId") String providerId);
 }

@@ -49,7 +49,7 @@ public class MemberService {
     }
 
     public List<Member> getMembersByFamily(Family family) {
-        return memberRepository.findMembersByFamily(family);
+        return memberRepository.findAllByFamily(family);
     }
 
     public MemberDTO getMemberInfo(Member member) {
@@ -88,7 +88,7 @@ public class MemberService {
         Family family = member.getFamily();
 
         List<FamilyMemberDTO> result = new ArrayList<>();
-        List<Member> members = memberRepository.findMembersByFamily(family);
+        List<Member> members = memberRepository.findAllByFamily(family);
 
         for (Member m : members) {
             if (m.getId() == memberId) {

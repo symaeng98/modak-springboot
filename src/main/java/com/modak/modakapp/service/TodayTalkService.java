@@ -32,7 +32,7 @@ public class TodayTalkService {
     }
 
     public TodayTalk getTodayTalkByMemberAndDate(Member member, Date date) {
-        return todayTalkRepository.findTodayTalkByMemberAndDate(member, date).orElseThrow(() -> new NoSuchTodayTalkException("조건에 해당하는 가족 한 마디가 존재하지 않습니다."));
+        return todayTalkRepository.findByMemberAndDate(member, date).orElseThrow(() -> new NoSuchTodayTalkException("조건에 해당하는 가족 한 마디가 존재하지 않습니다."));
     }
 
     @Transactional

@@ -15,28 +15,25 @@ public interface TodayTalkRepository extends JpaRepository<TodayTalk, Integer> {
     @Query("select tt from TodayTalk tt" +
             " where tt.date >= :startDate" +
             " and tt.date <= :endDate" +
-            " and tt.family.id = :familyId" +
-            " and tt.deletedAt is null")
+            " and tt.family.id = :familyId")
     List<TodayTalk> findTodayTalkByDate(
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate,
             @Param("familyId") int familyId
     );
 
-    @Query("select tt from TodayTalk tt" +
-            " where tt.member = :member" +
-            " and tt.date = :date" +
-            " and tt.deletedAt is null")
-    Optional<TodayTalk> findTodayTalkByMemberAndDate(
-            @Param("member") Member member,
-            @Param("date") Date date
+    //    @Query("select tt from TodayTalk tt" +
+//            " where tt.member = :member" +
+//            " and tt.date = :date")
+    Optional<TodayTalk> findByMemberAndDate(
+            Member member,
+            Date date
     );
 
     @Query("select count (tt) > 0 from TodayTalk tt" +
             " where tt.member = :member" +
             " and tt.family = :family" +
-            " and tt.date = :date" +
-            " and tt.deletedAt is null")
+            " and tt.date = :date")
     boolean isExists(
             @Param("member") Member member,
             @Param("family") Family family,

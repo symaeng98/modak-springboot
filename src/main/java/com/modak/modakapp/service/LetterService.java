@@ -26,7 +26,7 @@ public class LetterService {
     }
 
     public Letter findById(int letterId) {
-        return letterRepository.findLetterById(letterId).orElseThrow(() -> new NoSuchLetterException("해당 편지가 없습니다."));
+        return letterRepository.findById(letterId).orElseThrow(() -> new NoSuchLetterException("해당 편지가 없습니다."));
     }
 
     public LettersDTO getLettersByMember(Member fromMember) {
