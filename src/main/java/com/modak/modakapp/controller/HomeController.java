@@ -7,6 +7,7 @@ import com.modak.modakapp.dto.member.MemberAndFamilyMemberDTO;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
 import com.modak.modakapp.dto.response.todo.TodoResponse;
+import com.modak.modakapp.dto.todaycontent.TodayContentDTO;
 import com.modak.modakapp.dto.todayfortune.TodayFortuneDTO;
 import com.modak.modakapp.dto.todaytalk.TodayTalkDTO;
 import com.modak.modakapp.service.*;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Date;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class HomeController {
     private final TodayTalkService todayTalkService;
     private final AnniversaryService anniversaryService;
     private final TodayFortuneService todayFortuneService;
+    private final TodayContentService todayContentService;
     private final String ACCESS_TOKEN = "Access-Token";
 
     @ApiResponses({
@@ -69,12 +72,16 @@ public class HomeController {
         // 하루 한 문장
         TodayFortuneDTO homeTodayFortune = todayFortuneService.getHomeTodayFortune(member);
 
+        // 오늘의 컨텐츠
+        List<TodayContentDTO> todayContents = todayContentService.getTodayContent(date);
+
         HomeDTO homeDto = HomeDTO.builder()
                 .memberAndFamilyMembers(memberAndFamilyDto)
                 .todayTodos(colorsAndItemsAndGaugeByDateRange)
                 .todayTalks(todayTalkDto)
                 .anniversaries(dateAnniversaryData)
                 .todayFortune(homeTodayFortune)
+                .todayContents(todayContents)
                 .build();
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("홈 화면 정보 및 기본 정보 불러오기 성공", homeDto, true));
