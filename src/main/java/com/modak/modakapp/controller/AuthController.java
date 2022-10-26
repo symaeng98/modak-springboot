@@ -3,6 +3,7 @@ package com.modak.modakapp.controller;
 import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.domain.TodayFortune;
 import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.domain.enums.Provider;
 import com.modak.modakapp.domain.enums.Role;
@@ -13,6 +14,7 @@ import com.modak.modakapp.exception.token.NotMatchRefreshTokenException;
 import com.modak.modakapp.service.AnniversaryService;
 import com.modak.modakapp.service.FamilyService;
 import com.modak.modakapp.service.MemberService;
+import com.modak.modakapp.service.TodayFortuneService;
 import com.modak.modakapp.utils.jwt.TokenService;
 import com.modak.modakapp.vo.member.SignUpMemberVO;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +42,7 @@ public class AuthController {
     private final FamilyService familyService;
     private final AnniversaryService anniversaryService;
     private final TokenService tokenService;
+    private final TodayFortuneService todayFortuneService;
     private final HttpServletResponse servletResponse;
     private final String TOKEN_HEADER = "Bearer ";
     private final String ACCESS_TOKEN = "Access-Token";
@@ -66,6 +69,8 @@ public class AuthController {
         Date birthday = Date.valueOf(signUpMemberVO.getBirthday());
         String colorForMember = memberService.getColorForMember(family);
 
+        TodayFortune todayFortune = todayFortuneService.generateTodayFortune();
+
         // 회원 등록
         Member member = Member.builder()
                 .family(family)
@@ -80,6 +85,7 @@ public class AuthController {
                 .refreshToken("default refresh")
                 .fcmToken("default fcm")
                 .roles(Collections.singletonList("ROLE_USER"))
+                .todayFortune(todayFortune)
                 .build();
 
         int memberId = memberService.join(member);

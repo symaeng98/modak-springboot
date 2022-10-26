@@ -45,17 +45,20 @@ public class TodayFortuneController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());
 
-        Member member = memberService.getMember(memberId);
+        Member member = memberService.getMemberWithTodayFortune(memberId);
 
-        TodayFortune todayFortune = member.getTodayFortune();
         Date todayFortuneAt = member.getTodayFortuneAt();
 
-        // 바꿔야되는 경우
-        if (todayFortune == null || todayFortuneAt.before(Date.valueOf(LocalDate.now()))) {
+        TodayFortune todayFortune;
+
+        // 바꿔야 할 때
+        if (todayFortuneAt == null || todayFortuneAt.before(Date.valueOf(LocalDate.now()))) {
             TodayFortune newFortune = todayFortuneService.generateTodayFortune();
-            memberService.updateTodayFortuneAndTodayFortuneAt(member, newFortune);
-            todayFortune = newFortune;
             todayFortuneAt = Date.valueOf(LocalDate.now());
+            todayFortune = newFortune;
+            memberService.updateTodayFortuneAndTodayFortuneAt(member, newFortune, todayFortuneAt);
+        } else {
+            todayFortune = member.getTodayFortune();
         }
 
         TodayFortuneDTO todayFortuneDto = TodayFortuneDTO.builder()

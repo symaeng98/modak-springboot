@@ -115,7 +115,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<?> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
         e.printStackTrace();
-        Sentry.captureException(e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonFailResponse.response("헤더에 필수로 들어가야 하는 값이 없습니다.", "MissingRequestHeaderException"));
     }
 

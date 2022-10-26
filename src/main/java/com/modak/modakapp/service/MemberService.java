@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +45,10 @@ public class MemberService {
 
     public Member getMemberWithFamily(int memberId) {
         return memberRepository.findMemberWithFamilyById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
+    }
+
+    public Member getMemberWithTodayFortune(int memberId) {
+        return memberRepository.findMemberWithTodayFortuneById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
     }
 
     public List<Member> getMembersByFamily(Family family) {
@@ -156,8 +159,8 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateTodayFortuneAndTodayFortuneAt(Member member, TodayFortune todayFortune) {
-        member.changeTodayFortuneAndTodayFortuneAt(todayFortune, Date.valueOf(LocalDate.now()));
+    public void updateTodayFortuneAndTodayFortuneAt(Member member, TodayFortune todayFortune, Date todayFortuneAt) {
+        member.changeTodayFortuneAndTodayFortuneAt(todayFortune, todayFortuneAt);
     }
 
     @Transactional

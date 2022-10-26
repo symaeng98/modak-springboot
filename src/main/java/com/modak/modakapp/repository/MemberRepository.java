@@ -26,10 +26,9 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
     Optional<Member> findMemberWithFamilyById(@Param("id") int id);
 
     @Query("select m" +
-            " from Member m join fetch m.family" +
-            " join fetch m.todayFortune" +
+            " from Member m join fetch m.todayFortune" +
             " where m.id = :id")
-    Optional<Member> findMemberWithFamilyAndTodayFortuneById(@Param("id") int id);
+    Optional<Member> findMemberWithTodayFortuneById(@Param("id") int id);
 
     //    @Query("select m" +
 //            " from Member m" +
