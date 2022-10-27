@@ -12,7 +12,7 @@ public enum ErrorCode {
     NO_TOKEN("헤더에 토큰이 없습니다.", false, "NullPointerException"),
     ;
 
-    private String message;
-    private boolean status;
-    private String code;
+    private final String message;
+    private final boolean status;
+    private final String code;
 }

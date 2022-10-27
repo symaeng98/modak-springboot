@@ -20,7 +20,8 @@ public class TodayContentService {
 
     public List<TodayContentDTO> getTodayContent(String date) {
         int numOfContents = 6;
-        String standardDate = "2022-10-26";
+        // 이 날부터 시작
+        String standardDate = "2022-10-27";
 
         Calendar getRequestedDate = Calendar.getInstance();
         getRequestedDate.setTime(Date.valueOf(date)); // 요청한 날짜
