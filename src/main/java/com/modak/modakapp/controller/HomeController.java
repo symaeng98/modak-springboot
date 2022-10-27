@@ -38,7 +38,7 @@ public class HomeController {
     private final AnniversaryService anniversaryService;
     private final TodayFortuneService todayFortuneService;
     private final TodayContentService todayContentService;
-    private final String ACCESS_TOKEN = "Access-Token";
+
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 홈 정보 불러오기를 완료했습니다."),
@@ -50,7 +50,6 @@ public class HomeController {
     public ResponseEntity<CommonSuccessResponse<HomeDTO>> getHomeInformation(
             @RequestParam String date
     ) {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());
 
@@ -58,7 +57,11 @@ public class HomeController {
         Family family = member.getFamily();
 
         // 회원 정보
-        MemberAndFamilyMemberDTO memberAndFamilyDto = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = MemberAndFamilyMemberDTO.builder()
+                .familyCode(family.getCode())
+                .memberResult(memberService.getMemberInfo(member))
+                .familyMembersResult(memberService.getFamilyMembersInfo(member))
+                .build();
 
         // 할 일 정보
         TodoResponse colorsAndItemsAndGaugeByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(date, date, family);
@@ -76,7 +79,7 @@ public class HomeController {
         List<TodayContentDTO> todayContents = todayContentService.getTodayContent(date);
 
         HomeDTO homeDto = HomeDTO.builder()
-                .memberAndFamilyMembers(memberAndFamilyDto)
+                .memberAndFamilyMembers(memberAndFamilyMemberDTO)
                 .todayTodos(colorsAndItemsAndGaugeByDateRange)
                 .todayTalks(todayTalkDto)
                 .anniversaries(dateAnniversaryData)

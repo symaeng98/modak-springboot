@@ -38,10 +38,8 @@ import java.util.List;
 public class TodoController {
     private final TodoService todoService;
     private final MemberService memberService;
-    private final TokenService tokenService;
     private final TodoDoneService todoDoneService;
     private final TodoUtil todoUtil;
-    private final String ACCESS_TOKEN = "Access-Token";
 
     @ApiResponses({
             @ApiResponse(code = 201, message = "할 일 등록에 성공하였습니다."),

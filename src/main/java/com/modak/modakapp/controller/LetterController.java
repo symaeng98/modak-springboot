@@ -68,7 +68,6 @@ public class LetterController {
     @ApiOperation(value = "편지 목록 조회")
     @GetMapping()
     public ResponseEntity<CommonSuccessResponse<LettersDTO>> getSentLetter(
-
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int memberId = Integer.parseInt(authentication.getName());

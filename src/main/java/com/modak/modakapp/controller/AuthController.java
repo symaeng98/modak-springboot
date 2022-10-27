@@ -112,7 +112,11 @@ public class AuthController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + accessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + refreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = MemberAndFamilyMemberDTO.builder()
+                .familyCode(family.getCode())
+                .memberResult(memberService.getMemberInfo(member))
+                .familyMembersResult(memberService.getFamilyMembersInfo(member))
+                .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("회원 가입 성공", memberAndFamilyMemberDTO, true));
     }
@@ -140,7 +144,11 @@ public class AuthController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = MemberAndFamilyMemberDTO.builder()
+                .familyCode(family.getCode())
+                .memberResult(memberService.getMemberInfo(member))
+                .familyMembersResult(memberService.getFamilyMembersInfo(member))
+                .build();
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("소셜 로그인 성공", memberAndFamilyMemberDTO, true));
     }
@@ -174,9 +182,13 @@ public class AuthController {
         servletResponse.setHeader(ACCESS_TOKEN, TOKEN_HEADER + newAccessToken);
         servletResponse.setHeader(REFRESH_TOKEN, TOKEN_HEADER + newRefreshToken);
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDto = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = MemberAndFamilyMemberDTO.builder()
+                .familyCode(family.getCode())
+                .memberResult(memberService.getMemberInfo(member))
+                .familyMembersResult(memberService.getFamilyMembersInfo(member))
+                .build();
 
-        return ResponseEntity.ok(new CommonSuccessResponse<>("Access Token, Refresh Token 발급 성공", memberAndFamilyMemberDto, true));
+        return ResponseEntity.ok(new CommonSuccessResponse<>("Access Token, Refresh Token 발급 성공", memberAndFamilyMemberDTO, true));
     }
 }
 

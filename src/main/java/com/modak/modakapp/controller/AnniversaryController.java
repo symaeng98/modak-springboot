@@ -3,6 +3,7 @@ package com.modak.modakapp.controller;
 import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
+import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.dto.response.anniversary.AnniversaryResponse;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
@@ -22,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.sql.Date;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,8 +32,7 @@ import javax.validation.Valid;
 public class AnniversaryController {
     private final AnniversaryService anniversaryService;
     private final MemberService memberService;
-
-    // 공통되는 응답 코멘트 부분 변수로 묶기 - 추후 (ACCESS_TOKEN_EXCEPTION_MESSAGE)
+    
     @ApiResponses({
             @ApiResponse(code = 201, message = "기념일 생성을 성공하였습니다."),
             @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
@@ -51,8 +52,17 @@ public class AnniversaryController {
         Family family = memberWithFamily.getFamily();
         int familyId = family.getId();
 
-        Anniversary anniversary = anniversaryVO.toEntity();
-        anniversary.changeMemberAndFamily(memberWithFamily, family);
+        Anniversary anniversary = Anniversary.builder()
+                .member(memberWithFamily)
+                .family(family)
+                .title(anniversaryVO.getTitle())
+                .startDate(Date.valueOf(anniversaryVO.getDate()))
+                .endDate(Date.valueOf(anniversaryVO.getDate()))
+                .category(Category.valueOf(anniversaryVO.getCategory()))
+                .memo(anniversaryVO.getMemo())
+                .isYear(anniversaryVO.getIsYear())
+                .isLunar(anniversaryVO.getIsLunar())
+                .build();
 
         int anniversaryId = anniversaryService.join(anniversary);
 

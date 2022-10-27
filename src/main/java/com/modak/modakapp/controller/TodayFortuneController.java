@@ -29,8 +29,6 @@ import java.time.LocalDate;
 public class TodayFortuneController {
     private final MemberService memberService;
     private final TodayFortuneService todayFortuneService;
-    private final TokenService tokenService;
-    private final String ACCESS_TOKEN = "Access-Token";
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 회원의 하루 한 문장을 가져왔습니다."),

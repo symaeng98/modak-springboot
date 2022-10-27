@@ -30,8 +30,6 @@ import java.sql.Date;
 public class TodayTalkController {
     private final MemberService memberService;
     private final TodayTalkService todayTalkService;
-    private final TokenService tokenService;
-    private final String ACCESS_TOKEN = "Access-Token";
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 회원의 오늘의 한 마디를 등록했습니다."),

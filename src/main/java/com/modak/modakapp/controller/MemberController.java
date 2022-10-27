@@ -54,7 +54,11 @@ public class MemberController {
         memberService.updateMemberFamily(member, family, colorForMember);
 
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = MemberAndFamilyMemberDTO.builder()
+                .familyCode(family.getCode())
+                .memberResult(memberService.getMemberInfo(member))
+                .familyMembersResult(memberService.getFamilyMembersInfo(member))
+                .build();
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 초대 받기 성공", memberAndFamilyMemberDTO, true));
     }
@@ -100,7 +104,11 @@ public class MemberController {
         Member member = memberService.getMemberWithFamily(memberId);
         Family family = member.getFamily();
 
-        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = new MemberAndFamilyMemberDTO(family.getCode(), memberService.getMemberInfo(member), memberService.getFamilyMembersInfo(member));
+        MemberAndFamilyMemberDTO memberAndFamilyMemberDTO = MemberAndFamilyMemberDTO.builder()
+                .familyCode(family.getCode())
+                .memberResult(memberService.getMemberInfo(member))
+                .familyMembersResult(memberService.getFamilyMembersInfo(member))
+                .build();
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원 및 가족 정보 불러오기 성공", memberAndFamilyMemberDTO, true));
     }

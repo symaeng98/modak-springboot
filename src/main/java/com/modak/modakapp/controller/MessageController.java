@@ -7,7 +7,6 @@ import com.modak.modakapp.dto.message.MessageResult;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.MessageService;
-import com.modak.modakapp.utils.jwt.TokenService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -29,9 +28,7 @@ import java.util.List;
 @Slf4j
 public class MessageController {
     private final MemberService memberService;
-    private final TokenService tokenService;
     private final MessageService messageService;
-    private final String ACCESS_TOKEN = "Access-Token";
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 채팅 목록을 불러왔습니다."),
