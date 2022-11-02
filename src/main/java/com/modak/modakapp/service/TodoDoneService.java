@@ -68,7 +68,6 @@ public class TodoDoneService {
                     .build();
             todoDone.changeTodo(todo);
             todoDoneRepository.save(todoDone);
-            System.out.println("개수1 : " + todoDones.size());
             return;
         }
         TodoDone todoDone = todoDoneList.get(0);
