@@ -34,6 +34,7 @@ public interface TodoRepository extends JpaRepository<Todo, Integer> {
 
     // gg
     @Query("select t from Todo t" +
+            " join fetch t.member" +
             " where ((:fromDate <= t.startDate and t.startDate <= :toDate)" +
             " or (t.startDate < :fromDate and :fromDate <= t.endDate))" +
             " and t.family.id = :familyId")
