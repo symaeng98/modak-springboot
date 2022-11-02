@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -32,8 +33,9 @@ public class Todo extends BaseTimeEntity {
     @JoinColumn(name = "family_id")
     private Family family;
 
-    @OneToMany(mappedBy = "todo")
+    @OneToMany(mappedBy = "todo", fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 500)
     private List<TodoDone> todoDoneList = new ArrayList<>();
 
     @Column(name = "group_todo_id")
