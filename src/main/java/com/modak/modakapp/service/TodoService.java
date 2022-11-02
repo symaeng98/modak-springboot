@@ -330,7 +330,6 @@ public class TodoService {
         Date sqlFromDate = Date.valueOf(fromDate);
         Date sqlToDate = Date.valueOf(toDate);
         List<Todo> todoList = todoRepository.findAllByFromDateAndToDate(sqlFromDate, sqlToDate, family.getId());
-
         for (String date : dates) {
             List<String> colorList = new ArrayList<>();
             List<TodoDTO> todoDTOList = new ArrayList<>();
