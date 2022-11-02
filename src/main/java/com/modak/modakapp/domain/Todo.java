@@ -9,6 +9,8 @@ import org.hibernate.annotations.Where;
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,6 +31,10 @@ public class Todo extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")
     private Family family;
+
+    @OneToMany(mappedBy = "todo")
+    @Builder.Default
+    private List<TodoDone> todoDoneList = new ArrayList<>();
 
     @Column(name = "group_todo_id")
     private int groupTodoId;
@@ -112,6 +118,10 @@ public class Todo extends BaseTimeEntity {
 
     public void changeStartDate(Date startDate) {
         this.startDate = startDate;
+    }
+
+    public void clearTodoDone() {
+        this.todoDoneList.clear();
     }
 
     public void removeTodo(Timestamp deletedAt) {

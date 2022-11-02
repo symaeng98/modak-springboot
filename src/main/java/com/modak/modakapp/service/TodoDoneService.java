@@ -33,24 +33,26 @@ public class TodoDoneService {
 //        return todoDone;
 //    }
 
-    public int getNumOfTodoDone(int familyId) {
-        Long doneNum = todoDoneRepository.findNumOfDoneByFamilyId(familyId);
+    public int getNumOfTodoDone(Family family) {
+        Long doneNum = todoDoneRepository.findNumOfDoneByFamilyId(family);
         return doneNum.intValue();
     }
 
     @Transactional
     public void updateIsDone(Todo todo, Date date, int isDone) {
-        List<TodoDone> todoDones = todoDoneRepository.findAllByTodo(todo);
+//        List<TodoDone> todoDones = todoDoneRepository.findAllByTodo(todo);
+        List<TodoDone> todoDones = todo.getTodoDoneList();
+        System.out.println(todoDones.size());
         if (todoDones.size() == 0) { // 완료된 적 없음
             Member member = todo.getMember();
             Family family = todo.getFamily();
             TodoDone todoDone = TodoDone.builder()
-                    .todo(todo)
                     .member(member)
                     .family(family)
                     .isDone(isDone)
                     .date(date)
                     .build();
+            todoDone.changeTodo(todo);
             todoDoneRepository.save(todoDone);
             return;
         }
@@ -59,13 +61,14 @@ public class TodoDoneService {
             Member member = todo.getMember();
             Family family = todo.getFamily();
             TodoDone todoDone = TodoDone.builder()
-                    .todo(todo)
                     .member(member)
                     .family(family)
                     .isDone(isDone)
                     .date(date)
                     .build();
+            todoDone.changeTodo(todo);
             todoDoneRepository.save(todoDone);
+            System.out.println("개수1 : " + todoDones.size());
             return;
         }
         TodoDone todoDone = todoDoneList.get(0);
@@ -73,10 +76,14 @@ public class TodoDoneService {
     }
 
     @Transactional
-    public void deleteTodoDone(Todo todo) {
-        List<TodoDone> todoDoneList = todoDoneRepository.findAllByTodo(todo);
-        todoDoneList.forEach(td -> {
+    public void deleteTodoDone(Todo todo, String strDate) {
+        Date date = Date.valueOf(strDate);
+//        List<TodoDone> todoDoneList = todoDoneRepository.findAllByTodo(todo);
+        List<TodoDone> todoDoneList = todo.getTodoDoneList();
+        for (TodoDone td : todoDoneList) {
+            if (td.getDate().before(date)) continue;
             td.removeTodoDone(Timestamp.valueOf(LocalDateTime.now()));
-        });
+        }
+        todo.clearTodoDone();
     }
 }

@@ -10,7 +10,6 @@ import com.modak.modakapp.dto.response.todo.UpdateSingleTodoResponse;
 import com.modak.modakapp.service.MemberService;
 import com.modak.modakapp.service.TodoDoneService;
 import com.modak.modakapp.service.TodoService;
-import com.modak.modakapp.utils.jwt.TokenService;
 import com.modak.modakapp.utils.todo.TodoUtil;
 import com.modak.modakapp.vo.todo.CreateTodoVO;
 import com.modak.modakapp.vo.todo.DeleteTodoVO;
@@ -93,7 +92,7 @@ public class TodoController {
         todoService.updateGroupTodoId(todo, todoId);
 
         TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(createTodoVO.getFromDate(), createTodoVO.getToDate(), family);
-        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
+        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonSuccessResponse<>("투두 생성 완료", new CreateTodoResponse(todoId, weekColorsAndItemsByDateRange), true));
     }
@@ -129,7 +128,7 @@ public class TodoController {
         }
 
         TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(updateTodoVO.getFromDate(), updateTodoVO.getToDate(), family);
-        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
+        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("수정 성공", weekColorsAndItemsByDateRange, true));
     }
@@ -152,7 +151,7 @@ public class TodoController {
         Family family = memberWithFamily.getFamily();
 
         TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(fromDate, toDate, family);
-        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
+        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("일주일치 todo 정보 불러오기 성공", weekColorsAndItemsByDateRange, true));
     }
@@ -169,6 +168,7 @@ public class TodoController {
             @RequestBody @Valid DoneTodoVO doneTodoVO
     ) {
         Todo todo = todoService.getTodoWithMemberAndFamily(todoId);
+
         Date date = Date.valueOf(doneTodoVO.getDate());
 
         Family family = todo.getFamily();
@@ -177,7 +177,7 @@ public class TodoController {
         todoDoneService.updateIsDone(todo, date, isDone);
 
         TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(doneTodoVO.getFromDate(), doneTodoVO.getToDate(), family);
-        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
+        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("완료/취소 처리 성공", new UpdateSingleTodoResponse(todoId, weekColorsAndItemsByDateRange), true));
     }
@@ -205,20 +205,20 @@ public class TodoController {
         // 이후 모두 삭제면
         if (deleteTodoVO.getIsAfterDelete() == 1) {
             todoService.deleteRepeatTodoAfter(todo, deleteTodoVO);
-            todoDoneService.deleteTodoDone(todo);
+            todoDoneService.deleteTodoDone(todo, deleteTodoVO.getDate());
         } else { // 단일 이벤트 삭제면
             // 단일 삭제면
             if (todo.getStartDate().equals(todo.getEndDate())) {
                 todoService.deleteSingleTodo(todo);
-                todoDoneService.deleteTodoDone(todo);
+                todoDoneService.deleteTodoDone(todo, deleteTodoVO.getDate());
             } else { // 반복에서 단일 삭제면
                 todoService.deleteRepeatTodoSingle(todo, deleteTodoVO);
-                todoDoneService.deleteTodoDone(todo);
+                todoDoneService.deleteTodoDone(todo, deleteTodoVO.getDate());
             }
         }
 
         TodoResponse weekColorsAndItemsByDateRange = todoService.findColorsAndItemsAndGaugeByDateRange(deleteTodoVO.getFromDate(), deleteTodoVO.getToDate(), family);
-        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family.getId()));
+        weekColorsAndItemsByDateRange.setGauge(todoDoneService.getNumOfTodoDone(family));
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("삭제 성공", weekColorsAndItemsByDateRange, true));
     }

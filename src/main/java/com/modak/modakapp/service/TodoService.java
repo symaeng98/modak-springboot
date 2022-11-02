@@ -159,7 +159,7 @@ public class TodoService {
         Date date = Date.valueOf(updateTodoVO.getDate());
 
         int groupTodoId = todo.getGroupTodoId();
-        List<Todo> todos = todoRepository.findAllByGroupTodoIdAndEndDateGreaterThanEqual(groupTodoId, date);
+        List<Todo> todos = todoRepository.findAllByGroupTodoIdAndDate(groupTodoId, date);
 
         for (Todo t : todos) {
             // 시작 일은 date 보다 전인데 종료일은 date 보다 뒤인 경우
@@ -277,7 +277,7 @@ public class TodoService {
         Date date = Date.valueOf(deleteTodoVO.getDate());
 
         int groupTodoId = todo.getGroupTodoId();
-        List<Todo> todos = todoRepository.findAllByGroupTodoIdAndEndDateGreaterThanEqual(groupTodoId, date);
+        List<Todo> todos = todoRepository.findAllByGroupTodoIdAndDate(groupTodoId, date);
 
         for (Todo t : todos) {
             // 시작 일은 date 보다 전인데 종료일은 date 보다 뒤인 경우
@@ -377,7 +377,8 @@ public class TodoService {
     }
 
     public int getIsDone(Todo todo, Date date) {
-        List<TodoDone> todoDoneList = todoDoneRepository.findAllByTodo(todo);
+//        List<TodoDone> todoDoneList = todoDoneRepository.findAllByTodo(todo);
+        List<TodoDone> todoDoneList = todo.getTodoDoneList();
         if (todoDoneList.size() == 0) {
             return 0;
         }

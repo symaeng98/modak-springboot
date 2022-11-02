@@ -24,12 +24,12 @@ public interface TodoRepository extends JpaRepository<Todo, Integer> {
 //            " where t.family.id =:familyId")
     List<Todo> findAllByFamilyId(int familyId);
 
-    //    @Query("select t from Todo t" +
-//        " where t.endDate >= :date" +
-//        " and t.groupTodoId = :groupTodoId")
-    List<Todo> findAllByGroupTodoIdAndEndDateGreaterThanEqual(
-            int groupTodoId,
-            Date date
+    @Query("select t from Todo t" +
+            " where t.endDate >= :date" +
+            " and t.groupTodoId = :groupTodoId")
+    List<Todo> findAllByGroupTodoIdAndDate(
+            @Param("groupTodoId") int groupTodoId,
+            @Param("date") Date date
     );
 
     // gg

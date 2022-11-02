@@ -15,7 +15,7 @@ import java.sql.Timestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Where(clause = "deleted_at = null")
+@Where(clause = "deleted_at is null")
 public class TodoDone extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,5 +57,10 @@ public class TodoDone extends BaseTimeEntity {
 
     public void removeTodoDone(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public void changeTodo(Todo todo) {
+        this.todo = todo;
+        this.getTodo().getTodoDoneList().add(this);
     }
 }
