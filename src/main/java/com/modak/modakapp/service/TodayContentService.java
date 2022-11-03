@@ -33,7 +33,7 @@ public class TodayContentService {
         long diffSec = (getRequestedDate.getTimeInMillis() - cmpDate.getTimeInMillis()) / 1000;
         int diffDays = (int) (diffSec / (24 * 60 * 60)); //일자수 차이
 
-        System.out.println(diffDays + "일 차이");
+//        System.out.println(diffDays + "일 차이");
 
         // 0일 차이 나면 1,2
         // 1일 차이 나면 3,4

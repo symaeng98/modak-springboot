@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -35,7 +34,6 @@ public class Todo extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "todo", fetch = FetchType.LAZY)
     @Builder.Default
-    @BatchSize(size = 500)
     private List<TodoDone> todoDoneList = new ArrayList<>();
 
     @Column(name = "group_todo_id")
@@ -120,10 +118,6 @@ public class Todo extends BaseTimeEntity {
 
     public void changeStartDate(Date startDate) {
         this.startDate = startDate;
-    }
-
-    public void clearTodoDone() {
-        this.todoDoneList.clear();
     }
 
     public void removeTodo(Timestamp deletedAt) {

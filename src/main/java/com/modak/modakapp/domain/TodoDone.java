@@ -61,6 +61,6 @@ public class TodoDone extends BaseTimeEntity {
 
     public void changeTodo(Todo todo) {
         this.todo = todo;
-        this.getTodo().getTodoDoneList().add(this);
+        todo.getTodoDoneList().add(this);
     }
 }

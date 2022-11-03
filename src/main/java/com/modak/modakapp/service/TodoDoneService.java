@@ -83,6 +83,5 @@ public class TodoDoneService {
             if (td.getDate().before(date)) continue;
             td.removeTodoDone(Timestamp.valueOf(LocalDateTime.now()));
         }
-        todo.clearTodoDone();
     }
 }

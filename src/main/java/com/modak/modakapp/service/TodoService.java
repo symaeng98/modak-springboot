@@ -385,7 +385,10 @@ public class TodoService {
         if (todoDoneFilterList.size() == 0) {
             return 0;
         }
-        TodoDone todoDone = todoDoneFilterList.get(0);
-        return todoDone.getIsDone();
+        if (todoDoneFilterList.size() == 1) {
+            TodoDone todoDone = todoDoneFilterList.get(0);
+            return todoDone.getIsDone();
+        }
+        return 0;
     }
 }
