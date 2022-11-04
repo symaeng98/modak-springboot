@@ -391,4 +391,9 @@ public class TodoService {
         }
         return 0;
     }
+
+    @Transactional
+    public void deleteAllByMember(Member member) {
+        todoRepository.deleteAllByMember(member, Timestamp.valueOf(LocalDateTime.now()));
+    }
 }

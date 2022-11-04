@@ -1,11 +1,14 @@
 package com.modak.modakapp.repository;
 
+import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,5 +45,14 @@ public interface TodoRepository extends JpaRepository<Todo, Integer> {
             @Param("fromDate") Date fromDate,
             @Param("toDate") Date toDate,
             @Param("familyId") int familyId
+    );
+
+    @Modifying(clearAutomatically = true)
+    @Query("update Todo t" +
+            " set t.deletedAt = :deletedAt" +
+            " where t.member = :member")
+    int deleteAllByMember(
+            @Param("member") Member member,
+            @Param("deletedAt") Timestamp deletedAt
     );
 }

@@ -170,7 +170,8 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(Member member) {
+    public void deleteMember(int memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("회원이 존재하지 않습니다."));
         member.removeMember(Timestamp.valueOf(LocalDateTime.now()));
     }
 

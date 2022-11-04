@@ -2,6 +2,7 @@ package com.modak.modakapp.service;
 
 import com.modak.modakapp.domain.Anniversary;
 import com.modak.modakapp.domain.Family;
+import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.enums.Category;
 import com.modak.modakapp.dto.anniversary.AnniversaryDTO;
 import com.modak.modakapp.dto.response.anniversary.DateAnniversaryResponse;
@@ -137,5 +138,10 @@ public class AnniversaryService {
 
     public boolean isValidSolarYear(String start, String date) {
         return start.substring(5).equals(date.substring(5));
+    }
+
+    @Transactional
+    public void deleteAllByMember(Member member) {
+        anniversaryRepository.deleteAllByMember(member, Timestamp.valueOf(LocalDateTime.now()));
     }
 }

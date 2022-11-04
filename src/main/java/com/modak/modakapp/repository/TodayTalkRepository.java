@@ -4,10 +4,12 @@ import com.modak.modakapp.domain.Family;
 import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.domain.TodayTalk;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,5 +40,14 @@ public interface TodayTalkRepository extends JpaRepository<TodayTalk, Integer> {
             @Param("member") Member member,
             @Param("family") Family family,
             @Param("date") Date date
+    );
+
+    @Modifying(clearAutomatically = true)
+    @Query("update TodayTalk tt" +
+            " set tt.deletedAt = :deletedAt" +
+            " where tt.member = :member")
+    int deleteAllByMember(
+            @Param("member") Member member,
+            @Param("deletedAt") Timestamp deletedAt
     );
 }

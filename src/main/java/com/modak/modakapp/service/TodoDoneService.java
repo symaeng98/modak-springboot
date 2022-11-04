@@ -84,4 +84,9 @@ public class TodoDoneService {
             td.removeTodoDone(Timestamp.valueOf(LocalDateTime.now()));
         }
     }
+
+    @Transactional
+    public void deleteAllByMember(Member member) {
+        todoDoneRepository.deleteAllByMember(member, Timestamp.valueOf(LocalDateTime.now()));
+    }
 }

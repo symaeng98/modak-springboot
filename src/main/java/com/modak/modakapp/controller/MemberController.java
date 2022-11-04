@@ -6,9 +6,7 @@ import com.modak.modakapp.domain.Member;
 import com.modak.modakapp.dto.member.MemberAndFamilyMemberDTO;
 import com.modak.modakapp.dto.member.MemberDTO;
 import com.modak.modakapp.dto.response.CommonSuccessResponse;
-import com.modak.modakapp.service.AnniversaryService;
-import com.modak.modakapp.service.FamilyService;
-import com.modak.modakapp.service.MemberService;
+import com.modak.modakapp.service.*;
 import com.modak.modakapp.vo.member.InvitationVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberFamilyNameVO;
 import com.modak.modakapp.vo.member.info.UpdateMemberTagVO;
@@ -33,6 +31,10 @@ public class MemberController {
     private final MemberService memberService;
     private final FamilyService familyService;
     private final AnniversaryService anniversaryService;
+    private final TodoService todoService;
+    private final TodoDoneService todoDoneService;
+    private final LetterService letterService;
+    private final TodayTalkService todayTalkService;
 
     @ApiResponses({
             @ApiResponse(code = 200, message = "성공적으로 초대 받았습니다."),
@@ -176,5 +178,28 @@ public class MemberController {
         MemberDTO memberInfo = memberService.getMemberInfo(member);
 
         return ResponseEntity.ok(new CommonSuccessResponse<>("회원의 가족 이름 변경 성공", memberInfo, true));
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "회원 탈퇴를 성공적으로 수행했습니다."),
+            @ApiResponse(code = 401, message = "1. 만료된 토큰입니다. (ExpiredJwtException)\n2. 유효하지 않은 토큰입니다. (JwtException)\n3. 헤더에 토큰이 없습니다. (NullPointerException)"),
+            @ApiResponse(code = 400, message = "에러 메시지를 확인하세요."),
+    })
+    @DeleteMapping()
+    public ResponseEntity<CommonSuccessResponse<String>> deleteMember(
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        int memberId = Integer.parseInt(authentication.getName());
+
+        Member member = memberService.getMember(memberId);
+
+        anniversaryService.deleteAllByMember(member);
+        letterService.deleteAllByMember(member);
+        todayTalkService.deleteAllByMember(member);
+        todoDoneService.deleteAllByMember(member);
+        todoService.deleteAllByMember(member);
+        memberService.deleteMember(memberId);
+
+        return ResponseEntity.ok(new CommonSuccessResponse<>("회원 탈퇴 성공", null, true));
     }
 }

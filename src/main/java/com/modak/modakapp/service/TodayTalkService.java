@@ -71,4 +71,9 @@ public class TodayTalkService {
     public boolean isTodayTalkExists(Member member, Date date) {
         return todayTalkRepository.isExists(member, member.getFamily(), date);
     }
+
+    @Transactional
+    public void deleteAllByMember(Member member) {
+        todayTalkRepository.deleteAllByMember(member, Timestamp.valueOf(LocalDateTime.now()));
+    }
 }

@@ -1,11 +1,14 @@
 package com.modak.modakapp.repository;
 
 import com.modak.modakapp.domain.Anniversary;
+import com.modak.modakapp.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,4 +30,13 @@ public interface AnniversaryRepository extends JpaRepository<Anniversary, Intege
 //            " where a.isBirthday=1" +
 //            " and :memberId = a.member.id")
     Optional<Anniversary> findByIsBirthdayAndMemberId(int isBirthDay, int memberId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update Anniversary a" +
+            " set a.deletedAt = :deletedAt" +
+            " where a.member = :member")
+    int deleteAllByMember(
+            @Param("member") Member member,
+            @Param("deletedAt") Timestamp deletedAt
+    );
 }
