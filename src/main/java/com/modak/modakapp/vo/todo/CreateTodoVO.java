@@ -25,5 +25,7 @@ public class CreateTodoVO {
 
     private String toDate;
 
+    private String color;
+
     private List<Integer> repeat;
 }
