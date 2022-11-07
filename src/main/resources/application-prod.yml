@@ -20,7 +20,7 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
-    org.hibernate.type: trace
+    org.hibernate.type: error
 
 jwt:
   secret: ${JWT_SECRETS}
