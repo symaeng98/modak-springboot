@@ -356,7 +356,7 @@ public class TodoService {
                             .todoId(t.getId())
                             .title(t.getTitle())
                             .memo(t.getMemo())
-                            .color(t.getColor())
+                            .memoColor(t.getColor())
                             .timeTag(t.getTimeTag())
                             .repeatTag(t.getRepeatTag())
                             .color(member.getColor())

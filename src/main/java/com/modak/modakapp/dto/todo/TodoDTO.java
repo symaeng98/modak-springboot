@@ -15,6 +15,7 @@ public class TodoDTO {
     private final int isDone;
     private final int memberId;
     private final String color;
+    private final String memoColor;
     private final int groupTodoId;
 
     @Builder
@@ -27,6 +28,7 @@ public class TodoDTO {
             int isDone,
             int memberId,
             String color,
+            String memoColor,
             int groupTodoId
     ) {
         this.todoId = todoId;
@@ -37,6 +39,7 @@ public class TodoDTO {
         this.isDone = isDone;
         this.memberId = memberId;
         this.color = color;
+        this.memoColor = memoColor;
         this.groupTodoId = groupTodoId;
     }
 }
