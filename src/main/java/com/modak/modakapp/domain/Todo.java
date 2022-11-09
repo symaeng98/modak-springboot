@@ -45,8 +45,8 @@ public class Todo extends BaseTimeEntity {
     @Column(name = "memo")
     private String memo;
 
-    @Column(name = "color", length = 20)
-    private String color;
+    @Column(name = "memo_color", length = 20)
+    private String memoColor;
 
     @Column(name = "start_date", nullable = false)
     private Date startDate;

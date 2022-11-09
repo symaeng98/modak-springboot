@@ -76,7 +76,7 @@ public class TodoController {
                 .title(createTodoVO.getTitle())
                 .memo(createTodoVO.getMemo())
                 .timeTag(createTodoVO.getTimeTag())
-                .color(createTodoVO.getColor())
+                .memoColor(createTodoVO.getMemoColor())
                 .startDate(startDate)
                 .endDate(endDate)
                 .repeatTag(repeatTag)
