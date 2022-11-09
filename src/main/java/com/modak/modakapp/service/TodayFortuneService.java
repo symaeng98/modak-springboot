@@ -24,7 +24,7 @@ public class TodayFortuneService {
     public TodayFortuneDTO getHomeTodayFortune(Member member) {
         TodayFortune todayFortune = member.getTodayFortune();
         Date todayFortuneAt = member.getTodayFortuneAt();
-        if (todayFortune == null || todayFortuneAt.before(Date.valueOf(LocalDate.now()))) {
+        if (todayFortuneAt == null || todayFortuneAt.before(Date.valueOf(LocalDate.now()))) {
             return null;
         } else {
             return TodayFortuneDTO.builder()
