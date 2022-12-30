@@ -18,13 +18,13 @@ MODAK은 “우리 가족만을 위한 어플리케이션을 만들어 보자”
 
 ## 🏄‍♂️ 주요 기능
 <p align="left">
-<img width="125" alt="image" src="https://user-images.githubusercontent.com/43024854/210041749-51d0b5f6-674d-4d66-bd6b-c39cf97a63a4.png">
-<img width="125" alt="image" src="https://user-images.githubusercontent.com/43024854/210041586-d7c4efcd-0491-4bb1-994a-df31a08aef8c.png">
-<img width="125" alt="image" src="https://user-images.githubusercontent.com/43024854/210041622-d8eb2d32-2f4e-49be-afea-49cb8c31a954.png">
-<img width="125" alt="image" src="https://user-images.githubusercontent.com/43024854/210041649-e25dacde-0e2b-45e0-8a8f-efd2c2a08770.png">
-<img width="125" alt="image" src="https://user-images.githubusercontent.com/43024854/210041673-4be47700-6ddf-40a7-84e7-5deef5ae6fc7.png">
-<img width="125" alt="image" src="https://user-images.githubusercontent.com/43024854/210041691-0f4e1b17-1953-4b94-837d-9221ddb6b3f3.png">
-<img width="125" alt="image" src="https://user-images.githubusercontent.com/43024854/210041704-48561069-407d-4605-b384-344fd4c1c4ec.png">
+<img width="130" alt="image" src="https://user-images.githubusercontent.com/43024854/210041749-51d0b5f6-674d-4d66-bd6b-c39cf97a63a4.png">
+<img width="130" alt="image" src="https://user-images.githubusercontent.com/43024854/210041586-d7c4efcd-0491-4bb1-994a-df31a08aef8c.png">
+<img width="130" alt="image" src="https://user-images.githubusercontent.com/43024854/210041622-d8eb2d32-2f4e-49be-afea-49cb8c31a954.png">
+<img width="130" alt="image" src="https://user-images.githubusercontent.com/43024854/210041649-e25dacde-0e2b-45e0-8a8f-efd2c2a08770.png">
+<img width="130" alt="image" src="https://user-images.githubusercontent.com/43024854/210041673-4be47700-6ddf-40a7-84e7-5deef5ae6fc7.png">
+<img width="130" alt="image" src="https://user-images.githubusercontent.com/43024854/210041691-0f4e1b17-1953-4b94-837d-9221ddb6b3f3.png">
+<img width="130" alt="image" src="https://user-images.githubusercontent.com/43024854/210041704-48561069-407d-4605-b384-344fd4c1c4ec.png">
 </p>
 
 - **(할 일 공유)** 집안일, 심부름 등 가족 간의 할 일 공유 기능
