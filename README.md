@@ -17,7 +17,7 @@ MODAK은 “우리 가족만을 위한 어플리케이션을 만들어 보자”
 
 
 ## 🏄‍♂️ 주요 기능
-<p align="center">
+<p align="left">
 <img width="120" alt="image" src="https://user-images.githubusercontent.com/43024854/210041749-51d0b5f6-674d-4d66-bd6b-c39cf97a63a4.png">
 <img width="120" alt="image" src="https://user-images.githubusercontent.com/43024854/210041586-d7c4efcd-0491-4bb1-994a-df31a08aef8c.png">
 <img width="120" alt="image" src="https://user-images.githubusercontent.com/43024854/210041622-d8eb2d32-2f4e-49be-afea-49cb8c31a954.png">
