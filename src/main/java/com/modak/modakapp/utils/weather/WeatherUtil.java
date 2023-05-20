@@ -9,8 +9,10 @@ import java.net.URL;
 
 @Component
 public class WeatherUtil {
+    @Value("${WEATHER_SERVICE_KEY}")
+    private String serviceKey;
+    
     public void lookUpWeather() throws Exception {
-        String serviceKey = "ZkbuXWyMg7WdOZEALBi7h1EF0fNOtK%2BADmdBCVogTspCJWyMXEI1YYxalb6MSnXFfxT5BKSPVy%2B7gIYsZwkB9A%3D%3D";
         int numOfRows = 100;
         int pageNo = 1;
         String baseDate = "20221003";    //조회하고싶은 날짜
